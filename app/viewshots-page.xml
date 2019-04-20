@@ -1,0 +1,38 @@
+<Page class="page">
+    <ActionBar class="action-bar">
+        <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
+        <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
+            tap="onDrawerButtonTap" ios.position="left">
+        </ActionItem>
+        <Label class="action-bar-title" text="View Shots"></Label>
+    </ActionBar>
+    <StackLayout>
+    <StackLayout tap="navigateToSingle">
+			<Label text="Player: John Doe"/>
+            <Label text="Shot Type: Late Cut"/>
+            <Label text="Rating: Perfect"/>
+            
+    </StackLayout>
+    <StackLayout class="hr-light m-10"></StackLayout>
+    <StackLayout tap="navigateToSingle">
+			<Label text="Player: John Doe"/>
+            <Label text="Shot Type: Late Cut"/>
+            <Label text="Rating: Perfect"/>
+    </StackLayout>
+    <StackLayout class="hr-light m-10"></StackLayout>
+    <StackLayout tap="navigateToSingle">
+			<Label text="Player: John Doe"/>
+            <Label text="Shot Type: Hook"/>
+            <Label text="Rating: Good"/>
+    </StackLayout>
+    <StackLayout class="hr-light m-10"></StackLayout>
+    <StackLayout tap="navigateToSingle">
+			<Label text="Player: John Doe"/>
+            <Label text="Shot Type: Late Cut"/>
+            <Label text="Rating: Good"/>
+    </StackLayout>
+
+    </StackLayout>
+
+    
+</Page>

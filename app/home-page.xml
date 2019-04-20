@@ -1,0 +1,18 @@
+<Page class="page">
+    <ActionBar class="action-bar">
+        <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
+        <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
+            tap="onDrawerButtonTap" ios.position="left">
+        </ActionItem>
+        <Label class="action-bar-title" text="Home"></Label>
+    </ActionBar>
+
+    <StackLayout class="home-panel">
+        <Button class="btn btn-primary" text="Search" tap="navigateToSearch" />
+        <Button class="btn btn-primary" text="Record" tap="navigateToRecord" />
+        <Button class="btn btn-primary" text="View Shots" tap="navigateToShots" />
+        <Button class="btn btn-primary" text="Profile" tap="navigateToProfile" />
+    </StackLayout>
+
+    
+</Page>

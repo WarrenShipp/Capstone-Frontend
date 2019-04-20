@@ -1,0 +1,18 @@
+<Page loaded="pageLoaded" xmlns="http://www.nativescript.org/tns.xsd">
+<ActionBar class="action-bar">
+        <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
+        <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
+            tap="onDrawerButtonTap" ios.position="left">
+        </ActionItem>
+        <Label class="action-bar-title" text="Club"></Label>
+    </ActionBar>
+
+		<StackLayout class="smallMargin">
+			<Label text="Name: RMIT Cricket" />
+            <Label text="Club: Sunday League" />
+            
+            <Button class="btn btn-primary" text="Request to join this club" tap="Requested"/>
+            
+			
+		</StackLayout>
+</Page>

@@ -1,0 +1,57 @@
+<Page loaded="search_page" xmlns:df="nativescript-pro-ui/dataform" xmlns="http://schemas.nativescript.org/tns.xsd" xmlns:dd="nativescript-drop-down" >
+    <ActionBar class="action-bar">
+        <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
+        <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
+            tap="onDrawerButtonTap" ios.position="left">
+        </ActionItem>
+        <Label class="action-bar-title" text="Search"></Label>
+    </ActionBar>
+    <StackLayout >
+    <GridLayout  columns="*,2*" rows="*,*" horizontalAlignment="left" verticalAlignment="top" class="searchForm">
+		<Label row="0" col="0" text="Type   "></Label>
+		<dd:DropDown id="typeToSearch" col="1" items="{{ searchTypes }}" selectedIndex="{{ typeIndex }}" opened="dropDownOpened" selectedIndexChanged="dropDownSelectedIndexChanged" />
+        <Label row="1" col="0" class="hr-light" />	  
+	</GridLayout>
+    <!--<Button text="{{ showDetails ? 'Hide' : 'Show' }}" tap="toggle" />-->
+    <GridLayout class="searchForm" columns="*,2*" rows="*,*,*" horizontalAlignment="left" verticalAlignment="top" height="auto" visibility="{{ showClub ? 'visible' : 'collapsed' }}">
+        <Label  col="0" text="Name  " ></Label>
+		<TextField class="input" col="1"></TextField>
+        <Label col="0" row="1" text="League  "></Label>
+		<TextField class="input" col="1" row="1"></TextField>
+    </GridLayout>
+    <GridLayout class="searchForm" columns="*,2*" rows="*,*,*" horizontalAlignment="left" verticalAlignment="top" height="auto" visibility="{{ showShot ? 'visible' : 'collapsed' }}">
+        <Label  col="0" text="Player  " ></Label>
+		<TextField class="input" col="1"></TextField>
+        <Label col="0" row="1" text="Type  "></Label>
+		<dd:DropDown col="1" row="1" items="{{ shotTypes }}" selectedIndex="{{ typeIndex1 }}" opened="dropDownOpened" />
+        <Label col="0" row="2" text="Rating  "></Label>
+		<dd:DropDown col="1" row="2" items="{{ ratingTypes }}" selectedIndex="{{ typeIndex2 }}" opened="dropDownOpened" />
+        
+    </GridLayout>
+    <GridLayout class="searchForm" columns="*,2*" rows="*,*,*" horizontalAlignment="left" verticalAlignment="top" height="auto" visibility="{{ showUser ? 'visible' : 'collapsed' }}">
+        <Label  col="0" text="Player  " ></Label>
+		<TextField class="input" col="1"></TextField>
+        <Label  col="0" row="1" text="Club  " ></Label>
+		<TextField class="input" col="1" row="1"></TextField>
+        <Label col="0" row="2" text="Type  "></Label>
+		<dd:DropDown col="1" row="2" items="{{ userTypes }}" selectedIndex="{{ typeIndex3 }}" opened="dropDownOpened"/>
+    </GridLayout>
+    <Button class="btn btn-primary" horizontalAlignment="stretch" tap="submitSearch" text="Search"></Button>
+
+		<StackLayout class="border-search" tap="clubInfo" visibility="{{ showSearchClub ? 'visible' : 'collapsed' }}">
+            <Label class="list-group-item-heading" text="Club: RMIT Club"></Label>
+            <Label class="list-group-item-text" text="League: Starleague"></Label>
+        </StackLayout>
+
+        <StackLayout class="border-search" tap="shotInfo" visibility="{{ showSearchShot ? 'visible' : 'collapsed' }}">
+            <Label class="list-group-item-heading" text="Player Name: Jay"></Label>
+            <Label class="list-group-item-text" text="Shot Type: Straight Drive"></Label>
+        </StackLayout>
+
+        <StackLayout class="border-search" tap="userInfo" visibility="{{ showSearchUser ? 'visible' : 'collapsed' }}">
+            <Label class="list-group-item-heading" text="Name: Alex Huang"></Label>
+            <Label class="list-group-item-text" text="Club: Polaris Club"></Label>
+        </StackLayout>
+
+    </StackLayout>
+</Page>

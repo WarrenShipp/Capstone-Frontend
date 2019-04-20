@@ -1,0 +1,26 @@
+<Page loaded="record_shot" xmlns:df="nativescript-pro-ui/dataform" xmlns="http://schemas.nativescript.org/tns.xsd" xmlns:dd="nativescript-drop-down" xmlns:VideoPlayer="videoplayer">
+    <ActionBar class="action-bar">
+        <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
+        <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
+            tap="onDrawerButtonTap" ios.position="left">
+        </ActionItem>
+        <Label class="action-bar-title" text="View Shot"></Label>
+    </ActionBar>
+    <StackLayout>
+
+		<Label text="Player:   Some Person"></Label>  
+
+		<Label text="Type:      Some Shot   "></Label>
+    <Label text="Video Here   "></Label>
+    <Label text="Video Length:   "></Label>
+    <Label text="Date:    "></Label>
+    <Label text="Shot Type:   "></Label>
+    <Label text="Rating:   "></Label>
+
+    <GridLayout columns="*,*,*" rows="*,*,*">
+        <Button col="0" class="smallbtn" text="Discard" tap="startRecord" />
+        <Button col="1" class="smallbtn" text="Save" tap="startRecord" />
+        <Button col="2" class="smallbtn" text="Upload" tap="startRecord" />
+    </GridLayout>
+    </StackLayout>
+</Page>

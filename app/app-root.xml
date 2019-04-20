@@ -1,0 +1,22 @@
+<nsDrawer:RadSideDrawer xmlns:nsDrawer="nativescript-ui-sidedrawer">
+    <nsDrawer:RadSideDrawer.drawerContent>
+        <StackLayout backgroundColor="gray">
+            <Button class="btn btn-primary sidedrawer-list-item-text" text="Home"
+                tap="navigateToHome" />
+            <Button class="btn btn-primary sidedrawer-list-item-text" text="My Profile"
+                tap="navigateToProfile" />
+            <Button class="btn btn-primary sidedrawer-list-item-text" text="Create New Shot"
+                tap="navigateToRecord" />
+            <Button class="btn btn-primary sidedrawer-list-item-text" text="Search"
+                tap="navigateToSearch" />
+            <Button class="btn btn-primary sidedrawer-list-item-text" text="View Saved Shots"
+                tap="navigateToSaved" />
+            <Button class="btn btn-primary sidedrawer-list-item-text" text="Login"
+                tap="navigateToLogin" />
+        </StackLayout>
+    </nsDrawer:RadSideDrawer.drawerContent>
+
+    <nsDrawer:RadSideDrawer.mainContent>
+        <Frame id="root" defaultPage="home-page" />
+    </nsDrawer:RadSideDrawer.mainContent>
+</nsDrawer:RadSideDrawer>
