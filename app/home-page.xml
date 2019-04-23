@@ -12,6 +12,7 @@
         <Button class="btn btn-primary" text="Record" tap="navigateToRecord" />
         <Button class="btn btn-primary" text="View Shots" tap="navigateToShots" />
         <Button class="btn btn-primary" text="Profile" tap="navigateToProfile" />
+        <Button class="btn btn-primary" text="TEST" tap="navigateToTest" />
     </StackLayout>
 
     

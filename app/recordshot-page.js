@@ -9,6 +9,12 @@ var observableModule = require("data/observable");
 
 const app = require("tns-core-modules/application");
 
+exports.recordVideo = function(args){
+        const button = args.object;
+        const page = button.page;
+        page.frame.navigate("videocamera-page");
+}
+
 exports.onDrawerButtonTap = function(args) {
     const sideDrawer = app.getRootView();
     sideDrawer.showDrawer();

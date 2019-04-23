@@ -3,11 +3,13 @@ var observable = require("data/observable");
 var observableArray = require("data/observable-array");
 var pages = require("ui/page");
 var viewModel = observable.Observable;
+
 var videoPlayer = require("nativescript-videoplayer");
 
 var observableModule = require("data/observable");
 
 const app = require("tns-core-modules/application");
+
 
 exports.onDrawerButtonTap = function(args) {
     const sideDrawer = app.getRootView();

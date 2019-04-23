@@ -1,4 +1,5 @@
-<Page loaded="record_shot" xmlns:df="nativescript-pro-ui/dataform" xmlns="http://schemas.nativescript.org/tns.xsd" xmlns:dd="nativescript-drop-down" xmlns:VideoPlayer="videoplayer">
+<Page loaded="record_shot" xmlns:df="nativescript-pro-ui/dataform" xmlns="http://schemas.nativescript.org/tns.xsd" xmlns:dd="nativescript-drop-down"
+ xmlns:VideoPlayer="nativescript-videoplayer" xmlns:recorder="nativescript-videorecorder/advanced">
     <ActionBar class="action-bar">
         <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
         <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
@@ -16,7 +17,8 @@
 		<dd:DropDown col="1" items="{{ clubTypes }}" selectedIndex="{{ typeIndex }}" opened="dropDownOpened" selectedIndexChanged="dropDownSelectedIndexChanged" />	  
 	</GridLayout>
     <Label text="Video Here   "></Label>
-    <Button class="btn btn-primary" text="Record New Shot" tap="startRecord" />
+    <Button text="Record Video" tap="recordVideo"/>
+    
     <Label text="Video Length:   "></Label>
     <Label text="Date:    "></Label>
     <Label text="Shot Type:   "></Label>

@@ -30,6 +30,12 @@ exports.navigateToShots = function(args) {
     page.frame.navigate("viewshots-page");
 }
 
+exports.navigateToTest = function(args) {
+    const button = args.object;
+    const page = button.page;
+    page.frame.navigate("test-page");
+}
+
 exports.navigateToSearch = navigateToSearch;
 exports.navigateToRecord = navigateToRecord;
 exports.onDrawerButtonTap = onDrawerButtonTap;
