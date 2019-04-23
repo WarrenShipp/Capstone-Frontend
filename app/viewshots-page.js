@@ -19,16 +19,16 @@ function onNavigatingTo(args) {
 
 
     (new Sqlite("my.db")).then(db => {
-        db.execSQL("CREATE TABLE IF NOT EXISTS test1 (id INTEGER PRIMARY KEY AUTOINCREMENT, path TEXT, name TEXT, shottype TEXT, ratingType TEXT)").then(id => {
+        db.execSQL("CREATE TABLE IF NOT EXISTS test1 (id INTEGER PRIMARY KEY AUTOINCREMENT, path TEXT, name TEXT, shottype TEXT, ratingtype TEXT)").then(id => {
             console.log("table created");
             
             (new Sqlite("my.db")).then(db => {
-            db.all("SELECT path,name, shottype, ratingType FROM testa").then(rows => {
+            db.all("SELECT path,name, shottype, ratingtype, date FROM testa").then(rows => {
                 for(var row in rows) {
                     console.log("RESULT", rows[row]);
                     // var test = rows[row].toString();
                     // console.log(test);
-                    lists.push({path: rows[row][0], name: rows[row][1], shottype: rows[row][2], rating: rows[row][3]});
+                    lists.push({path: rows[row][0], name: rows[row][1], shottype: rows[row][2], rating: rows[row][3], date: rows[row][4]});
                     console.log(rows[row][3]);
                 }
                 // console.log(rows);
@@ -63,9 +63,13 @@ function onNavigatingTo(args) {
         const tappedItemIndex = args.index;
         const tappedItemView = args.view;
         var file = listView.items.getItem(args.index).path;
+        var name = listView.items.getItem(args.index).name;
+        var shottype = listView.items.getItem(args.index).shottype;
+        var rating = listView.items.getItem(args.index).rating;
+        var date = listView.items.getItem(args.index).date;
         var navigationOptions={
-            moduleName:'viewvideo-page',
-            context:{param1: file}
+            moduleName:'viewlocal-page',
+            context:{path: file, name: name, shottype: shottype, rating: rating, date: date}
         }
         container.removeChild(listView);
         frameModule.topmost().navigate(navigationOptions);

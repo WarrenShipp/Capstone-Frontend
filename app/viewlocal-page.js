@@ -36,92 +36,26 @@ function onNavigatingTo(args) {
     viewModel.set("selectedIndex1", null);
     viewModel.set("ratingType", ratingType);
 
-    //viewModel.set("shotType", shotType);
     viewModel.set("selectedIndex", null);
     viewModel.set("shotType", shotType);
-    dd.items = shotType;
-    var date = new Date();
-    var readableDate = date.toDateString();
-    viewModel.set("date", readableDate)
-    console.log("the date" + readableDate);
     
-    // shotType = [
-    //     "Straight Drive",
-    //     "Cover Drive",
-    //     "Square Cut",
-    //     "Late Cut",
-    //     "Leg Glance",
-    //     "Hook",
-    //     "Pull",
-    //     "Drive through square leg",
-    //     "On drive",
-    //     "Off drive"
-    //     ];   
-
-    
-    //dd = page.getViewById("dd");
     var gotData=page.navigationContext;
-    console.log("this is it" + gotData.param1);
-    path = gotData.param1;
+    console.log("this is it" + gotData.path);
+    path = gotData.path;
+    name = gotData.name;
+    shottype = gotData.shottype;
+    rating = gotData.rating;
+    date = gotData.date;
     viewModel.set('selectedVideo', path);
-    // viewModel.set("shotTypes", shotType);
+    viewModel.set("name", name);
+    viewModel.set("shottype", shottype);
+    viewModel.set("rating", rating);
+    viewModel.set("date", date);
 
-    (new Sqlite("my.db")).then(db => {
-        db.execSQL("CREATE TABLE IF NOT EXISTS testa (id INTEGER PRIMARY KEY AUTOINCREMENT, path TEXT, name TEXT, shottype TEXT, ratingtype TEXT, date TEXT)").then(id => {
-            console.log("table created");
-            
-        }, error => {
-            console.log("CREATE TABLE ERROR", error);
-        });
-    }, error => {
-        console.log("OPEN DB ERROR", error);
-    });
     page.bindingContext = viewModel;
 
 }
 exports.onNavigatingTo = onNavigatingTo;
-
-exports.insert = function(args) {
-    page = args.object;
-    console.log("argstest " + args.newIndex);
-    console.log("pathway" + path);
-    firstname = viewModel.get("playername");
-    console.log("dd value: "+ shot);
-    var dbdate = new Date();
-    (new Sqlite("my.db")).then(db => {
-    db.execSQL("INSERT INTO testa (path, name, shottype, ratingtype, date) VALUES (?, ?, ?, ?, ?)", [path, firstname, shot, rating, dbdate]).then(id => {
-        console.log("INSERT RESULT", id);
-    }, error => {
-        console.log("INSERT ERROR", error);
-    });
-});
-if(page.android) {
-    var Toast = android.widget.Toast;
-    Toast.makeText(application.android.context, "Video Saved", Toast.LENGTH_SHORT).show();
-}
-var navigationOptions={
-    moduleName:'videocamera-page',
-    backstackVisible: false
-}
-
-frameModule.topmost().navigate(navigationOptions);
-
-}
-
-
-exports.select = function(args) {
-    var selectedValue = shotType.getValue(dd.selectedIndex);
-    console.log(selectedValue);
-    (new Sqlite("my.db")).then(db => {
-    db.all("SELECT * FROM testa").then(rows => {
-        for(var row in rows) {
-            console.log("RESULT", rows[row]);
-        }
-    }, error => {
-        console.log("SELECT ERROR", error);
-    });
-});
-}
 
 exports.discard = function() {
     //path.remove();

@@ -54,7 +54,8 @@ else{
     var navigationOptions={
         moduleName:'viewvideo-page',
         context:{param1: file
-                }
+                },
+                backstackVisible: false
     }
 
     frameModule.topmost().navigate(navigationOptions);

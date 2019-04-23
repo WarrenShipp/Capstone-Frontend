@@ -28,6 +28,11 @@ Page {
    
 }
 
+.browselabel{
+    font-size: 30;
+    text-align: center;
+}
+
 .smallbtn {
     font-size:14;
     padding:0;

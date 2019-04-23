@@ -10,7 +10,7 @@ xmlns:VideoPlayer="nativescript-videoplayer" navigatingTo="onNavigatingTo">
     <ScrollView>
     <StackLayout>
 
-	<TextField id="playername" hint="Player Name" text="{{ playername }}" />
+	<Label text="{{ name }}" />
 
 
     <VideoPlayer:Video id="nativeVideoPlayer"
@@ -23,13 +23,9 @@ xmlns:VideoPlayer="nativescript-videoplayer" navigatingTo="onNavigatingTo">
       <Label text="Date:" row="0" col="0"/>
       <Label id="date" text="{{ date }}" row="0" col="1"/>
       <Label text="Shot Type" row="1" col="0"/>
-        <dd:DropDown row="1" col="1"  id="dd" hint="Shot Type" items="{{ shotType }}" selectedIndex="{{ selectedIndex }}" 
-                opened="dropDownOpened" closed="dropDownClosed" selectedIndexChanged="dropDownSelectedIndexChanged" 
-                class="{{ cssClass }}" isEnabled="{{ isEnabled }}" />
+      <Label text="{{ shottype }}" row="1" col="1"/>
     <Label row="2" col="0" text="Rating:   "></Label>
-        <dd:DropDown row="2" col="1"  id="aa" hint="Rating" items="{{ ratingType }}" selectedIndex="{{ selectedIndex1 }}" 
-                    opened="dropDownOpened" closed="dropDownClosed" selectedIndexChanged="second" 
-                    class="{{ cssClass }}" isEnabled="{{ isEnabled }}" />           
+        <Label text="{{ rating }}" row="2" col="1"/>          
     </GridLayout>
 
     

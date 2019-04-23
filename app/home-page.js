@@ -1,5 +1,14 @@
 const frameModule = require("tns-core-modules/ui/frame");
 const app = require("tns-core-modules/application");
+var observable = require("data/observable").Observable;
+
+
+exports.onNavigatingTo = function(args){
+    var viewModel = new observable();
+    page = args.object;
+    viewModel.set("imageUri", "folder.png");
+    page.bindingContext = viewModel;
+}
 
 function navigateToSearch(args) {
     const button = args.object;
@@ -8,9 +17,15 @@ function navigateToSearch(args) {
 }
 
 function navigateToRecord(args) {
-    const button = args.object;
-    const page = button.page;
-    page.frame.navigate("recordshot-page");
+    // const button = args.object;
+    // const page = button.page;
+    // page.frame.navigate("videocamera-page");
+    var navigationOptions={
+        moduleName:'videocamera-page',
+        backstackVisible: false
+    }
+    
+    frameModule.topmost().navigate(navigationOptions);
 }
 
 function onDrawerButtonTap(args) {
