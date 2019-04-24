@@ -1,12 +1,10 @@
 <Page
   xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo"
-  xmlns:VideoPlayer="nativescript-videoplayer"
   xmlns:recorder="nativescript-videorecorder/advanced" loaded="loaded" page.actionBarHidden = "true">
   <StackLayout margin="20">
     <StackLayout verticalAlignment="center">
-      
-      <recorder:AdvancedVideoView height="90%" quality="highest" cameraPosition="FRONT" id="camera"/>
-      <Button text="{{ showDetails ? 'Record' : 'Finish' }}" tap="recordVideo"/>
+      <recorder:AdvancedVideoView height="90%" quality="highest" cameraPosition="back" id="camera"/>
+      <Button text="{{ recording ? 'Record' : 'Finish' }}" tap="recordVideo" class="btn {{ disabled ? '' : 'btn-active' }}"/>
     </StackLayout>
   </StackLayout>
 </Page>

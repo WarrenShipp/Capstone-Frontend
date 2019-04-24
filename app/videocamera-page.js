@@ -1,81 +1,90 @@
-var vr = require('nativescript-videorecorder');
+﻿var vr = require('nativescript-videorecorder/advanced');
 var pages = require("ui/page");
 var observable = require("data/observable");
-var frameModule =require("ui/frame");
+var frameModule = require("ui/frame");
 var file;
 var viewModel = new observable.Observable();
+var cameraView;
+var timeout;
+const TIME_MAX = 5000;
 
-var vr = require('nativescript-videorecorder');
-
-var options = {
-    saveToGallery: true,
-    duration: 20,
-    format: 'mp4',
-    size: 10,
-    hd: true,
-    explanation: 'Why do i need this permission'
-}
-
-var videorecorder = new vr.VideoRecorder(options);
-
-exports.loaded = function(args){
+/**
+ * Sets up the recorder.
+ * @param {any} args
+ */
+function loaded(args) {
     viewModel = new observable.Observable();
-
-    viewModel.set("showDetails", true);
     page = args.object;
-
-
     page.bindingContext = viewModel;
-}
 
-exports.toggle = function() {
-	viewModel.set("showDetails", !viewModel.get("showDetails"));
-}
+    // need to request permissions for camera to work.
+    vr.AdvancedVideoView.requestPermissions();
 
-function recordVideo() {
-    if(viewModel.get("showDetails")){
-        viewModel.set("showDetails", !viewModel.get("showDetails"));
-    var cameraView = page.getViewById('camera');
-    cameraView.startRecording();
-    cameraView.on('finished', function (args) {
+    // save to var. Easier control and access.
+    cameraView = page.getViewById('camera');
+
+    // create a timer object on recording start. This will automatically stop
+    // and save recording when the timer is complete.
+    cameraView.on('started', args => {
+        timeout = setTimeout(_stopRecord, TIME_MAX);
+        console.log("timer started");
+    });
+
+    // get file so we can pass to shot page.
+    cameraView.on('finished', args => {
         console.log("we recorded something" + args.object.get('file'));
         page.bindingContext.set('selectedVideo', args.object.get('file'));
         file = args.object.get('file');
     });
 
-    console.log("hihi");
-    
 }
-else{
-    var camera = page.getViewById('camera');
-    camera.stopRecording();
-    console.log("byebye");
-    console.log("file passing " + file);
-    var navigationOptions={
-        moduleName:'viewvideo-page',
-        context:{param1: file
-                },
-                backstackVisible: false
-    }
+exports.loaded = loaded;
 
-    frameModule.topmost().navigate(navigationOptions);
-}
+/**
+ * Interacts with the button.
+ * @param {any} args
+ */
+function recordVideo(args) {
+    if (viewModel.get("disabled")) {
+        return;
+    }
+    if (viewModel.get("recording")) {
+        _startRecord();
+    }
+    else {
+        _stopRecord();
+    }
     
 }
 exports.recordVideo = recordVideo;
 
-// function stopRecord() {
-//     var camera = page.getViewById('camera');
-//     camera.stopRecording();
-//     console.log("byebye");
+function _startRecord() {
+    viewModel.set("recording", !viewModel.get("recording"));
+    cameraView.startRecording();
+    console.log("Recording started.");
+}
 
-//     var navigationOptions={
-//         moduleName:'viewvideo-page',
-//         context:{param1: file
-//                 }
-//     }
-    
-//     frameModule.topmost().navigate(navigationOptions);
+function _stopRecord() {
 
-// }
-// exports.stopRecord = stopRecord;
+    // disable button so that it can't be reused.
+    viewModel.set("disabled", true);
+
+    // timer has to be turned off here. Important when stopping manually.
+    if (timeout) {
+        clearTimeout(timeout);
+        console.log("timer stopped");
+    }
+
+    cameraView.stopRecording();
+    console.log("file passing " + file);
+
+    // pass file to shot record page.
+    var navigationOptions = {
+        moduleName: 'viewvideo-page',
+        context: {
+            param1: file
+        },
+        backstackVisible: false
+    };
+    frameModule.topmost().navigate(navigationOptions);
+}
