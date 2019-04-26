@@ -1,46 +1,69 @@
-<Page loaded="record_shot" xmlns:df="nativescript-pro-ui/dataform" xmlns="http://schemas.nativescript.org/tns.xsd" xmlns:dd="nativescript-drop-down" 
-xmlns:VideoPlayer="nativescript-videoplayer" navigatingTo="onNavigatingTo">
+<Page
+        loaded="onLoad" xmlns:df="nativescript-pro-ui/dataform"
+        xmlns="http://schemas.nativescript.org/tns.xsd" xmlns:dd="nativescript-drop-down" 
+        xmlns:VideoPlayer="nativescript-videoplayer"
+        navigatingTo="onNavigatingTo">
     <ActionBar class="action-bar">
-        <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
+        <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap" />
         <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
-            tap="onDrawerButtonTap" ios.position="left">
-        </ActionItem>
-        <Label class="action-bar-title" text="Recorded shot"></Label>
+                tap="onDrawerButtonTap" ios.position="left" />
+        <Label class="action-bar-title" text="Recorded shot" />
     </ActionBar>
     <ScrollView>
-    <StackLayout>
+        <StackLayout>
 
-	<TextField id="playername" hint="Player Name" text="{{ playername }}" />
+	        <TextField id="playername" hint="Player Name" text="{{ playername }}" />
+            <TextField id="coachname" hint="Coach" text="{{ coachname }}" />
+            <TextField id="clubname" hint="Club" text="{{ clubname }}" />
 
+            <VideoPlayer:Video id="nativeVideoPlayer"
+                    controls="true" loop="true" autoplay="false" height="300"
+                    src="{{ videoPath }}" />
 
-    <VideoPlayer:Video id="nativeVideoPlayer"
-            controls="true" loop="true" autoplay="true" height="250"
-            src="{{selectedVideo}}" />
+            <Label text="Set Thumbnail" row="0" col="0" />
+            <GridLayout columns="*,*" rows="*">
+                <VideoPlayer:Video id="thumbnailVideo" row="0" col="0"
+                    controls="false" loop="false" autoplay="false" height="100"
+                    src="{{ videoPath }}" muted="true" />
+                <Slider row="0" col="1" value="{{ sliderValue }}" minValue="0" maxValue="{{ sliderMax }}"
+                        valueChange="setThumbnail" id="thumbnailSlider" />
+            </GridLayout>
+            
+            <GridLayout columns="*,2*" rows="*,*,*,*,*" horizontalAlignment="left" verticalAlignment="top">
+                
+                <Label text="Date:" row="0" col="0" />
+                <Label id="date" text="{{ date }}" row="0" col="1" />
+                
+                <Label text="Date:" row="1" col="0" />
+                <Label id="time" text="{{ time }}" row="1" col="1" />
+                
+                <Label text="Shot Type:" row="2" col="0" />
+                <dd:DropDown row="2" col="1"  id="shotType" hint="Shot Type" items="{{ shotTypeItems }}" selectedIndex="{{ shotTypeIndex }}" 
+                        selectedIndexChanged="shotTypeDropdownChanged" 
+                        isEnabled="{{ isEnabled }}" />
+                
+                <Label row="3" col="0" text="Rating:" />
+                <dd:DropDown row="3" col="1"  id="ratingType" hint="Rating" items="{{ ratingTypeItems }}" selectedIndex="{{ ratingTypeIndex }}" 
+                            selectedIndexChanged="ratingTypeDropdownChanged" 
+                            isEnabled="{{ isEnabled }}" />
+                
+                <Label row="4" col="0" text="Duration:" />
+                <Label row="4" col="1" text="{{ duration }}" />
+            </GridLayout>
 
-      
-
-    <GridLayout columns="*,*" rows="*,*,*" horizontalAlignment="left" verticalAlignment="top">
-      <Label text="Date:" row="0" col="0"/>
-      <Label id="date" text="{{ date }}" row="0" col="1"/>
-      <Label text="Shot Type" row="1" col="0"/>
-        <dd:DropDown row="1" col="1"  id="dd" hint="Shot Type" items="{{ shotType }}" selectedIndex="{{ selectedIndex }}" 
-                opened="dropDownOpened" closed="dropDownClosed" selectedIndexChanged="dropDownSelectedIndexChanged" 
-                class="{{ cssClass }}" isEnabled="{{ isEnabled }}" />
-    <Label row="2" col="0" text="Rating:   "></Label>
-        <dd:DropDown row="2" col="1"  id="aa" hint="Rating" items="{{ ratingType }}" selectedIndex="{{ selectedIndex1 }}" 
-                    opened="dropDownOpened" closed="dropDownClosed" selectedIndexChanged="second" 
-                    class="{{ cssClass }}" isEnabled="{{ isEnabled }}" />           
-    </GridLayout>
-
-    
-
-    <GridLayout columns="*,*,*" rows="*,*,*">
-        <Button col="0" class="smallbtn" text="Discard" tap="discard" />
-        <Button col="1" class="smallbtn" text="Save" tap="insert" />
-        <Button col="2" class="smallbtn" text="Upload" tap="startRecord" />
-    </GridLayout>
-    </StackLayout>
+            <GridLayout columns="*,*,*,*" rows="*,*">
+                <Button col="0" class="smallbtn"
+                        visibility="{{ canCancel ? 'visible' : 'collapsed' }}"
+                        isEnabled="{{ canCancel ? 'true' : 'false' }}"
+                        text="Cancel" tap="cancel" />
+                <Button col="1" class="smallbtn" text="Discard" tap="discard" />
+                <Button col="2" class="smallbtn"
+                        visibility="{{ localOnly ? 'visible' : 'collapsed' }}"
+                        isEnabled="{{ localOnly ? 'true' : 'false' }}"
+                        text="Save" tap="saveLocally" />
+                <Button col="3" class="smallbtn" text="Upload" tap="upload" />
+            </GridLayout>
+        </StackLayout>
     </ScrollView>
-
     
 </Page>

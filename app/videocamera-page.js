@@ -6,6 +6,8 @@ var file;
 var viewModel = new observable.Observable();
 var cameraView;
 var timeout;
+var recording;
+var disabled;
 const TIME_MAX = 5000;
 
 /**
@@ -37,6 +39,12 @@ function loaded(args) {
         file = args.object.get('file');
     });
 
+    // set initial variables
+    recording = false;
+    disabled = false;
+    viewModel.set("recording", recording);
+    viewModel.set("disabled", disabled);
+
 }
 exports.loaded = loaded;
 
@@ -45,10 +53,10 @@ exports.loaded = loaded;
  * @param {any} args
  */
 function recordVideo(args) {
-    if (viewModel.get("disabled")) {
+    if (disabled) {
         return;
     }
-    if (viewModel.get("recording")) {
+    if (!recording) {
         _startRecord();
     }
     else {
@@ -59,7 +67,8 @@ function recordVideo(args) {
 exports.recordVideo = recordVideo;
 
 function _startRecord() {
-    viewModel.set("recording", !viewModel.get("recording"));
+    recording = true;
+    viewModel.set("recording", recording);
     cameraView.startRecording();
     console.log("Recording started.");
 }
@@ -67,7 +76,8 @@ function _startRecord() {
 function _stopRecord() {
 
     // disable button so that it can't be reused.
-    viewModel.set("disabled", true);
+    disabled = true;
+    viewModel.set("disabled", disabled);
 
     // timer has to be turned off here. Important when stopping manually.
     if (timeout) {
@@ -79,10 +89,16 @@ function _stopRecord() {
     console.log("file passing " + file);
 
     // pass file to shot record page.
+    let editType = "record_shot";
+    let editTypeOptions = {
+        filePath: file,
+        datetime: new Date()
+    };
     var navigationOptions = {
         moduleName: 'viewvideo-page',
         context: {
-            param1: file
+            editType: editType,
+            editTypeOptions: editTypeOptions
         },
         backstackVisible: false
     };
