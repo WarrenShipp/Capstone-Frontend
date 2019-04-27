@@ -4,10 +4,11 @@
         xmlns:VideoPlayer="nativescript-videoplayer"
         navigatingTo="onNavigatingTo">
     <ActionBar class="action-bar">
-        <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap" />
+        <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
         <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
-                tap="onDrawerButtonTap" ios.position="left" />
-        <Label class="action-bar-title" text="Recorded shot" />
+            tap="onDrawerButtonTap" ios.position="left">
+        </ActionItem>
+        <Label class="action-bar-title" text="{{ pageName ? pageName : '...' }}"></Label>
     </ActionBar>
     <ScrollView>
         <StackLayout>

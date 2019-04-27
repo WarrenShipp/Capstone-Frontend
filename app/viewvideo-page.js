@@ -37,6 +37,7 @@ var ratingTypeIndex;
 var shotTypeName;
 var ratingTypeName;
 var thumbnail;
+var pageName;
 
 // helpers
 var player;     // the big video player.
@@ -64,6 +65,16 @@ const ratingTypeListArray = [
 ];
 
 /**
+ * Handles Hamburger Menu
+ * @param {any} args
+ */
+function onDrawerButtonTap(args) {
+    const sideDrawer = application.getRootView();
+    sideDrawer.showDrawer();
+}
+exports.onDrawerButtonTap = onDrawerButtonTap;
+
+/**
  * Set up basic Shot Editing parameters. This mostly deals with redirects and is
  * used to tell the page how to function / look / handle the given Shot data.
  * @param {any} args
@@ -71,8 +82,18 @@ const ratingTypeListArray = [
 function onNavigatingTo(args) {
     page = args.object;
 
+    /**
+     * The page that, when we cancel, this edit page will go back to.
+     */
     sourcePage = page.navigationContext.sourcePage ? page.navigationContext.sourcePage : "home-page";
+    /**
+     * The type of editing that will be performed. Either local, record (new) or from search.
+     */
     editType = page.navigationContext.editType;
+    /**
+     * The extra parameters. We place them here rather than directly in the
+     * navigationContext to keep things neat.
+     */
     editTypeOptions = page.navigationContext.editTypeOptions;
 
     console.log("sourcePage: " + sourcePage);
@@ -110,6 +131,14 @@ function onLoad(args) {
     }, error => {
         console.log("OPEN DB ERROR", error);
     });
+
+    // set page name
+    if (editType == EDIT_RECORD) {
+        pageName = "Record Shot";
+    } else {
+        pageName = "Edit Shot";
+    }
+    viewModel.set("pageName", pageName);
 
     // set id
     shotId = _getShotId(editType, editTypeOptions);
@@ -237,7 +266,7 @@ function discard(args) {
     console.log(filepath);
     file = filepath[6];
     console.log(file);
-    fileString = filename.toString();
+    fileString = file.toString();
     console.log(fileString);
     myFolder = fileSystemModule.knownFolders.temp();
     myFile = myFolder.getFile(fileString);
