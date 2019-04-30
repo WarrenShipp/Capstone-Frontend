@@ -1,0 +1,58 @@
+<Page
+        loaded="onLoad"
+        xmlns="http://schemas.nativescript.org/tns.xsd"
+        xmlns:VideoPlayer="nativescript-videoplayer"
+        navigatingTo="onNavigatingTo">
+    <ActionBar class="action-bar">
+        <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
+        <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
+            tap="onDrawerButtonTap" ios.position="left">
+        </ActionItem>
+        <Label class="action-bar-title" text="View Shot"></Label>
+    </ActionBar>
+    <ScrollView>
+        <StackLayout>
+
+            <GridLayout columns="*,2*" rows="*,*,*">
+                <Label row="0" col="0" text="Player:" />
+                <Label row="0" col="1" id="playername" text="{{ playername ? playerName : 'No Player Set' }}" />
+                <Label row="1" col="0" text="Coach:" />
+                <Label row="1" col="1" id="coachname" text="{{ coachname ? coachname : 'No Coach Set' }}" />
+                <Label row="2" col="0" text="Club:" />
+                <Label row="2" col="1" id="clubname" text="{{ clubname ? clubname : 'No Club Set' }}" />
+            </GridLayout>
+	        
+            <VideoPlayer:Video id="nativeVideoPlayer"
+                    controls="true" loop="true" autoplay="false" height="300"
+                    src="{{ videoPath }}" />
+            
+            <GridLayout columns="*,2*" rows="*,*,*,*" horizontalAlignment="left" verticalAlignment="top">
+                
+                <Label row="0" col="0" text="Date:" />
+                <Label row="0" col="1" id="date" text="{{ date ? date : 'No date set' }}" />
+                
+                <Label row="1" col="0" text="Shot Type:" />
+                <Label row="1" col="1"  id="shotType" text="{{ shotType ? shotType : 'No Shot Type set' }}" />
+                
+                <Label row="2" col="0" text="Rating:" />
+                <Label row="2" col="1"  id="ratingType" text="{{ ratingType ? ratingType : 'No Rating set' }}" />
+                
+                <Label row="3" col="0" text="Duration:" />
+                <Label row="3" col="1" text="{{ duration ? duration : 'No Duration set' }}" />
+            </GridLayout>
+
+            <GridLayout columns="*,*,*" rows="*,*">
+                <Button col="0" text="Cancel" tap="cancel" />
+                <Button col="1" class="smallbtn"
+                        visibility="{{ canEdit ? 'visible' : 'collapsed' }}"
+                        isEnabled="{{ canEdit ? 'true' : 'false' }}"
+                        text="Edit" tap="edit" />
+                <Button col="2" class="smallbtn"
+                        visibility="{{ canUpload ? 'visible' : 'collapsed' }}"
+                        isEnabled="{{ canUpload ? 'true' : 'false' }}"
+                        text="Upload" tap="upload" />
+            </GridLayout>
+        </StackLayout>
+    </ScrollView>
+    
+</Page>

@@ -1,10 +1,22 @@
 <Page xmlns="http://www.nativescript.org/tns.xsd" navigatingTo="onNavigatingTo">
-    <Page.actionBar>
-		<ActionBar title="Saved Shots"/>
-	</Page.actionBar>
-    <StackLayout id="container">
+    <ActionBar class="action-bar">
+        <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
+        <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
+            tap="onDrawerButtonTap" ios.position="left">
+        </ActionItem>
+        <Label class="action-bar-title" text="Saved Shots"></Label>
+    </ActionBar>
     <ScrollView>
+        <StackLayout id="container">
+            <ListView id="container-listview" items="{{ items }}">
+                <ListView.itemTemplate>
+                    <GridLayout rows="*,*" columns="*,2*,2*">
+                        <Label row="0" col="1" text="{{ name }}" />
+                        <Label row="1" col="1" text="{{ shottype }}" />
+                        <Label row="1" col="2" text="{{ ratingtype }}" />
+                    </GridLayout>
+                </ListView.itemTemplate>
+            </ListView>
+        </StackLayout>
     </ScrollView>
-    </StackLayout>
-    
 </Page>

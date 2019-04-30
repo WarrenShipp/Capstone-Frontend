@@ -83,9 +83,13 @@ function onNavigatingTo(args) {
     page = args.object;
 
     /**
-     * The page that, when we cancel, this edit page will go back to.
+     * The page that, when we discard, this edit page will go back to.
      */
     sourcePage = page.navigationContext.sourcePage ? page.navigationContext.sourcePage : "home-page";
+    /**
+     * If true, the page will go back when cancelled instead of to the sourcePage.
+     */
+    backOnCancel = page.navigationContext.backOnCancel ? page.navigationContext.backOnCancel : false;
     /**
      * The type of editing that will be performed. Either local, record (new) or from search.
      */
@@ -103,9 +107,12 @@ function onNavigatingTo(args) {
     // set edit button params
     switch (editType) {
         case EDIT_RECORD:
-        case EDIT_VIEW_LOCAL:
         default:
             canCancel = false;
+            localOnly = true;
+            break;
+        case EDIT_VIEW_LOCAL:
+            canCancel = true;
             localOnly = true;
             break;
         case EDIT_VIEW_SEARCH:
@@ -142,6 +149,12 @@ function onLoad(args) {
 
     // set id
     shotId = _getShotId(editType, editTypeOptions);
+
+    // set player name
+
+    // set coach
+
+    // set club
 
     // set shot type
     shotTypeList = new dropdown.ValueList(shotTypeListArray);
@@ -280,6 +293,22 @@ function discard(args) {
 }
 exports.discard = discard;
 
+/**
+ * Cancels the current shot.
+ * @param {any} args
+ */
+function cancel(args) {
+    if (backOnCancel) {
+        frameModule.topmost().back();
+    } else {
+        var navigationOptions = {
+            moduleName: sourcePage
+        }
+        frameModule.topmost().navigate(navigationOptions);
+    }
+}
+exports.cancel = cancel;
+
 function shotTypeDropdownChanged(args) {
     let dropdownShot = page.getViewById("shotType");
     shotTypeIndex = dropdownShot.selectedIndex;
@@ -295,6 +324,8 @@ function ratingTypeDropdownChanged(args) {
     console.log(ratingTypeIndex + " " + ratingTypeName);
 }
 exports.ratingTypeDropdownChanged = ratingTypeDropdownChanged;
+
+// TODO set name, club, and coach to update
 
 /**
  * Sets a new thumbnail. Used to update the thumbnail video playback.
