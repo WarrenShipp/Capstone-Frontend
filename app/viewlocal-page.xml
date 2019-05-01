@@ -1,0 +1,42 @@
+<Page loaded="record_shot" xmlns:df="nativescript-pro-ui/dataform" xmlns="http://schemas.nativescript.org/tns.xsd" xmlns:dd="nativescript-drop-down" 
+xmlns:VideoPlayer="nativescript-videoplayer" navigatingTo="onNavigatingTo">
+    <ActionBar class="action-bar">
+        <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
+        <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
+            tap="onDrawerButtonTap" ios.position="left">
+        </ActionItem>
+        <Label class="action-bar-title" text="Recorded shot"></Label>
+    </ActionBar>
+    <ScrollView>
+    <StackLayout>
+
+	<Label text="{{ name }}" />
+
+
+    <VideoPlayer:Video id="nativeVideoPlayer"
+            controls="true" loop="true" autoplay="true" height="250"
+            src="{{selectedVideo}}" />
+
+      
+
+    <GridLayout columns="*,*" rows="*,*,*" horizontalAlignment="left" verticalAlignment="top">
+      <Label text="Date:" row="0" col="0"/>
+      <Label id="date" text="{{ date }}" row="0" col="1"/>
+      <Label text="Shot Type" row="1" col="0"/>
+      <Label text="{{ shottype }}" row="1" col="1"/>
+    <Label row="2" col="0" text="Rating:   "></Label>
+        <Label text="{{ rating }}" row="2" col="1"/>          
+    </GridLayout>
+
+    
+
+    <GridLayout columns="*,*,*" rows="*,*,*">
+        <Button col="0" class="smallbtn" text="Discard" tap="discard" />
+        <Button col="1" class="smallbtn" text="Save" tap="insert" />
+        <Button col="2" class="smallbtn" text="Upload" tap="startRecord" />
+    </GridLayout>
+    </StackLayout>
+    </ScrollView>
+
+    
+</Page>

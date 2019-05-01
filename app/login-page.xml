@@ -1,0 +1,27 @@
+<Page loaded="pageLoaded" xmlns="http://www.nativescript.org/tns.xsd">
+<ActionBar class="action-bar">
+        <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
+        <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
+            tap="onDrawerButtonTap" ios.position="left">
+        </ActionItem>
+        <Label class="action-bar-title" text="Login"></Label>
+    </ActionBar>
+
+		<StackLayout>
+			<Label text="Cricket App" />
+
+			<StackLayout >
+				<TextField hint="Email" returnKeyType="next" />
+				<Label class="hr-light" />
+			</StackLayout>
+
+			<StackLayout>
+				<TextField id="password" hint="Password" secure="true"/>
+				<Label class="hr-light" />
+			</StackLayout>
+
+			<Button text="Sign In" tap="login"/>
+            <Button text="Create Account" tap="createAccount"/>
+			
+		</StackLayout>
+</Page>

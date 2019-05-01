@@ -1,0 +1,10 @@
+<Page xmlns="http://www.nativescript.org/tns.xsd" navigatingTo="onNavigatingTo">
+    <Page.actionBar>
+		<ActionBar title="Saved Shots"/>
+	</Page.actionBar>
+    <StackLayout id="container">
+    <ScrollView>
+    </ScrollView>
+    </StackLayout>
+    
+</Page>
