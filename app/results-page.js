@@ -37,7 +37,7 @@ function onNavigatingTo(args) {
         for (i=0; i<10; i++){
         console.log(obj.content.results[i].id);
         console.log(obj.content.results[i].video_set[0].file);
-        lists.push({id: test[i].id, path: test[i].video_set[0].file});
+        lists.push({id: test[i].player_name, path: test[i].video_set[0].file});
         }
     }, function(error) {
         console.error(JSON.stringify(error));
