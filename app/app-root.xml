@@ -1,18 +1,20 @@
-<nsDrawer:RadSideDrawer xmlns:nsDrawer="nativescript-ui-sidedrawer">
+<nsDrawer:RadSideDrawer xmlns:nsDrawer="nativescript-ui-sidedrawer" loaded="onLoaded">
     <nsDrawer:RadSideDrawer.drawerContent>
         <StackLayout backgroundColor="gray">
             <Button class="btn btn-primary sidedrawer-list-item-text" text="Home"
                 tap="navigateToHome" />
             <Button class="btn btn-primary sidedrawer-list-item-text" text="My Profile"
-                tap="navigateToProfile" />
+                tap="navigateToProfile" visibility="{{ loggedIn ? 'visible' : 'collapsed' }}" />
             <Button class="btn btn-primary sidedrawer-list-item-text" text="Create New Shot"
                 tap="navigateToRecord" />
             <Button class="btn btn-primary sidedrawer-list-item-text" text="Search"
-                tap="navigateToSearch" />
+                tap="navigateToSearch" visibility="{{ loggedIn ? 'visible' : 'collapsed' }}" />
             <Button class="btn btn-primary sidedrawer-list-item-text" text="View Saved Shots"
                 tap="navigateToSaved" />
             <Button class="btn btn-primary sidedrawer-list-item-text" text="Login"
-                tap="navigateToLogin" />
+                tap="navigateToLogin" visibility="{{ loggedIn ? 'collapsed' : 'visible' }}" />
+            <Button class="btn btn-primary sidedrawer-list-item-text" text="Logout"
+                tap="logout" visibility="{{ loggedIn ? 'visible' : 'collapsed' }}" />
         </StackLayout>
     </nsDrawer:RadSideDrawer.drawerContent>
 

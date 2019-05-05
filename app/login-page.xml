@@ -11,7 +11,7 @@
 			<Label text="Cricket App" />
 
 			<StackLayout >
-				<TextField hint="Email" returnKeyType="next" />
+				<TextField id="email" hint="Email" returnKeyType="next" />
 				<Label class="hr-light" />
 			</StackLayout>
 

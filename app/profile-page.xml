@@ -1,20 +1,59 @@
-<Page loaded="pageLoaded" xmlns="http://www.nativescript.org/tns.xsd">
+<Page loaded="pageLoaded"
+      navigatingTo="navigatingTo"
+      xmlns="http://www.nativescript.org/tns.xsd">
 <ActionBar class="action-bar">
         <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
         <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
             tap="onDrawerButtonTap" ios.position="left">
         </ActionItem>
-        <Label class="action-bar-title" text="Profile"></Label>
+        <Label class="action-bar-title" text="{{ profileTitle }}"></Label>
     </ActionBar>
 
-		<StackLayout class="smallMargin">
-			<Label text="Name: John Doe" />
-            <Label text="Type: Player" />
-            <Label text="Club: Sunday League" />
+    <ScrollView>
+        <StackLayout class="smallMargin">
 
-            <Button class="btn btn-primary" text="View Player Shots" tap="login"/>
-            <Button class="btn btn-primary" text="Request Player to join Club" tap="Requested"/>
+            <!-- User info -->
+            <GridLayout columns="*,*" rows="*,*,*">
+                <Image col="0" row="0" rowspan="3" src="{{ imgSrc }}" />
+                <Label col="1" row="0" text="{{ name }}" />
+                <DockLayout col="1" row="1" stretchLastChild="true" visibility="{{ email ? 'visible' : 'collapsed' }}">
+                    <Label dock="left" text="Email:" />
+                    <Label dock="left" text="{{ email }}" />
+                </DockLayout>
+                <DockLayout col="1" row="2" stretchLastChild="true" visibility="{{ phone ? 'visible' : 'collapsed' }}">
+                    <Label dock="left" text="Phone:" />
+                    <Label dock="left" text="{{ phone }}" />
+                </DockLayout>
+            </GridLayout>
+
+            <!-- Registered Clubs -->
+            <Label text="Registered Clubs" />
+            <Label text="This user is not registered to any clubs." visibility="{{ inClub ? 'collapsed' : 'visible' }}" />
+            <StackLayout id="clubContainer" visibility="{{ inClub ? 'visible' : 'collapsed' }}">
+                <!-- ViewList goes here -->
+            </StackLayout>
+
+            <!-- Player Info -->
+            <Label text="Player Information" />
+            <DockLayout stretchLastChild="true">
+                <Label dock="left" text="Batsman Type:" />
+                <Label dock="left" text="{{ batsmanType }}" />
+            </DockLayout>
+            <DockLayout stretchLastChild="true">
+                <Label dock="left" text="Bowler Type:" />
+                <Label dock="left" text="{{ bowlerType }}" />
+            </DockLayout>
+
+            <!-- Actions -->
+            <Label text="Actions" />
+            <!-- Nothing for now -->
             
-			
-		</StackLayout>
+            <!-- Buttons -->
+            <DockLayout visibility="{{ canEdit ? 'visible' : 'collapsed' }}">
+                <Button dock="right" text="Edit" tap="editSelf" />
+            </DockLayout>
+
+        </StackLayout>
+    </ScrollView>
+    
 </Page>
