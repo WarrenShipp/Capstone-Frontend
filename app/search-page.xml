@@ -1,4 +1,5 @@
-<Page loaded="search_page" xmlns:df="nativescript-pro-ui/dataform" xmlns="http://schemas.nativescript.org/tns.xsd" xmlns:dd="nativescript-drop-down" >
+<Page loaded="onLoaded" xmlns:df="nativescript-pro-ui/dataform" xmlns="http://schemas.nativescript.org/tns.xsd"
+ xmlns:dd="nativescript-drop-down" xmlns:calendar="nativescript-ui-calendar">
     <ActionBar class="action-bar">
         <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
         <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
@@ -6,37 +7,98 @@
         </ActionItem>
         <Label class="action-bar-title" text="Search"></Label>
     </ActionBar>
+    <ScrollView>
     <StackLayout >
     <GridLayout  columns="*,2*" rows="*,*" horizontalAlignment="left" verticalAlignment="top" class="searchForm">
 		<Label row="0" col="0" text="Type   "></Label>
 		<dd:DropDown id="typeToSearch" col="1" items="{{ searchTypes }}" selectedIndex="{{ typeIndex }}" opened="dropDownOpened" selectedIndexChanged="dropDownSelectedIndexChanged" />
         <Label row="1" col="0" class="hr-light" />	  
 	</GridLayout>
-    <!--<Button text="{{ showDetails ? 'Hide' : 'Show' }}" tap="toggle" />-->
-    <GridLayout class="searchForm" columns="*,2*" rows="*,*,*" horizontalAlignment="left" verticalAlignment="top" height="auto" visibility="{{ showClub ? 'visible' : 'collapsed' }}">
+
+    <!-- Club Search Form -->
+    <GridLayout columns="*,2*" rows="*,*,*" horizontalAlignment="left" verticalAlignment="top" height="auto" visibility="{{ showClub ? 'visible' : 'collapsed' }}">
         <Label  col="0" text="Name  " ></Label>
-		<TextField class="input" col="1"></TextField>
+		<TextField text="{{ clubName }}" col="1"></TextField>
         <Label col="0" row="1" text="League  "></Label>
-		<TextField class="input" col="1" row="1"></TextField>
+		<TextField text="{{ leagueName }}" col="1" row="1"></TextField>
     </GridLayout>
-    <GridLayout class="searchForm" columns="*,2*" rows="*,*,*" horizontalAlignment="left" verticalAlignment="top" height="auto" visibility="{{ showShot ? 'visible' : 'collapsed' }}">
+
+    <!-- Shot Search Form -->
+    <GridLayout columns="*,*" rows="*,*,*,*,*,*,*" horizontalAlignment="left" verticalAlignment="top" height="auto" visibility="{{ showShot ? 'visible' : 'collapsed' }}">
         <Label  col="0" text="Player  " ></Label>
-		<TextField class="input" col="1"></TextField>
+		<TextField text="{{ shotPlayer }}" col="1"></TextField>
         <Label col="0" row="1" text="Type  "></Label>
-		<dd:DropDown col="1" row="1" items="{{ shotTypes }}" selectedIndex="{{ typeIndex1 }}" opened="dropDownOpened" />
+		<dd:DropDown row="1" col="1"  id="dd" hint="Shot Type" items="{{ shotType }}" selectedIndex="{{ selectedIndex }}" 
+                opened="dropDownOpened" closed="dropDownClosed" selectedIndexChanged="shotDropChange" 
+                class="{{ cssClass }}" isEnabled="{{ isEnabled }}" />
         <Label col="0" row="2" text="Rating  "></Label>
-		<dd:DropDown col="1" row="2" items="{{ ratingTypes }}" selectedIndex="{{ typeIndex2 }}" opened="dropDownOpened" />
+		<dd:DropDown row="2" col="1"  id="aa" hint="Rating" items="{{ ratingType }}" selectedIndex="{{ selectedIndex1 }}" 
+                    opened="dropDownOpened" closed="dropDownClosed" selectedIndexChanged="shotRatingChange" 
+                    class="{{ cssClass }}" isEnabled="{{ isEnabled }}" />  
+        <Label col="0" row="3" text="Coach"></Label>
+        <TextField col="1" row="3" text="{{ shotCoach }}"></TextField>
+        <Label col="0" row="4" text="Club"></Label>
+        <TextField col="1" row="4" text="{{ shotClub }}"></TextField>        
+        <Label col="0" row="5" text= "Start Date"></Label>
+        <TextField text="{{ dateStart }}" col="1" row="5" tap="showDateStart" visibility="{{ showdateStart ? 'collapsed' : 'visible' }}"></TextField>
+        <Label col="0" row="6" text= "End Date"></Label>
+        <TextField text="{{ dateEnd }}" col="1" row="6" tap="showDateEnd" visibility="{{ showdateEnd ? 'collapsed' : 'visible' }}"></TextField>
+        <calendar:RadCalendar id="calendarStart" visibility="{{ showdateStart ? 'visible' : 'collapsed' }}"
+		eventSource="{{ calendarEvents }}" 
+        col="0" row="0"
+        colSpan="2"
+        rowSpan="7"
+		eventsViewMode="Inline" 
+		selectionMode="Single" 
+		viewMode="Month"
+	 	transitionMode="Stack" 
+		locale="en-US" 
+		
+		dateSelected="onStartSelected" 
+		dateDeselected="onDateDeselected" 
+		navigatedToDate="onNavigatedToDate"
+	 	navigatingToDateStarted="onNavigatingToDateStarted" 
+		viewModeChanged="onViewModeChanged" />
+        
+        <calendar:RadCalendar id="calendarEnd" visibility="{{ showdateEnd ? 'visible' : 'collapsed' }}"
+		eventSource="{{ calendarEvents }}" 
+        col="0" row="0"
+        colSpan="2"
+        rowSpan="7"
+		eventsViewMode="Inline" 
+		selectionMode="Single" 
+		viewMode="Month"
+	 	transitionMode="Stack" 
+		locale="en-US" 
+		
+		dateSelected="onEndSelected" 
+		dateDeselected="onDateDeselected" 
+		navigatedToDate="onNavigatedToDate"
+	 	navigatingToDateStarted="onNavigatingToDateStarted" 
+		viewModeChanged="onViewModeChanged" />       
         
     </GridLayout>
-    <GridLayout class="searchForm" columns="*,2*" rows="*,*,*" horizontalAlignment="left" verticalAlignment="top" height="auto" visibility="{{ showUser ? 'visible' : 'collapsed' }}">
+    <!-- User Search Form -->
+    <GridLayout columns="*,2*" rows="*,*,*" horizontalAlignment="left" verticalAlignment="top" height="auto" visibility="{{ showUser ? 'visible' : 'collapsed' }}">
         <Label  col="0" text="Player  " ></Label>
-		<TextField class="input" col="1"></TextField>
+		<TextField text="{{ userName }}" col="1"></TextField>
         <Label  col="0" row="1" text="Club  " ></Label>
-		<TextField class="input" col="1" row="1"></TextField>
+		<TextField text="{{ userClub }}" col="1" row="1"></TextField>
         <Label col="0" row="2" text="Type  "></Label>
-		<dd:DropDown col="1" row="2" items="{{ userTypes }}" selectedIndex="{{ typeIndex3 }}" opened="dropDownOpened"/>
+		<dd:DropDown row="2" col="1"  id="userDrop" hint="User Type" items="{{ userType }}" selectedIndex="{{ selectedIndex2 }}" 
+                    opened="dropDownOpened" closed="dropDownClosed" selectedIndexChanged="userChange" 
+                    class="{{ cssClass }}" isEnabled="{{ isEnabled }}" />  
     </GridLayout>
-    <Button class="btn btn-primary" horizontalAlignment="stretch" tap="submitSearch" text="Search"></Button>
+
+    <Button class="btn btn-primary" horizontalAlignment="stretch" tap="getShots" text="Search" visibility="{{ showSubmit ? 'visible' : 'collapsed' }}"></Button>
+    <Button text="Request Token" tap="Request" />
+    <Button text="Getclub" tap="getClubs" />
+    <Button text="Club" tap="clubRequest" />
+    <Button text="Player" tap="playerCreate" />
+    <Button text="Shot" tap="shotCreate" />
+    <Button text="ShotTest" tap="shotTest" />
+    <Button text="VideoTest" tap="videoTest" />
+    
 
 		<StackLayout class="border-search" tap="clubInfo" visibility="{{ showSearchClub ? 'visible' : 'collapsed' }}">
             <Label class="list-group-item-heading" text="Club: RMIT Club"></Label>
@@ -54,4 +116,5 @@
         </StackLayout>
 
     </StackLayout>
+    </ScrollView>
 </Page>

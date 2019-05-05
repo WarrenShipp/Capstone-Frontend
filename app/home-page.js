@@ -1,6 +1,7 @@
 const frameModule = require("tns-core-modules/ui/frame");
 const app = require("tns-core-modules/application");
 var observable = require("data/observable").Observable;
+const appSettings = require("application-settings");
 
 
 exports.onNavigatingTo = function(args){

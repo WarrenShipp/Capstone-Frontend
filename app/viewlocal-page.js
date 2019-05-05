@@ -42,15 +42,15 @@ function onNavigatingTo(args) {
     var gotData=page.navigationContext;
     console.log("this is it" + gotData.path);
     path = gotData.path;
-    name = gotData.name;
-    shottype = gotData.shottype;
-    rating = gotData.rating;
-    date = gotData.date;
+    id = gotData.id;
+    // shottype = gotData.shottype;
+    // rating = gotData.rating;
+    // date = gotData.date;
     viewModel.set('selectedVideo', path);
-    viewModel.set("name", name);
-    viewModel.set("shottype", shottype);
-    viewModel.set("rating", rating);
-    viewModel.set("date", date);
+    viewModel.set("name", id);
+    // viewModel.set("shottype", shottype);
+    // viewModel.set("rating", rating);
+    // viewModel.set("date", date);
 
     page.bindingContext = viewModel;
 

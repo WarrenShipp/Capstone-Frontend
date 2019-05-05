@@ -10,6 +10,10 @@ var dropdown = require("nativescript-drop-down");
 var VideoPlayer = require("nativescript-videoplayer");
 var Slider = require("ui/slider");
 
+var http = require("http");
+var bghttp = require("nativescript-background-http");
+var session = bghttp.session("file-upload");
+
 // Edit Types
 const EDIT_RECORD = "record_shot";
 const EDIT_VIEW_LOCAL = "edit_local";
@@ -38,6 +42,8 @@ var shotTypeName;
 var ratingTypeName;
 var thumbnail;
 var pageName;
+
+
 
 // helpers
 var player;     // the big video player.
@@ -211,6 +217,121 @@ function onLoad(args) {
 
 }
 exports.onLoad = onLoad;
+
+exports.upload = function(args){
+    var id;
+    var sendToken = appSet.getString("token");
+    console.log(sendToken);
+    const documentsFolder = fileSystemModule.knownFolders.currentApp();
+    console.log(path);
+    console.log(sendToken);
+    http.request({
+        url: "https://cricket.kinross.co/shot/",
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": sendToken },
+        content: JSON.stringify({ "player": "bbfd9706-a866-4c89-9fa6-20f705ce5898", "club": "51d3a105-6d8c-4b08-b20f-cfc676afc049", "type": 2, "rating": 2})
+    }).then(function(result) {
+        console.log(JSON.stringify(result));
+        var obj = JSON.stringify(result);
+        obj = JSON.parse(obj);
+        console.log(obj.content.id);
+        id = obj.content.id;
+
+        var file =  path;
+        console.log("filepath: " + file);
+        var url = "https://cricket.kinross.co/video/";
+        var name = file.substr(file.lastIndexOf("/") + 1);
+        console.log("id is: " + id);
+        // upload configuration
+    
+        var request = {
+                url: url,
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/octet-stream", "Authorization": sendToken
+                },
+                description: "Uploading " + name
+                
+            };
+    
+            var params = [
+                { name: "shot", value: id },
+                { name: "file", filename: file, mimeType: "video/mp4" },
+                { name: "length", value: "3001"}
+                
+             ];
+             //var task = session.uploadFile(file, request);
+             var task = session.multipartUpload(params, request);
+             task.on("complete", completeHandler);  
+    }, function(error) {
+        console.error(JSON.stringify(error));
+    });
+
+    // var filepath = path.split("/");
+    // console.log(filepath);
+    // var file = filepath[6];
+    // console.log(file);
+    // fileString = file.toString();
+    // console.log(fileString);
+    // myFolder = fileSystemModule.knownFolders.temp();
+    // myFile = myFolder + fileString;
+    // console.log("filepath" + myFile);
+
+
+
+                 //task.on("progress", progressHandler);
+        // task.on("error", errorHandler);
+        // task.on("responded", respondedHandler);
+        // task.on("complete", completeHandler);
+
+
+// event arguments:
+// task: Task
+// currentBytes: number
+// totalBytes: number
+function progressHandler(e) {
+    alert("uploaded " + e.currentBytes + " / " + e.totalBytes);
+}
+
+// event arguments:
+// task: Task
+// responseCode: number
+// error: java.lang.Exception (Android) / NSError (iOS)
+// response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
+function errorHandler(e) {
+    alert("received " + e.responseCode + " code.");
+    var serverResponse = e.response;
+    console.log(serverResponse);
+    console.log(e);
+}
+
+
+// event arguments:
+// task: Task
+// responseCode: number
+// data: string
+function respondedHandler(e) {
+    //alert("received " + e.responseCode + " code. Server sent: " + e.data);
+    alert("File has been uploaded to the server");
+}
+
+// event arguments:
+// task: Task
+// responseCode: number
+// response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
+function completeHandler(e) {
+    alert("received " + e.responseCode + " code");
+    var serverResponse = e.response;
+}
+
+// event arguments:
+// task: Task
+function cancelledHandler(e) {
+    alert("upload cancelled");
+}
+
+}
+
 
 function saveLocally(args) {
     page = args.object;

@@ -23,7 +23,7 @@ function onNavigatingTo(args) {
             console.log("table created");
             
             (new Sqlite("my.db")).then(db => {
-            db.all("SELECT path,name, shottype, ratingtype, date FROM testa").then(rows => {
+            db.all("SELECT path,name, shottype, ratingtype, date FROM test1").then(rows => {
                 for(var row in rows) {
                     console.log("RESULT", rows[row]);
                     // var test = rows[row].toString();

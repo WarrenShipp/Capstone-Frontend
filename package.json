@@ -12,9 +12,11 @@
   "license": "SEE LICENSE IN <your-license-filename>",
   "repository": "<fill-your-repository-here>",
   "dependencies": {
+    "nativescript-background-http": "^3.4.0",
     "nativescript-drop-down": "^5.0.0",
     "nativescript-sqlite": "^2.3.3",
     "nativescript-theme-core": "~1.0.4",
+    "nativescript-ui-calendar": "^4.0.0",
     "nativescript-ui-sidedrawer": "^6.0.0",
     "nativescript-videoplayer": "^4.2.1",
     "nativescript-videorecorder": "^3.0.0-beta.3",
