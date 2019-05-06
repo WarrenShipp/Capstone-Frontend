@@ -92,6 +92,16 @@ function navigateToSaved(args) {
 }
 exports.navigateToSaved = navigateToSaved;
 
+function navigateToClubCreate(args) {
+    const sideDrawer = app.getRootView();
+    const featuredFrame = frameModule.getFrameById("root");
+    featuredFrame.navigate({
+        moduleName: "clubcreate-page"
+    });
+    sideDrawer.closeDrawer();
+}
+exports.navigateToClubCreate = navigateToClubCreate;
+
 function logout(args) {
 
     const tokenRefresh = appSettings.getString("tokenRefresh");
