@@ -10,62 +10,45 @@ var session = bghttp.session("file-upload");
 var logo = null;
 var sendToken;
 var viewModel = new observable();
-
-var clubName = "";
-var clubPhone = "";
-var adddressLine1 = "";
-var addressLine2 = "";
-var addressSuburb = "";
-var addressPostcode = "";
-var addressCountry = "";
+var gotData;
+var clubId;
 
 exports.onNavigatingTo = function(args){
     
-    page = args.object;
+	console.log("pageLoaded");
+    sendToken = appSettings.getString("token");
+        
+	var page = args.object;
     page.bindingContext = viewModel;
-    viewModel.set("phoneNumber", "");
-    var token = appSettings.getString("token");
-    sendToken = token;
-
-    
-    
-}
-
-exports.getClubs = function() {
-    // appSettings.getString("token");
-    // var sendToken = "Token " + token;
-    console.log(viewModel.get("clubName"));
-    var clubName = viewModel.get("clubName");
-    var urlSearch = "https://cricket.kinross.co/club/";  
+    var gotData=page.navigationContext;
+    clubId = gotData.id;
+    console.log(clubId);
+    var clubUrl = "https://cricket.kinross.co/club/" + clubId;
     http.request({
-        url: urlSearch,
+        url: clubUrl,
         method: "GET",
         headers: { "Content-Type": "application/json", "Authorization": sendToken }
     }).then(function(result) {
-        console.log(JSON.stringify(result));
         var obj = JSON.stringify(result);
         obj = JSON.parse(obj);
-        console.log(obj.content.results[0].name);
+        console.log(obj.content);
+        console.log(obj.content.name);
+        clubDetails(obj.content);
     }, function(error) {
         console.error(JSON.stringify(error));
     });
+    
 }
 
-exports.createClubs = function() {
-
-    var urlSearch = "https://cricket.kinross.co/club/?name=" + clubName;  
-    http.request({
-        url: urlSearch,
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": sendToken }
-    }).then(function(result) {
-        console.log(JSON.stringify(result));
-        var obj = JSON.stringify(result);
-        obj = JSON.parse(obj);
-        console.log(obj.content.results[0].name);
-    }, function(error) {
-        console.error(JSON.stringify(error));
-    });
+function clubDetails(data){
+    console.log(data.postcode);
+    viewModel.set("clubName", data.name);
+    viewModel.set("phoneNumber", data.phone_number);
+    viewModel.set("street_address_l1", data.street_address_l1);
+    viewModel.set("street_address_l2", data.street_address_l2);
+    viewModel.set("postcode", data.postcode);
+    viewModel.set("suburb", data.suburb);
+    viewModel.set("country", data.country);
 }
 
 exports.imagePicker = function(){
@@ -81,10 +64,7 @@ exports.imagePicker = function(){
             // process the selected image
             console.log(selected.android.toString());
             logo = selected.android.toString();
-            // console.log("Selection done: " + JSON.stringify(selection));
-            // var image = JSON.stringify(selection);
-            // var path = JSON.parse(image._android);
-            // console.log(path);
+
         });
         list.items = selection;
     }).catch(function (e) {
@@ -93,39 +73,42 @@ exports.imagePicker = function(){
 }
 
 exports.clubRequest = function() {
-     const documentsFolder = fileSystemModule.knownFolders.currentApp();
-     const path = fileSystemModule.path.join(documentsFolder.path, "images/ball.jpg");
-     var file;
-     console.log(path);
+    // const documentsFolder = fileSystemModule.knownFolders.currentApp();
+    // const path = fileSystemModule.path.join(documentsFolder.path, "images/example.png");
+    // console.log(path);
     console.log(sendToken);
-    if (logo !== null){
-        file =  logo;
-    }
-    else{
-        file = path;
-    }
-    var url = "https://cricket.kinross.co/club/";
+
+    var file =  logo;
+    var editUrl = "https://cricket.kinross.co/club/" + clubId + "/";
+    console.log("club url= " + editUrl);
     //var name = file.substr(file.lastIndexOf("/") + 1);
-
-    
-
+    var clubName = viewModel.get("clubName");
+    var clubPhone = viewModel.get("phoneNumber");
+    var adddressLine1 = viewModel.get("street_address_l1");
+    var addressLine2 = viewModel.get("street_address_l2");
+    var addressSuburb = viewModel.get("suburb");
+    var addressPostcode = viewModel.get("postcode");
+    var addressCountry = viewModel.get("country");
     // upload configuration
-    
-    clubName = viewModel.get("clubName");
-    clubPhone = viewModel.get("phoneNumber");
-    adddressLine1 = viewModel.get("street_address_l1");
-    addressLine2 = viewModel.get("street_address_l2");
-    addressSuburb = viewModel.get("suburb");
-    addressPostcode = viewModel.get("postcode");
-    addressCountry = viewModel.get("country");
+
+    http.request({
+        url: editUrl,
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "Authorization": sendToken },
+        content: JSON.stringify({ "name": "patchtest"})
+    }).then(function(result) {
+        console.log(JSON.stringify(result));
+    }, function(error) {
+        console.error(JSON.stringify(error));
+    });
 
     var request = {
-            url: url,
-            method: "POST",
+            url: editUrl,
+            method: "PATCH",
             headers: {
                 "Content-Type": "multipart/form-data", "Authorization": sendToken
             },
-            description: "Uploading "
+            description: "Updating "
             
         };
 
@@ -137,15 +120,16 @@ exports.clubRequest = function() {
             { name: "suburb", value: addressSuburb },
             { name: "postcode", value: addressPostcode },
             { name: "country", value: addressCountry },
-            { name: "logo", filename: file, mimeType: "image/*" }
             
          ];
 
-        //  if(file !== null){
-        //      params.push({ name: "logo", filename: file, mimeType: "image/*" })
-        //  }
+         if(file !== null){
+            params.push({ name: "logo", filename: file, mimeType: "image/*" });
+         }
+
+         console.log(params);
          //var task = session.uploadFile(file, request);
-         var task = session.multipartUpload(params, request);   
+          var task = session.multipartUpload(params, request);   
 
         task.on("progress", progressHandler);
         task.on("error", errorHandler);
@@ -167,7 +151,7 @@ function progressHandler(e) {
 // error: java.lang.Exception (Android) / NSError (iOS)
 // response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
 function errorHandler(e) {
-    alert("received error " + e.responseCode + " code.");
+    alert("received " + e.responseCode + " code.");
     var serverResponse = e.response;
     console.log(JSON.stringify(serverResponse));
     console.log(e.error);

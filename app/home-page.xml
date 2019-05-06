@@ -13,7 +13,7 @@
         <Image col="1" row="0" src="~/images/folder.png" width="150" height="150" stretch="aspectFill" tap="navigateToShots" />
         <Label class="browselabel" text="Local Shots" col="1" row="1" tap="navigateToShots"/>
         <Image col="0" row="2" src="~/images/search.png" width="150" height="150" stretch="aspectFill" tap="navigateToSearch"
-               visibility="{{ loggedIn ? 'visible' : 'collapsed' }}"/>
+               />
         <Label class="browselabel" text="Search" col="0" row="3" tap="navigateToSearch"
                visibility="{{ loggedIn ? 'visible' : 'collapsed' }}" />
         <Image col="1" row="2" src="~/images/user.png" width="150" height="150" stretch="aspectFill" tap="navigateToProfile"

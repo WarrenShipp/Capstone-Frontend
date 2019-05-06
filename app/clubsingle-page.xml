@@ -1,0 +1,23 @@
+<Page loaded="record_shot" xmlns:df="nativescript-pro-ui/dataform" xmlns="http://schemas.nativescript.org/tns.xsd">
+    <ActionBar class="action-bar">
+        <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
+        <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
+            tap="onDrawerButtonTap" ios.position="left">
+        </ActionItem>
+        <Label class="action-bar-title" text="Selected Club"></Label>
+    </ActionBar>
+    <StackLayout>
+        <Label text="Name: "></Label>
+		<Label text="{{ name }}"></Label>
+        <Label text="Phone: "></Label>
+        <Label text="{{ phone }}"></Label>
+        <Label text="Suburb: "></Label>
+        <Label text="{{ suburb }}"></Label>
+        <Label text="Country: "></Label>
+        <Label text="{{ country }}"></Label>
+
+        <Button text="Edit Club" tap="navigateToEditClub" />
+    </StackLayout>
+
+    
+</Page>

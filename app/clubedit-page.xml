@@ -1,0 +1,33 @@
+<Page class="page" navigatingTo="onNavigatingTo">
+    <ActionBar class="action-bar">
+        <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
+        <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
+            tap="onDrawerButtonTap" ios.position="left">
+        </ActionItem>
+        <Label class="action-bar-title" text="Club Edit"></Label>
+    </ActionBar>
+
+<ScrollView>
+    <StackLayout>
+
+        <Label text="Club Name  " ></Label>
+		<TextField text="{{ clubName }}" ></TextField>
+        <Button text="Pick Logo" tap="imagePicker"/>
+        <Label text="Contact Number  " ></Label>
+		<TextField text="{{ phoneNumber }}" ></TextField>        
+        <Label text="Address Line 1  " ></Label>
+		<TextField text="{{ street_address_l1 }}" ></TextField>
+        <Label text="Address Line 2  " ></Label>
+		<TextField text="{{ street_address_l2 }}" ></TextField>
+        <Label text="Suburb/City  " ></Label>
+		<TextField text="{{ suburb }}" ></TextField>        
+        <Label text="Postcode  " ></Label>
+		<TextField text="{{ postcode }}" ></TextField>
+        <Label text="Country  " ></Label>
+		<TextField text="{{ country }}" ></TextField>
+
+        <Button text="Save Edit" tap="clubRequest" />
+    </StackLayout>
+</ScrollView>
+
+</Page>

@@ -102,6 +102,16 @@ function navigateToClubCreate(args) {
 }
 exports.navigateToClubCreate = navigateToClubCreate;
 
+function navigateToMyClub(args) {
+    const sideDrawer = app.getRootView();
+    const featuredFrame = frameModule.getFrameById("root");
+    featuredFrame.navigate({
+        moduleName: "club-page"
+    });
+    sideDrawer.closeDrawer();
+}
+exports.navigateToMyClub = navigateToMyClub;
+
 function logout(args) {
 
     const tokenRefresh = appSettings.getString("tokenRefresh");
