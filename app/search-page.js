@@ -88,12 +88,11 @@ exports.onLoaded = function(args) {
 };
 
 exports.Request = function() {
-    console.log(viewModel.get("userName"));
     http.request({
         url: "https://cricket.kinross.co/login/",
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        content: JSON.stringify({ "username": "player", "password": "cricket2" })
+        content: JSON.stringify({ "username": "player@example.com", "password": "cricket2" })
     }).then(function(result) {
         console.log(JSON.stringify(result));
         var obj = JSON.stringify(result);
