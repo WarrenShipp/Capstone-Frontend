@@ -28,7 +28,7 @@ exports.getClubs = function() {
     // var sendToken = "Token " + token;
     console.log(viewModel.get("clubName"));
     var clubName = viewModel.get("clubName");
-    var urlSearch = "https://cricket.kinross.co/club/?name=" + clubName;  
+    var urlSearch = "https://cricket.kinross.co/club/";  
     http.request({
         url: urlSearch,
         method: "GET",
