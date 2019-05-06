@@ -7,11 +7,30 @@
         <Label class="action-bar-title" text="Club Create"></Label>
     </ActionBar>
 
+<ScrollView>
     <StackLayout>
-        <Button text="Request Token" tap="Request" />
+
+        <Label text="Club Name  " ></Label>
+		<TextField text="{{ clubName }}" ></TextField>
+        <Button text="Pick Logo" tap="imagePicker"/>
+        <Label text="Contact Number  " ></Label>
+		<TextField text="{{ phoneNumber }}" ></TextField>        
+        <Label text="Address Line 1  " ></Label>
+		<TextField text="{{ street_address_l1 }}" ></TextField>
+        <Label text="Address Line 2  " ></Label>
+		<TextField text="{{ street_address_l2 }}" ></TextField>
+        <Label text="Suburb/City  " ></Label>
+		<TextField text="{{ suburb }}" ></TextField>        
+        <Label text="Postcode  " ></Label>
+		<TextField text="{{ postcode }}" ></TextField>
+        <Label text="Country  " ></Label>
+		<TextField text="{{ country }}" ></TextField>
+
+        <Button text="Create Club" tap="clubRequest" />
+        
         <Button text="Getclub" tap="getClubs" />
         <Button text="Club" tap="clubRequest" />
     </StackLayout>
-
+</ScrollView>
 
 </Page>

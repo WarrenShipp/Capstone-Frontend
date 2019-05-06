@@ -88,18 +88,19 @@ exports.onLoaded = function(args) {
 };
 
 exports.Request = function() {
+    console.log("test");
     http.request({
-        url: "https://cricket.kinross.co/login/",
+        url: "https://cricket.kinross.co/api/token/",
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        content: JSON.stringify({ "username": "player@example.com", "password": "cricket2" })
+        content: JSON.stringify({ "email": "player@example.com", "password": "cricket2" })
     }).then(function(result) {
         console.log(JSON.stringify(result));
         var obj = JSON.stringify(result);
         obj = JSON.parse(obj);
-        token = obj.content.token;
+        token = obj.content.access;
         console.log(token);
-        var sendToken = "Token " + token;
+        var sendToken = "Bearer " + token;
         appSettings.setString("token", sendToken);
         console.log("memes" + appSettings.getString("token"));
     }, function(error) {
@@ -107,8 +108,27 @@ exports.Request = function() {
     });
 }
 
+exports.getUsers = function() {
+    var sendToken = appSettings.getString("token");
+    console.log(viewModel.get("clubName"));
+    var clubName = viewModel.get("clubName");
+    var urlSearch = "https://cricket.kinross.co/club/?name=" + clubName;  
+    http.request({
+        url: urlSearch,
+        method: "GET",
+        headers: { "Content-Type": "application/json", "Authorization": sendToken }
+    }).then(function(result) {
+        console.log(JSON.stringify(result));
+        var obj = JSON.stringify(result);
+        obj = JSON.parse(obj);
+        console.log(obj.content.results[0].name);
+    }, function(error) {
+        console.error(JSON.stringify(error));
+    });
+}
+
 exports.getClubs = function() {
-    var sendToken = "Token " + token;
+    var sendToken = appSettings.getString("token");
     console.log(viewModel.get("clubName"));
     var clubName = viewModel.get("clubName");
     var urlSearch = "https://cricket.kinross.co/club/?name=" + clubName;  
@@ -127,7 +147,8 @@ exports.getClubs = function() {
 }
 
 exports.getShots = function() {
-    var sendToken = "Token " + token;
+    var sendToken = appSettings.getString("token");
+    console.log(sendToken);
     console.log(viewModel.get("clubName"));
     var clubName = viewModel.get("shotClub");
     var coachName = viewModel.get("shotCoach");

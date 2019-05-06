@@ -13,6 +13,8 @@
                 tap="navigateToSaved" />
             <Button class="btn btn-primary sidedrawer-list-item-text" text="Create Club"
                 tap="navigateToClubCreate" />
+                <Button class="btn btn-primary sidedrawer-list-item-text" text="Test"
+                tap="navigateToTest" />
             <Button class="btn btn-primary sidedrawer-list-item-text" text="Login"
                 tap="navigateToLogin" visibility="{{ loggedIn ? 'collapsed' : 'visible' }}" />
             <Button class="btn btn-primary sidedrawer-list-item-text" text="Logout"

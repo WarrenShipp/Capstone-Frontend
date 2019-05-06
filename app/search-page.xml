@@ -91,7 +91,7 @@
     </GridLayout>
 
     <Button class="btn btn-primary" horizontalAlignment="stretch" tap="getShots" text="Search" visibility="{{ showSubmit ? 'visible' : 'collapsed' }}"></Button>
-    <Button text="Request Token" tap="Request" />
+    <Button text="Request Token" tap="Request"/>
     <Button text="Getclub" tap="getClubs" />
     <Button text="Club" tap="clubRequest" />
     <Button text="Player" tap="playerCreate" />

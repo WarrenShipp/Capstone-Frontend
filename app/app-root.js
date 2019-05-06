@@ -91,8 +91,7 @@ function navigateToClubCreate(args) {
     const sideDrawer = app.getRootView();
     const featuredFrame = frameModule.getFrameById("root");
     featuredFrame.navigate({
-        moduleName: "clubcreate-page",
-        clearHistory: true
+        moduleName: "clubcreate-page"
     });
     sideDrawer.closeDrawer();
 }
@@ -107,3 +106,14 @@ function logout(args) {
     navigateToHome(args);
 }
 exports.logout = logout;
+
+function navigateToTest(args) {
+    const sideDrawer = app.getRootView();
+    const featuredFrame = frameModule.getFrameById("root");
+    featuredFrame.navigate({
+        moduleName: "picker-page",
+        clearHistory: true
+    });
+    sideDrawer.closeDrawer();
+}
+exports.navigateToTest = navigateToTest;
