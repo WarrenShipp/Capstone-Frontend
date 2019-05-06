@@ -10,6 +10,20 @@ var dialogs = require("tns-core-modules/ui/dialogs");
 
 // consts
 const profileUrl = "user/";
+const batsmanTypes = [
+    "Right Hand Batsman",
+    "Left Hand Batsman"
+];
+const bowlerTypes = [
+    "Right Hand Spin",
+    "Right Hand Off Spin",
+    "Right Hand Pace",
+    "Right Hand Chinaman",
+    "Left Hand Spin",
+    "Left Hand Off Spin",
+    "Left Hand Pace",
+    "Left Hand Chinaman"
+];
 
 // profile
 var userId;
@@ -35,13 +49,14 @@ var bowlerType;
 function navigatingTo(args) {
     page = args.object;
 
-    userId = page.navigationContext.userId;
-    isSelf = page.navigationContext.userId ? page.navigationContext.userId : false;
+    // userId = page.navigationContext.userId;
+    isSelf = page.navigationContext.isSelf ? page.navigationContext.isSelf : false;
 
-    if (isSelf && !userId) {
-        userId = appSettings.getString("userId");
+    if (!isSelf) {
+        userId = page.navigationContext.userId;
     }
-    var sendToken = appSettings.getString("token");
+    var sendToken = appSettings.getString("tokenAccess");
+    console.log(sendToken);
 
     // set self-profile-related stuff
     if (isSelf) {
@@ -52,40 +67,59 @@ function navigatingTo(args) {
     viewModel.set("profileTitle", pageTitle);
     viewModel.set("canEdit", isSelf);
     page.bindingContext = viewModel;
+
+    if (isSelf) {
+        http.request({
+            url: global.serverUrl + profileUrl + "me/",
+            method: "GET",
+            headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken }
+        }).then(function (result) {
+            console.log(result);
+            var obj = JSON.stringify(result);
+            obj = JSON.parse(obj);
+
+            // user didn't get from database.
+            if (!obj.content || !obj.content.id) {
+                console.log("Could not find myself.");
+                return;
+            }
+
+            // go through vars and add to profile page
+            _makeProfilePage(obj.content, isSelf);
+
+        }, function (error) {
+            console.error(JSON.stringify(error));
+        });
+    } else if (userId) {
+        http.request({
+            url: global.serverUrl + profileUrl + userId,
+            method: "GET",
+            headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken }
+        }).then(function (result) {
+            console.log(result);
+            var obj = JSON.stringify(result);
+            obj = JSON.parse(obj);
+
+            // user didn't get from database.
+            if (!obj.content || !obj.content.id) {
+                console.log("Could not find user.");
+                return;
+            }
+
+            // go through vars and add to profile page
+            _makeProfilePage(obj.content, isSelf);
+
+        }, function (error) {
+            console.error(JSON.stringify(error));
+        });
+    } else {
+        dialogs.alert({
+            title: "Couldn't find user!",
+            message: "A user ID wasn't provided.",
+            okButtonText: "Okay"
+        }).then(function () { });
+    }
     
-    http.request({
-        url: global.serverUrl + profileUrl + userId,
-        method: "GET",
-        headers: { "Content-Type": "application/json", "Authorization": sendToken }
-    }).then(function (result) {
-        console.log(JSON.stringify(result));
-        var obj = JSON.stringify(result);
-        obj = JSON.parse(obj);
-
-        // if nothing found, show error dialog
-        /*
-        if (!obj.) {
-            let message = "Insert error message.";
-            dialogs.alert({
-                title: "Error!",
-                message: message,
-                okButtonText: "Okay"
-            }).then(function () { });
-            return;
-        }
-        */
-
-        // go through vars and add to profile page
-        name = obj.first_name + " " + obj.last_name;
-        if (isSelf) {
-            email = obj.email;
-            phone = obj.phone;
-        }
-        imgSrc = obj.profile_pic;
-
-    }, function (error) {
-        console.error(JSON.stringify(error));
-    });
 }
 exports.navigatingTo = navigatingTo;
 
@@ -109,3 +143,57 @@ exports.Requested = function(args) {
 
 
 }
+
+function _makeProfilePage(user, isSelf) {
+    /*
+    name        : String
+    email       : String
+    phone       : String
+    imgSrc      : String
+    inClub      : boolean
+    isPlayer    : boolean
+    batsmanType : String
+    bowlerType  : String
+    canEdit     : boolean
+    */
+    name = user.first_name + " " + user.last_name;
+    imgSrc = user.imgSrc;
+    isPlayer = user.is_player;
+    if (isSelf) {
+        email = user.email;
+        if (isPlayer && user.player) {
+            phone = user.player.phone_number;
+        }
+    }
+    inClub = false; // TODO make club display work
+    if (isPlayer && user.player) {
+        batsmanType = batsmanTypes[user.player.batsman_type];
+        bowlerType = bowlerTypes[user.player.bowler_type];
+    }
+    canEdit = isSelf;
+
+    // set all
+    viewModel.set("imgSrc", imgSrc);
+    viewModel.set("name", name);
+    viewModel.set("email", email);
+    viewModel.set("phone", phone);
+    viewModel.set("inClub", inClub);
+    viewModel.set("isPlayer", isPlayer);
+    viewModel.set("batsmanType", batsmanType);
+    viewModel.set("bowlerType", bowlerType);
+    viewModel.set("canEdit", canEdit);
+}
+
+function editSelf(args) {
+    if (isSelf) {
+        page.frame.navigate({
+            moduleName: "edit-profile-page",
+        });
+    } else {
+        dialogs.alert({
+            title: "Can't edit someone else's profile!",
+            okButtonText: "Okay"
+        }).then(function () { });
+    }
+}
+exports.editSelf = editSelf;

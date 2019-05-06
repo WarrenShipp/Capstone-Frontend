@@ -19,39 +19,48 @@ exports.login = function(args) {
     let email = page.getViewById("email");
     let password = page.getViewById("password");
 
+    // try to log in.
     http.request({
-        url: "https://cricket.kinross.co/login/",
+        url: global.serverUrl + "api/token/",
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        content: JSON.stringify({ "username": email.text, "password": password.text })
+        content: JSON.stringify({ "email": email.text, "password": password.text })
     }).then(function (result) {
-        // console.log(result);
-        var obj = JSON.stringify(result)
+        // console.log("log in start");
+        console.log(result);
+        // console.log("print result");
+        var obj = JSON.stringify(result);
+        // console.log("stringify result");
         obj = JSON.parse(obj);
-        // console.log(obj);
-        var token = obj.content.token;
-        // console.log(token);
-        if (!token || obj.content.non_field_errors) {
-            console.error(obj.content.non_field_errors);
-            let message = obj.content.non_field_errors[0] ? obj.content.non_field_errors[0] : "Could not log in.";
+        // console.log("parse result");
+        var tokenAccess = obj.content.access;
+        var tokenRefresh = obj.content.refresh;
+        console.log(tokenAccess + " " + tokenRefresh);
+
+        // could not get token / login with credentials.
+        if (!tokenAccess || obj.content.detail) {
+            console.log("Login Error: " + obj.content.detail);
+            let message = obj.content.detail ? obj.content.detail : "Could not log in.";
             dialogs.alert({
                 title: "Could not login!",
                 message: message,
                 okButtonText: "Okay"
             }).then(function () { });
             return;
-        }
-        if (token) {
-            appSettings.setString("token", token);
-            console.log("token = " + appSettings.getString("token"));
-            // TODO return userid
-            // var userId = obj.content.user_id;
-            // appSettings.setString("userId", userId);
-            // console.log("userId = " + appSettings.getString("userId"));
+        } else {
+
+            // Set tokens
+            appSettings.setString("tokenAccess", tokenAccess);
+            appSettings.setString("tokenRefresh", tokenRefresh);
+            appSettings.setNumber("lastRefresh", (new Date()).getTime());
+            console.log("access = " + appSettings.getString("tokenAccess"));
+            console.log("refresh = " + appSettings.getString("tokenRefresh"));
+            console.log("lastRefresh = " + appSettings.getNumber("lastRefresh"));
             page.frame.navigate({
                 moduleName: "home-page",
                 clearHistory: true
             });
+        
         }
     }, function (error) {
         console.error(JSON.stringify(error));

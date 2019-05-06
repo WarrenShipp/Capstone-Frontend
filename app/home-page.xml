@@ -10,17 +10,16 @@
     <GridLayout columns="*,*" rows="3*,*,3*,*" margin="10">
         <Image col="0" row="0" src="~/images/film.png" width="150" height="150" stretch="aspectFill" tap="navigateToRecord" />
         <Label class="browselabel" text="Record" col="0" row="1" tap="navigateToRecord"/>
-        <Image col="1" row="0" src="~/images/search.png" width="150" height="150" stretch="aspectFill" tap="navigateToSearch" />
-        <Label class="browselabel" text="Search" col="1" row="1" tap="navigateToSearch"/>
-        <Image col="0" row="2" src="~/images/folder.png" width="150" height="150" stretch="aspectFill" tap="navigateToShots" />
-        <Label class="browselabel" text="Local Shots" col="0" row="3" tap="navigateToShots"/>
-        <Image col="1" row="2" src="~/images/user.png" width="150" height="150" stretch="aspectFill" tap="navigateToProfile" />
-        <Label class="browselabel" text="My Profile" col="1" row="3" tap="navigateToProfile"/>
-        <!-- <Button class="btn btn-primary" text="Search" tap="navigateToSearch" />
-        <Button class="btn btn-primary" text="Record" tap="navigateToRecord" />
-        <Button class="btn btn-primary" text="View Shots" tap="navigateToShots" />
-        <Button class="btn btn-primary" text="Profile" tap="navigateToProfile" />
-        <Button class="btn btn-primary" text="TEST" tap="navigateToTest" /> -->
+        <Image col="1" row="0" src="~/images/folder.png" width="150" height="150" stretch="aspectFill" tap="navigateToShots" />
+        <Label class="browselabel" text="Local Shots" col="1" row="1" tap="navigateToShots"/>
+        <Image col="0" row="2" src="~/images/search.png" width="150" height="150" stretch="aspectFill" tap="navigateToSearch"
+               visibility="{{ loggedIn ? 'visible' : 'collapsed' }}"/>
+        <Label class="browselabel" text="Search" col="0" row="3" tap="navigateToSearch"
+               visibility="{{ loggedIn ? 'visible' : 'collapsed' }}" />
+        <Image col="1" row="2" src="~/images/user.png" width="150" height="150" stretch="aspectFill" tap="navigateToProfile"
+               visibility="{{ loggedIn ? 'visible' : 'collapsed' }}" />
+        <Label class="browselabel" text="My Profile" col="1" row="3" tap="navigateToProfile"
+               visibility="{{ loggedIn ? 'visible' : 'collapsed' }}" />
     </GridLayout>
 
     

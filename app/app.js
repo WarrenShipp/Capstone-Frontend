@@ -9,6 +9,7 @@ const appSettings = require("application-settings");
 
 // set server location
 global.serverUrl = "https://cricket.kinross.co/";
+global.refreshTime = 300000;    // half of ten minutes
 
 application.run({ moduleName: "app-root" });
 

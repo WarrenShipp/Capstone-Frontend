@@ -27,22 +27,24 @@
             </GridLayout>
 
             <!-- Registered Clubs -->
-            <Label text="Registered Clubs" />
+            <Label text="Registered Clubs" visibility="{{ inClub ? 'visible' : 'collapsed' }}" />
             <Label text="This user is not registered to any clubs." visibility="{{ inClub ? 'collapsed' : 'visible' }}" />
             <StackLayout id="clubContainer" visibility="{{ inClub ? 'visible' : 'collapsed' }}">
                 <!-- ViewList goes here -->
             </StackLayout>
 
             <!-- Player Info -->
-            <Label text="Player Information" />
-            <DockLayout stretchLastChild="true">
-                <Label dock="left" text="Batsman Type:" />
-                <Label dock="left" text="{{ batsmanType }}" />
-            </DockLayout>
-            <DockLayout stretchLastChild="true">
-                <Label dock="left" text="Bowler Type:" />
-                <Label dock="left" text="{{ bowlerType }}" />
-            </DockLayout>
+            <StackLayout visibility="{{ isPlayer ? 'visible' : 'collapsed' }}">
+                <Label text="Player Information" />
+                <DockLayout stretchLastChild="true">
+                    <Label dock="left" text="Batsman Type:" />
+                    <Label dock="left" text="{{ batsmanType }}" />
+                </DockLayout>
+                <DockLayout stretchLastChild="true">
+                    <Label dock="left" text="Bowler Type:" />
+                    <Label dock="left" text="{{ bowlerType }}" />
+                </DockLayout>
+            </StackLayout>
 
             <!-- Actions -->
             <Label text="Actions" />
