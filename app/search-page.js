@@ -93,7 +93,7 @@ exports.Request = function() {
         url: "https://cricket.kinross.co/api/token/",
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        content: JSON.stringify({ "email": "player@example.com", "password": "cricket2" })
+        content: JSON.stringify({ "email": "coach@example.com", "password": "cricket2" })
     }).then(function(result) {
         console.log(JSON.stringify(result));
         var obj = JSON.stringify(result);
@@ -117,7 +117,7 @@ exports.requestPlayer = function() {
         url: "https://cricket.kinross.co/join/",
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": sendToken },
-        content: JSON.stringify({ "club": "0d40b896-801b-4b13-9599-9d79f062fc17",  "user": "a96b6156-5c16-4ff3-a546-1f5dd537b211", "join_type": "p"})
+        content: JSON.stringify({ "club": "0d808588-e2cc-4141-8921-01e568e2c965",  "user": "a96b6156-5c16-4ff3-a546-1f5dd537b211", "join_type": "a"})
     }).then(function(result) {
         console.log(JSON.stringify(result));
     }, function(error) {
@@ -131,10 +131,9 @@ exports.acceptPlayer = function() {
 
     console.log(sendToken);
     http.request({
-        url: "https://cricket.kinross.co/join/",
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": sendToken },
-        content: JSON.stringify({ "user": "tester", "birthdate": "2019-01-01", "phone_number": "0398120260", "batsman_type": "1", "bowler_type": "1"})
+        url: "https://cricket.kinross.co/join/c5df8536-5d04-45c5-be31-4dcce51a80fc/accept/",
+        method: "GET",
+        headers: { "Content-Type": "application/json", "Authorization": sendToken }
     }).then(function(result) {
         console.log(JSON.stringify(result));
     }, function(error) {
