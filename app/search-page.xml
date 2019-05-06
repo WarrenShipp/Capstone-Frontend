@@ -98,6 +98,8 @@
     <Button text="Shot" tap="shotCreate" />
     <Button text="ShotTest" tap="shotTest" />
     <Button text="VideoTest" tap="videoTest" />
+    <Button text="Request Player" tap="requestPlayer" />
+    <Button text="Accept Inv" tap="acceptPlayer" />
     
 
 		<StackLayout class="border-search" tap="clubInfo" visibility="{{ showSearchClub ? 'visible' : 'collapsed' }}">

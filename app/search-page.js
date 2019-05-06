@@ -108,6 +108,40 @@ exports.Request = function() {
     });
 }
 
+exports.requestPlayer = function() {
+    var sendToken = appSettings.getString("token");
+
+
+    console.log(sendToken);
+    http.request({
+        url: "https://cricket.kinross.co/join/",
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": sendToken },
+        content: JSON.stringify({ "club": "0d40b896-801b-4b13-9599-9d79f062fc17",  "user": "a96b6156-5c16-4ff3-a546-1f5dd537b211", "join_type": "p"})
+    }).then(function(result) {
+        console.log(JSON.stringify(result));
+    }, function(error) {
+        console.error(JSON.stringify(error));
+    });
+}
+
+exports.acceptPlayer = function() {
+    var sendToken = appSettings.getString("token");
+
+
+    console.log(sendToken);
+    http.request({
+        url: "https://cricket.kinross.co/join/",
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": sendToken },
+        content: JSON.stringify({ "user": "tester", "birthdate": "2019-01-01", "phone_number": "0398120260", "batsman_type": "1", "bowler_type": "1"})
+    }).then(function(result) {
+        console.log(JSON.stringify(result));
+    }, function(error) {
+        console.error(JSON.stringify(error));
+    });
+}
+
 exports.getUsers = function() {
     var sendToken = appSettings.getString("token");
     console.log(viewModel.get("clubName"));
