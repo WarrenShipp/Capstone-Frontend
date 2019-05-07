@@ -9,6 +9,8 @@
     <StackLayout>
         <Label text="Name: "></Label>
 		<Label text="{{ name }}"></Label>
+        <Label text="Logo: "></Label>
+        <Image src="{{ imageUri }}" width="100" height="100" stretch="aspectFill" />
         <Label text="Phone: "></Label>
         <Label text="{{ phone }}"></Label>
         <Label text="Suburb: "></Label>

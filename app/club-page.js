@@ -5,6 +5,7 @@ var Label = require("tns-core-modules/ui/label").Label;
 var ObservableArray = require("data/observable-array").ObservableArray;
 var viewModel = new observable.Observable();
 var frameModule = require("ui/frame");
+const app = require("tns-core-modules/application");
 //const dialogs = require("tns-core-modules/ui/dialogs");
 const appSettings = require("application-settings");
 var http = require("http");

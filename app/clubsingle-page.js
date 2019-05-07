@@ -50,7 +50,9 @@ exports.record_shot = function(args) {
 
 function clubDetails(data){
     console.log(data.suburb);
+    console.log(data.logo);
     viewModel.set("name", data.name);
+    viewModel.set("imageUri", data.logo);
     viewModel.set("phone", data.phone_number);
     viewModel.set("suburb", data.suburb);
     viewModel.set("country", data.country);

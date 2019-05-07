@@ -45,7 +45,6 @@ exports.getClubs = function() {
         console.log(JSON.stringify(result));
         var obj = JSON.stringify(result);
         obj = JSON.parse(obj);
-        console.log(obj.content.results[0].name);
     }, function(error) {
         console.error(JSON.stringify(error));
     });
@@ -81,10 +80,6 @@ exports.imagePicker = function(){
             // process the selected image
             console.log(selected.android.toString());
             logo = selected.android.toString();
-            // console.log("Selection done: " + JSON.stringify(selection));
-            // var image = JSON.stringify(selection);
-            // var path = JSON.parse(image._android);
-            // console.log(path);
         });
         list.items = selection;
     }).catch(function (e) {
@@ -147,7 +142,7 @@ exports.clubRequest = function() {
          //var task = session.uploadFile(file, request);
          var task = session.multipartUpload(params, request);   
 
-        task.on("progress", progressHandler);
+        //task.on("progress", progressHandler);
         task.on("error", errorHandler);
         task.on("responded", respondedHandler);
         task.on("complete", completeHandler);
@@ -167,11 +162,12 @@ function progressHandler(e) {
 // error: java.lang.Exception (Android) / NSError (iOS)
 // response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
 function errorHandler(e) {
-    alert("received error " + e.responseCode + " code.");
+    //alert("received error " + e.responseCode + " code.");
+    alert(e.responseCode + e.response.getBodyAsString())
     var serverResponse = e.response;
     console.log(JSON.stringify(serverResponse));
     console.log(e.error);
-    console.log(e.response);
+    console.log(e.response.getBodyAsString());
     console.log(e.task);
 }
 
@@ -189,8 +185,9 @@ function respondedHandler(e) {
 // responseCode: number
 // response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
 function completeHandler(e) {
-    alert("received " + e.responseCode + " code");
+    //alert("received " + e.responseCode + " code");
     var serverResponse = e.response;
+    alert("Club Created");
 }
 
 // event arguments:
