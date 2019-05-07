@@ -6,6 +6,7 @@ var http = require("http");
 var bghttp = require("nativescript-background-http");
 var session = bghttp.session("file-upload");
 const appSettings = require("application-settings");
+const modalViewModule = "modal-account-create-page";
 
 exports.onDrawerButtonTap = function(args) {
     const sideDrawer = app.getRootView();
@@ -76,11 +77,7 @@ exports.login = function(args) {
 exports.createAccount = function(args) {
     const button = args.object;
     const page = button.page;
-    if(page.android) {
-        var Toast = android.widget.Toast;
-        Toast.makeText(application.android.context, "Account Created", Toast.LENGTH_SHORT).show();
-    }
+    const fullscreen = false;
 
-    page.frame.navigate("home-page");
-
+    button.showModal(modalViewModule, {}, () => {}, fullscreen);
 }

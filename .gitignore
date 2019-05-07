@@ -1,4 +1,4 @@
-# NativeScript
+﻿# NativeScript
 hooks/
 node_modules/
 platforms/
@@ -29,3 +29,8 @@ typings/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# Other
+.vs
+package.json
+package-lock.json

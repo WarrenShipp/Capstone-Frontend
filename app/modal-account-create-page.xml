@@ -1,0 +1,21 @@
+<Page xmlns="http://www.nativescript.org/tns.xsd" shownModally="onShownModally">
+    <ScrollView>
+        <StackLayout>
+            <Label text="Create Account" textAlignment="center" />
+            <TextField text="{{ firstName }}" hint="First Name"
+                       returnKeyType="next" />
+            <TextField text="{{ lastName }}" hint="Last Name"
+                       returnKeyType="next" />
+            <TextField text="{{ email }}" hint="Email"
+                       keyboardType="email" AutocapitalizationType="none" returnKeyType="next" />
+            <TextField text="{{ password }}" hint="Password"
+                       autocapitalizationType="none" secure="true" returnKeyType="next" />
+            <TextField text="{{ passwordConfirm }}" hint="Confirm Password"
+                       autocapitalizationType="none" secure="true" returnKeyType="done" />
+            <GridLayout rows="*" cols="*,*">
+                <Button row="0" col="0" text="Cancel" tap="onCancel" />
+                <Button row="0" col="1" text="Create" tap="onCreate" />
+            </GridLayout>
+        </StackLayout>
+    </ScrollView>
+</Page>
