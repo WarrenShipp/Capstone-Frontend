@@ -32,19 +32,25 @@ var isSelf;
 // title
 var pageTitle;
 
-// player args
+// user args
 var imgSrc;
 var name;
 var email;
-var phone
+var phone;
 
 // club args
 var inClub;
 var clubList = [];
 
 // player info args
+var isPlayer;
 var batsmanType;
 var bowlerType;
+var birthDate;
+
+// coach info args
+var isCoach;
+var yearsExperience;
 
 function navigatingTo(args) {
     page = args.object;
@@ -146,15 +152,19 @@ exports.Requested = function(args) {
 
 function _makeProfilePage(user, isSelf) {
     /*
-    name        : String
-    email       : String
-    phone       : String
-    imgSrc      : String
-    inClub      : boolean
-    isPlayer    : boolean
-    batsmanType : String
-    bowlerType  : String
-    canEdit     : boolean
+    name            : String
+    email           : String
+    phone           : String
+    imgSrc          : String
+    inClub          : boolean
+    clubs           : NOT IMPLEMENTED
+    isPlayer        : boolean
+    batsmanType     : String
+    bowlerType      : String
+    birthDate       : String
+    isCoach         : boolean
+    yearsExperience : integer
+    canEdit         : boolean
     */
     name = user.first_name + " " + user.last_name;
     imgSrc = user.imgSrc;
@@ -169,6 +179,11 @@ function _makeProfilePage(user, isSelf) {
     if (isPlayer && user.player) {
         batsmanType = batsmanTypes[user.player.batsman_type];
         bowlerType = bowlerTypes[user.player.bowler_type];
+        birthDate = user.player.birthdate;
+    }
+    isCoach = user.is_coach;
+    if (isCoach && user.coach) {
+        yearsExperience = user.coach.years_experience;
     }
     canEdit = isSelf;
 
@@ -181,6 +196,9 @@ function _makeProfilePage(user, isSelf) {
     viewModel.set("isPlayer", isPlayer);
     viewModel.set("batsmanType", batsmanType);
     viewModel.set("bowlerType", bowlerType);
+    viewModel.set("birthDate", birthDate);
+    viewModel.set("isCoach", isCoach);
+    viewModel.set("yearsExperience", yearsExperience);
     viewModel.set("canEdit", canEdit);
 }
 

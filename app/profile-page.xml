@@ -27,7 +27,7 @@
             </GridLayout>
 
             <!-- Registered Clubs -->
-            <Label text="Registered Clubs" visibility="{{ inClub ? 'visible' : 'collapsed' }}" />
+            <Label text="Registered Clubs" />
             <Label text="This user is not registered to any clubs." visibility="{{ inClub ? 'collapsed' : 'visible' }}" />
             <StackLayout id="clubContainer" visibility="{{ inClub ? 'visible' : 'collapsed' }}">
                 <!-- ViewList goes here -->
@@ -36,6 +36,10 @@
             <!-- Player Info -->
             <StackLayout visibility="{{ isPlayer ? 'visible' : 'collapsed' }}">
                 <Label text="Player Information" />
+                <DockLayout>
+                    <Label dock="left" text="Date of Birth:" />
+                    <Label dock="left" text="{{ birthDate }}" />
+                </DockLayout>
                 <DockLayout stretchLastChild="true">
                     <Label dock="left" text="Batsman Type:" />
                     <Label dock="left" text="{{ batsmanType }}" />
@@ -43,6 +47,15 @@
                 <DockLayout stretchLastChild="true">
                     <Label dock="left" text="Bowler Type:" />
                     <Label dock="left" text="{{ bowlerType }}" />
+                </DockLayout>
+            </StackLayout>
+
+            <!-- Coach Info -->
+            <StackLayout visibility="{{ isCoach ? 'visible' : 'collapsed' }}">
+                <Label text="Coaching Information" />
+                <DockLayout>
+                    <Label dock="left" text="Years Experience:" />
+                    <Label dock="left" text="{{ yearsExperience }}" />
                 </DockLayout>
             </StackLayout>
 

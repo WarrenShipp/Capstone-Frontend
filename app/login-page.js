@@ -7,25 +7,38 @@ var bghttp = require("nativescript-background-http");
 var session = bghttp.session("file-upload");
 const appSettings = require("application-settings");
 const modalViewModule = "modal-account-create-page";
+var observable = require("data/observable");
+var viewModel = new observable.Observable();
+
+var email;
+var password;
 
 exports.onDrawerButtonTap = function(args) {
     const sideDrawer = app.getRootView();
     sideDrawer.showDrawer();
 }
 
+function pageLoaded(args) {
+    page = args.object;
+    page.bindingContext = viewModel;
+}
+exports.pageLoaded = pageLoaded;
+
 exports.login = function(args) {
     const button = args.object;
     const page = button.page;
     
-    let email = page.getViewById("email");
-    let password = page.getViewById("password");
+    // let email = page.getViewById("email").text;
+    // let password = page.getViewById("password").text;
+    let email = viewModel.get("email");
+    let password = viewModel.get("password");
 
     // try to log in.
     http.request({
         url: global.serverUrl + "api/token/",
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        content: JSON.stringify({ "email": email.text, "password": password.text })
+        content: JSON.stringify({ "email": email, "password": password })
     }).then(function (result) {
         // console.log("log in start");
         console.log(result);

@@ -11,12 +11,12 @@
 			<Label text="Cricket App" />
 
 			<StackLayout >
-				<TextField id="email" hint="Email" returnKeyType="next" />
+				<TextField id="email" hint="Email" text="{{ email }}" returnKeyType="next" />
 				<Label class="hr-light" />
 			</StackLayout>
 
 			<StackLayout>
-				<TextField id="password" hint="Password" secure="true"/>
+				<TextField id="password" hint="Password" text="{{ password }}" secure="true"/>
 				<Label class="hr-light" />
 			</StackLayout>
 
