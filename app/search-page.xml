@@ -102,7 +102,7 @@
     <Button text="Accept Inv" tap="acceptPlayer" />
     
 
-		<StackLayout class="border-search" tap="clubInfo" visibility="{{ showSearchClub ? 'visible' : 'collapsed' }}">
+		<!-- <StackLayout class="border-search" tap="clubInfo" visibility="{{ showSearchClub ? 'visible' : 'collapsed' }}">
             <Label class="list-group-item-heading" text="Club: RMIT Club"></Label>
             <Label class="list-group-item-text" text="League: Starleague"></Label>
         </StackLayout>
@@ -115,7 +115,7 @@
         <StackLayout class="border-search" tap="userInfo" visibility="{{ showSearchUser ? 'visible' : 'collapsed' }}">
             <Label class="list-group-item-heading" text="Name: Alex Huang"></Label>
             <Label class="list-group-item-text" text="Club: Polaris Club"></Label>
-        </StackLayout>
+        </StackLayout> -->
 
     </StackLayout>
     </ScrollView>

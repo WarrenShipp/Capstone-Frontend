@@ -27,9 +27,6 @@
 		<TextField text="{{ country }}" ></TextField>
 
         <Button text="Create Club" tap="clubRequest" />
-        
-        <Button text="Getclub" tap="getClubs" />
-        <Button text="Club" tap="clubRequest" />
     </StackLayout>
 </ScrollView>
 

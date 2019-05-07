@@ -229,7 +229,7 @@ exports.upload = function(args){
         url: "https://cricket.kinross.co/shot/",
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": sendToken },
-        content: JSON.stringify({ "player": "bbfd9706-a866-4c89-9fa6-20f705ce5898", "club": "51d3a105-6d8c-4b08-b20f-cfc676afc049", "type": 2, "rating": 2})
+        content: JSON.stringify({ "player": "bb656952-d2a9-4ed9-bd56-df4f1c591cae", "club": "4af99431-1408-4753-a913-62e54ceeaf98", "type": 2, "rating": 2})
     }).then(function(result) {
         console.log(JSON.stringify(result));
         var obj = JSON.stringify(result);
@@ -262,7 +262,8 @@ exports.upload = function(args){
              ];
              //var task = session.uploadFile(file, request);
              var task = session.multipartUpload(params, request);
-             task.on("complete", completeHandler);  
+             task.on("complete", completeHandler);
+             task.on("error", errorHandler);
     }, function(error) {
         console.error(JSON.stringify(error));
     });
@@ -303,6 +304,7 @@ function errorHandler(e) {
     var serverResponse = e.response;
     console.log(serverResponse);
     console.log(e);
+    console.log(e.response.getBodyAsString());
 }
 
 

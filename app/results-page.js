@@ -20,8 +20,9 @@ function onNavigatingTo(args) {
     const listView = new listViewModule.ListView();
     var lists = new ObservableArray([]);
 
-
     var gotData=page.navigationContext;
+    var searchType = gotData.searchType;
+    console.log(searchType);
     console.log("this is it");
     var sendToken = appSettings.getString("token");
     console.log(sendToken);
@@ -34,11 +35,20 @@ function onNavigatingTo(args) {
         var obj = JSON.stringify(result);
         obj = JSON.parse(obj);
         var test = obj.content.results;
-        for (i=0; i<10; i++){
-        console.log(obj.content.results[i].id);
-        console.log(obj.content.results[i].video_set[0].file);
-        lists.push({id: test[i].player_name, path: test[i].video_set[0].file});
+        if (searchType == 1){
+            for (i=0; i<10; i++){
+            console.log(obj.content.results[i].id);
+            console.log(obj.content.results[i].video_set[0].file);
+            lists.push({id: test[i].player_name, path: test[i].video_set[0].file});
+            }
         }
+        else if (searchType == 2){
+            for (i=0; i<10; i++){
+                console.log(obj.content.results[i].id);
+            lists.push({id: obj.content.results[i].id, firstname: obj.content.results[i].first_name, lastname: obj.content.results[i].last_name})
+            }
+        }
+        
     }, function(error) {
         console.error(JSON.stringify(error));
     });
@@ -52,9 +62,16 @@ function onNavigatingTo(args) {
             args.view = new Label();
             args.view.className = "list-group-item";
         }
+        if (searchType == 1){
         (args.view).text = "ID: " + listView.items.getItem(args.index).id + " Shot: " + listView.items.getItem(args.index).shottype + " Rating: " + 
         listView.items.getItem(args.index).rating;
         (args.view).textWrap = true;
+        }
+        else if(searchType == 2){
+            (args.view).text = "ID: " + listView.items.getItem(args.index).id + " Name: " + listView.items.getItem(args.index).firstname + " " + 
+            listView.items.getItem(args.index).lastname;
+            (args.view).textWrap = true;
+        }
 
     });
 
@@ -63,9 +80,19 @@ function onNavigatingTo(args) {
         const tappedItemView = args.view;
         var path = listView.items.getItem(args.index).path;
         var id = listView.items.getItem(args.index).id;
+        var redirect;
+        var passContext;
+        if (searchType == 1){
+            redirect = 'viewlocal-page';
+            passContext = {path: path, id: id};
+        }
+        else if (searchType == 2){
+            redirect = 'profile';
+            passContext = {id: id};
+        }
         var navigationOptions={
-            moduleName:'viewlocal-page',
-            context:{path: path, id: id}
+            moduleName: redirect,
+            context: passContext
         }
         container.removeChild(listView);
         frameModule.topmost().navigate(navigationOptions);

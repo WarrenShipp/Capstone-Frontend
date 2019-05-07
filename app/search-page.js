@@ -20,6 +20,7 @@ var bghttp = require("nativescript-background-http");
 var session = bghttp.session("file-upload");
 var dropdown = require("nativescript-drop-down");
 var id;
+var searchSubmitType;
 
 exports.onLoaded = function(args) {
     console.log("pageLoaded");
@@ -76,6 +77,8 @@ exports.onLoaded = function(args) {
     viewModel.set("shotTypes", shotType);
     viewModel.set("ratingTypes", ratingType)
     viewModel.set("userTypes", userType)
+
+    viewModel.set("userName", "");
 
     //viewModel.set("typeIndex", 0);
     //console.log(viewModel.get("searchTypes"));
@@ -183,14 +186,22 @@ exports.getShots = function() {
     var sendToken = appSettings.getString("token");
     console.log(sendToken);
     console.log(viewModel.get("clubName"));
-    var clubName = viewModel.get("shotClub");
-    var coachName = viewModel.get("shotCoach");
-    var playerName = viewModel.get("shotPlayer");
-    var date_before = dateStart;
-    var date_after = dateEnd;
-    var urlSearch = "https://cricket.kinross.co/shot/?" + "club_name=" + clubName + "&coach_name=" + coachName + "&player_name=" + playerName
-    "&date_before=" + date_before + "&date_after=" + date_after;  
-    console.log(urlSearch);
+    if (searchSubmitType == 1){
+        var clubName = viewModel.get("shotClub");
+        var coachName = viewModel.get("shotCoach");
+        var playerName = viewModel.get("shotPlayer");
+        var date_before = dateStart;
+        var date_after = dateEnd;
+        var urlSearch = "https://cricket.kinross.co/shot/?" + "club_name=" + clubName + "&coach_name=" + coachName + "&player_name=" + playerName
+        "&date_before=" + date_before + "&date_after=" + date_after;  
+        console.log(urlSearch);
+    }
+    else if (searchSubmitType == 2){
+        var userName = viewModel.get("userName");
+        var userClub = viewModel.get("userClub");
+        var urlSearch = "https://cricket.kinross.co/user/?" + "name=" + userName;
+        console.log(urlSearch);
+    }
     // http.request({
     //     url: urlSearch,
     //     method: "GET",
@@ -208,7 +219,8 @@ exports.getShots = function() {
     var navigationOptions={
         moduleName:'results-page',
         context:{
-            urlSearch: urlSearch
+            urlSearch: urlSearch,
+            searchType: searchSubmitType
                 }
     }
 
@@ -574,7 +586,7 @@ exports.dropDownSelectedIndexChanged = function (args){
     console.log("dropDownSelectedIndexChanged");
     console.log(args.newIndex);
     viewModel.set("showSubmit", true);
-
+    searchSubmitType = args.newIndex;
     if (args.newIndex == 0){
         console.log("club search");
         viewModel.set("showClub", true);

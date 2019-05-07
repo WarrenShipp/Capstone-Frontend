@@ -1,7 +1,11 @@
-<Page xmlns="http://www.nativescript.org/tns.xsd" navigatingTo="onNavigatingTo">
-    <Page.actionBar>
-		<ActionBar title="My Clubs"/>
-	</Page.actionBar>
+<Page loaded="onNavigatingTo" xmlns:df="nativescript-pro-ui/dataform" xmlns="http://schemas.nativescript.org/tns.xsd">
+    <ActionBar class="action-bar">
+        <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
+        <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
+            tap="onDrawerButtonTap" ios.position="left">
+        </ActionItem>
+        <Label class="action-bar-title" text="Club Admin"></Label>
+    </ActionBar>
     <StackLayout id="container">
     <ScrollView>
     </ScrollView>

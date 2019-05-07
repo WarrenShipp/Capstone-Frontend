@@ -131,7 +131,7 @@ exports.clubRequest = function() {
          //var task = session.uploadFile(file, request);
           var task = session.multipartUpload(params, request);   
 
-        task.on("progress", progressHandler);
+        //task.on("progress", progressHandler);
         task.on("error", errorHandler);
         task.on("responded", respondedHandler);
         task.on("complete", completeHandler);
