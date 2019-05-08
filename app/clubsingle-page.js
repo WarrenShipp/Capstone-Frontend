@@ -3,6 +3,7 @@ var observable = require("data/observable");
 var observableArray = require("data/observable-array");
 var pages = require("ui/page");
 var viewModel = observable.Observable;
+const labelModule = require("tns-core-modules/ui/label");
 
 var videoPlayer = require("nativescript-videoplayer");
 
@@ -21,11 +22,12 @@ exports.onDrawerButtonTap = function(args) {
     sideDrawer.showDrawer();
 }
 
-exports.record_shot = function(args) {
+exports.pageLoaded = function(args) {
 	console.log("pageLoaded");
     var sendToken = appSettings.getString("token");
         
-	var page = args.object;
+    var page = args.object;
+    const container = page.getViewById("container");
     viewModel = new observable.Observable();
     page.bindingContext = viewModel;
     gotData=page.navigationContext;
@@ -40,6 +42,12 @@ exports.record_shot = function(args) {
         var obj = JSON.stringify(result);
         obj = JSON.parse(obj);
         console.log(obj.content.name);
+        // const myLabel = new labelModule.Label();
+        // myLabel.text = "The quick brown fox jumps over the lazy dog.";
+        // const myLabel2 = new labelModule.Label();
+        // myLabel2.text = "The quick brown fox jumps over the lazy dog2.";
+        // container.addChild(myLabel);
+        // container.addChild(myLabel2);
         clubDetails(obj.content);
     }, function(error) {
         console.error(JSON.stringify(error));

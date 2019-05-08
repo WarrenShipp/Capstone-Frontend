@@ -71,7 +71,7 @@ exports.login = function(args) {
             var sendToken = "Bearer " + tokenAccess;
             
             appSettings.setString("token", sendToken);
-            console.log(appSettings.getString("token"));
+            console.log("temporary:" + appSettings.getString("token"));
 
             appSettings.setNumber("lastRefresh", (new Date()).getTime());
             console.log("access = " + appSettings.getString("tokenAccess"));

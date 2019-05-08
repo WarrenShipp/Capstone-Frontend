@@ -152,6 +152,8 @@ function logout(args) {
         });
     }
     
+    appSettings.remove("token");
+
     appSettings.remove("tokenAccess");
     appSettings.remove("tokenRefresh");
     appSettings.remove("userId");
