@@ -66,6 +66,13 @@ exports.login = function(args) {
             // Set tokens
             appSettings.setString("tokenAccess", tokenAccess);
             appSettings.setString("tokenRefresh", tokenRefresh);
+
+            // will change later dependancy for my requests
+            var sendToken = "Bearer " + tokenAccess;
+            
+            appSettings.setString("token", sendToken);
+            console.log(appSettings.getString("token"));
+
             appSettings.setNumber("lastRefresh", (new Date()).getTime());
             console.log("access = " + appSettings.getString("tokenAccess"));
             console.log("refresh = " + appSettings.getString("tokenRefresh"));

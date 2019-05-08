@@ -19,6 +19,13 @@ var addressSuburb = "";
 var addressPostcode = "";
 var addressCountry = "";
 
+const app = require("tns-core-modules/application");
+
+exports.onDrawerButtonTap = function (args) {
+    const sideDrawer = app.getRootView();
+    sideDrawer.showDrawer();
+}
+
 exports.onNavigatingTo = function(args){
     
     page = args.object;
