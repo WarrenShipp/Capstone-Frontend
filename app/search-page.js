@@ -105,7 +105,7 @@ exports.sendSearch = function () {
     // Club Search
     if (searchSubmitType == 0) {
         var clubSearchName = viewModel.get("clubName");
-        var clubSearchLeague = viewModel.get("leagueName");
+        var clubSearchLeague = viewModel.get("leagueName"); // not implemented yet
         var urlSearch = global.serverUrl + "club/?" + "name=" + clubSearchName;
     }
     // Shot Search

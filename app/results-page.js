@@ -5,7 +5,6 @@ var Label = require("tns-core-modules/ui/label").Label;
 var ObservableArray = require("data/observable-array").ObservableArray;
 var viewModel = new observable.Observable();
 var frameModule = require("ui/frame");
-//const dialogs = require("tns-core-modules/ui/dialogs");
 const appSettings = require("application-settings");
 var http = require("http");
 var bghttp = require("nativescript-background-http");
@@ -14,42 +13,42 @@ var session = bghttp.session("file-upload");
 
 
 function onNavigatingTo(args) {
-    console.log("lol");
-    page = args.object; 
+
+    page = args.object;
     const container = page.getViewById("container");
     const listView = new listViewModule.ListView();
     var lists = new ObservableArray([]);
 
-    var gotData=page.navigationContext;
+    var gotData = page.navigationContext;
     var searchType = gotData.searchType;
     console.log(searchType);
-    console.log("this is it");
+
     var sendToken = appSettings.getString("token");
     console.log(sendToken);
     http.request({
         url: gotData.urlSearch,
         method: "GET",
         headers: { "Content-Type": "application/json", "Authorization": sendToken }
-    }).then(function(result) {
+    }).then(function (result) {
         console.log(JSON.stringify(result));
         var obj = JSON.stringify(result);
         obj = JSON.parse(obj);
         var test = obj.content.results;
-        if (searchType == 1){
-            for (i=0; i<10; i++){
-            console.log(obj.content.results[i].id);
-            console.log(obj.content.results[i].video_set[0].file);
-            lists.push({id: test[i].player_name, path: test[i].video_set[0].file});
-            }
-        }
-        else if (searchType == 2){
-            for (i=0; i<10; i++){
+        if (searchType == 1) {
+            for (i = 0; i < 10; i++) {
                 console.log(obj.content.results[i].id);
-            lists.push({id: obj.content.results[i].id, firstname: obj.content.results[i].first_name, lastname: obj.content.results[i].last_name})
+                console.log(obj.content.results[i].video_set[0].file);
+                lists.push({ id: test[i].player_name, path: test[i].video_set[0].file });
             }
         }
-        
-    }, function(error) {
+        else if (searchType == 2) {
+            for (i = 0; i < 10; i++) {
+                console.log(obj.content.results[i].id);
+                lists.push({ id: obj.content.results[i].id, firstname: obj.content.results[i].first_name, lastname: obj.content.results[i].last_name })
+            }
+        }
+
+    }, function (error) {
         console.error(JSON.stringify(error));
     });
 
@@ -62,14 +61,14 @@ function onNavigatingTo(args) {
             args.view = new Label();
             args.view.className = "list-group-item";
         }
-        if (searchType == 1){
-        (args.view).text = "ID: " + listView.items.getItem(args.index).id + " Shot: " + listView.items.getItem(args.index).shottype + " Rating: " + 
-        listView.items.getItem(args.index).rating;
-        (args.view).textWrap = true;
+        if (searchType == 1) {
+            (args.view).text = "ID: " + listView.items.getItem(args.index).id + " Shot: " + listView.items.getItem(args.index).shottype + " Rating: " +
+                listView.items.getItem(args.index).rating;
+            (args.view).textWrap = true;
         }
-        else if(searchType == 2){
-            (args.view).text = "ID: " + listView.items.getItem(args.index).id + " Name: " + listView.items.getItem(args.index).firstname + " " + 
-            listView.items.getItem(args.index).lastname;
+        else if (searchType == 2) {
+            (args.view).text = "ID: " + listView.items.getItem(args.index).id + " Name: " + listView.items.getItem(args.index).firstname + " " +
+                listView.items.getItem(args.index).lastname;
             (args.view).textWrap = true;
         }
 
@@ -82,15 +81,15 @@ function onNavigatingTo(args) {
         var id = listView.items.getItem(args.index).id;
         var redirect;
         var passContext;
-        if (searchType == 1){
+        if (searchType == 1) {
             redirect = 'viewlocal-page';
-            passContext = {path: path, id: id};
+            passContext = { path: path, id: id };
         }
-        else if (searchType == 2){
+        else if (searchType == 2) {
             redirect = 'profile';
-            passContext = {id: id};
+            passContext = { id: id };
         }
-        var navigationOptions={
+        var navigationOptions = {
             moduleName: redirect,
             context: passContext
         }
@@ -104,18 +103,18 @@ function onNavigatingTo(args) {
     });
 
     container.addChild(listView);
-    
 
-    
+
+
 }
 exports.onNavigatingTo = onNavigatingTo;
 
-exports.onDrawerButtonTap = function(args) {
+exports.onDrawerButtonTap = function (args) {
     const sideDrawer = app.getRootView();
     sideDrawer.showDrawer();
 }
 
-exports.navigateToSingle = function(args) {
+exports.navigateToSingle = function (args) {
     const button = args.object;
     const page = button.page;
     page.frame.navigate("singleshot-page");
