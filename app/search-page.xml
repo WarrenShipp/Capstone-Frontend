@@ -31,9 +31,11 @@
                 <Label col="0" text="Player  "></Label>
                 <TextField text="{{ shotPlayer }}" col="1"></TextField>
                 <Label col="0" row="1" text="Type  "></Label>
-                <dd:DropDown row="1" col="1" id="dd" hint="Shot Type" items="{{ shotType }}" selectedIndex="{{ selectedIndex }}" opened="dropDownOpened" closed="dropDownClosed" selectedIndexChanged="shotDropChange" class="{{ cssClass }}" isEnabled="{{ isEnabled }}" />
+                <dd:DropDown row="1" col="1" 
+                id="dd" hint="Shot Type" items="{{ shotType }}" selectedIndex="{{ selectedIndex }}" selectedIndexChanged="shotDropChange" isEnabled="{{ isEnabled }}" />
                 <Label col="0" row="2" text="Rating  "></Label>
-                <dd:DropDown row="2" col="1" id="aa" hint="Rating" items="{{ ratingType }}" selectedIndex="{{ selectedIndex1 }}" opened="dropDownOpened" closed="dropDownClosed" selectedIndexChanged="shotRatingChange" class="{{ cssClass }}" isEnabled="{{ isEnabled }}" />
+                <dd:DropDown row="2" col="1" id="aa" 
+                hint="Rating" items="{{ ratingType }}" selectedIndex="{{ selectedIndex1 }}" selectedIndexChanged="shotRatingChange" isEnabled="{{ isEnabled }}" />
                 <Label col="0" row="3" text="Coach"></Label>
                 <TextField col="1" row="3" text="{{ shotCoach }}"></TextField>
                 <Label col="0" row="4" text="Club"></Label>
@@ -42,11 +44,21 @@
                 <TextField text="{{ dateStart }}" col="1" row="5" tap="showDateStart" visibility="{{ showdateStart ? 'collapsed' : 'visible' }}"></TextField>
                 <Label col="0" row="6" text= "End Date"></Label>
                 <TextField text="{{ dateEnd }}" col="1" row="6" tap="showDateEnd" visibility="{{ showdateEnd ? 'collapsed' : 'visible' }}"></TextField>
-                <calendar:RadCalendar id="calendarStart" visibility="{{ showdateStart ? 'visible' : 'collapsed' }}" eventSource="{{ calendarEvents }}" col="0" row="0" colSpan="2" rowSpan="7" eventsViewMode="Inline" selectionMode="Single" viewMode="Month" transitionMode="Stack" locale="en-US" dateSelected="onStartSelected" dateDeselected="onDateDeselected" navigatedToDate="onNavigatedToDate" navigatingToDateStarted="onNavigatingToDateStarted" viewModeChanged="onViewModeChanged" />
+                <calendar:RadCalendar id="calendarStart" 
+                visibility="{{ showdateStart ? 'visible' : 'collapsed' }}" 
+                eventSource="{{ calendarEvents }}" col="0" row="0" colSpan="2" rowSpan="7" eventsViewMode="Inline" 
+                selectionMode="Single" viewMode="Month" transitionMode="Stack" locale="en-US" 
+                dateSelected="onStartSelected" dateDeselected="onDateDeselected" navigatedToDate="onNavigatedToDate" 
+                navigatingToDateStarted="onNavigatingToDateStarted" viewModeChanged="onViewModeChanged" />
 
-                <calendar:RadCalendar id="calendarEnd" visibility="{{ showdateEnd ? 'visible' : 'collapsed' }}" eventSource="{{ calendarEvents }}" col="0" row="0" colSpan="2" rowSpan="7" eventsViewMode="Inline" selectionMode="Single" viewMode="Month" transitionMode="Stack" locale="en-US" dateSelected="onEndSelected" dateDeselected="onDateDeselected" navigatedToDate="onNavigatedToDate" navigatingToDateStarted="onNavigatingToDateStarted" viewModeChanged="onViewModeChanged" />
-
+                <calendar:RadCalendar id="calendarEnd" 
+                visibility="{{ showdateEnd ? 'visible' : 'collapsed' }}" 
+                eventSource="{{ calendarEvents }}" col="0" row="0" colSpan="2" rowSpan="7" 
+                eventsViewMode="Inline" selectionMode="Single" viewMode="Month" transitionMode="Stack" locale="en-US" 
+                dateSelected="onEndSelected" dateDeselected="onDateDeselected" navigatedToDate="onNavigatedToDate" 
+                navigatingToDateStarted="onNavigatingToDateStarted" viewModeChanged="onViewModeChanged" />
             </GridLayout>
+
             <!-- User Search Form -->
             <GridLayout columns="*,2*" rows="*,*,*" horizontalAlignment="left" verticalAlignment="top" height="auto" visibility="{{ showUser ? 'visible' : 'collapsed' }}">
                 <Label col="0" text="Player  "></Label>
@@ -54,7 +66,8 @@
                 <Label col="0" row="1" text="Club  "></Label>
                 <TextField text="{{ userClub }}" col="1" row="1"></TextField>
                 <Label col="0" row="2" text="Type  "></Label>
-                <dd:DropDown row="2" col="1" id="userDrop" hint="User Type" items="{{ userType }}" selectedIndex="{{ selectedIndex2 }}" opened="dropDownOpened" closed="dropDownClosed" selectedIndexChanged="userChange" class="{{ cssClass }}" isEnabled="{{ isEnabled }}" />
+                <dd:DropDown row="2" col="1" id="userDrop" 
+                hint="User Type" items="{{ userType }}" selectedIndex="{{ selectedIndex2 }}" isEnabled="{{ isEnabled }}" />
             </GridLayout>
 
             <Button class="btn btn-primary" horizontalAlignment="stretch" tap="getShots" text="Search" visibility="{{ showSubmit ? 'visible' : 'collapsed' }}"></Button>
