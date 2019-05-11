@@ -1,4 +1,4 @@
-var observable = require("data/observable");
+﻿var observable = require("data/observable");
 var viewModel = new observable.Observable();
 const fileSystemModule = require("tns-core-modules/file-system");
 var appSet = require("application-settings");
@@ -6,7 +6,6 @@ var frameModule =require("ui/frame");
 var Sqlite = require("nativescript-sqlite");
 var application = require("application");
 
-//var createViewModel = require("./viewvideo-view-model").createViewModel;
 var Observable = require("data/observable").Observable;
 var viewModel = new Observable();
 var view = require("ui/core/view");
@@ -21,6 +20,8 @@ var rating;
 
 function onNavigatingTo(args) {
     page = args.object;
+
+    // TODO replace Dropdowns with lists that contain data, like in profile page.
     
     shotType = new dropdown.ValueList({display: "Straight Drive"}, {display: "Cover Drive"}, {display: "Square Cut"},
     {display: "Late Cut"}, {display: "Leg Glance"}, {display: "Hook"}, {display: "Pull"}, {display: "Drive through square leg"},
@@ -89,30 +90,4 @@ function second(args) {
 }
 exports.second = second;
 
-// function saveVideo(){
-// console.log(path);
-// const folderName = "Local";
-// const fileName = "localfiles.txt";
-
-// const fileTextContent = path;
-
-// let documents = fileSystemModule.knownFolders.temp();
-// const folder = documents.getFolder(folderName);
-// const file = folder.getFile(fileName);
-
-// file.readText()
-//     .then((res) => {
-//         console.log("hello:");
-//         console.log(res);
-//         file.writeText(res + " " + fileTextContent);
-//     }).catch((err) => {
-//         console.log(err.stack);
-//     });
-
-// appSet.setString("files", appSet.getString("files") + " " + path);
-// console.log(appSet.getString("files"));
-
-
-
-// }
-// exports.saveVideo = saveVideo;
+// TODO go to editing page.

@@ -12,7 +12,6 @@ const DatePicker = require("tns-core-modules/ui/date-picker").DatePicker;
 const dropdown = require("nativescript-drop-down");
 
 // consts
-const profileUrl = "user/";
 const batsmanTypeItems = [
     { display: "Right Hand Batsman" },
     { display: "Left Hand Batsman" }
@@ -58,11 +57,15 @@ var yearsExperience;
 // loading
 var isLoading = true;
 
+/**
+ * Sets up page. Gets data to display to the page.
+ * @param {any} args
+ */
 function navigatingTo(args) {
     page = args.object;
     
     isSelf = true;  // for now we can only edit outselves.
-    var sendToken = appSettings.getString("tokenAccess");
+    var sendToken = appSettings.getString(global.tokenAccess);
 
     // set main stuff
     pageTitle = "Edit Profile";
@@ -74,7 +77,7 @@ function navigatingTo(args) {
     // we can really only edit ourself. So we don't add other features in.
     if (isSelf) {
         http.request({
-            url: global.serverUrl + profileUrl + "me/",
+            url: global.serverUrl + global.endpointUser + "me/",
             method: "GET",
             headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken }
         }).then(function (result) {
@@ -322,7 +325,7 @@ function save(args) {
     */
 
     // do upload
-    let sendToken = appSettings.getString("tokenAccess");
+    let sendToken = appSettings.getString(global.tokenAccess);
     var request = {
         url: global.serverUrl + "user/me/",
         method: "PATCH",

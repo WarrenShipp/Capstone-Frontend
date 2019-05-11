@@ -10,21 +10,21 @@
 <ScrollView>
     <StackLayout>
 
-        <Label text="Club Name  " ></Label>
-		<TextField text="{{ clubName }}" ></TextField>
+        <Label text="Club Name" />
+		<TextField text="{{ clubName }}" />
         <Button text="Pick Logo" tap="imagePicker"/>
-        <Label text="Contact Number  " ></Label>
-		<TextField text="{{ phoneNumber }}" ></TextField>        
-        <Label text="Address Line 1  " ></Label>
-		<TextField text="{{ street_address_l1 }}" ></TextField>
-        <Label text="Address Line 2  " ></Label>
-		<TextField text="{{ street_address_l2 }}" ></TextField>
-        <Label text="Suburb/City  " ></Label>
-		<TextField text="{{ suburb }}" ></TextField>        
-        <Label text="Postcode  " ></Label>
-		<TextField text="{{ postcode }}" ></TextField>
-        <Label text="Country  " ></Label>
-		<TextField text="{{ country }}" ></TextField>
+        <Label text="Contact Number" />
+		<TextField text="{{ phoneNumber }}" />        
+        <Label text="Address Line 1" />
+		<TextField text="{{ street_address_l1 }}" />
+        <Label text="Address Line 2" />
+		<TextField text="{{ street_address_l2 }}" />
+        <Label text="Suburb/City" />
+		<TextField text="{{ suburb }}" />        
+        <Label text="Postcode" />
+		<TextField text="{{ postcode }}" />
+        <Label text="Country" />
+		<TextField text="{{ country }}" />
 
         <Button text="Create Club" tap="clubRequest" />
     </StackLayout>

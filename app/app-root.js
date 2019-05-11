@@ -4,10 +4,14 @@ const appSettings = require("application-settings");
 var observable = require("data/observable");
 var http = require("http");
 
+/**
+ * Called when the frame is loaded. Handles access and token refreshing.
+ * @param {any} args
+ */
 function onLoaded(args) {
     const page = args.object;
     let viewModel = new observable.Observable();
-    if (appSettings.getString("tokenAccess")) {
+    if (appSettings.getString(global.tokenAccess)) {
         viewModel.set("loggedIn", true);
     } else {
         viewModel.set("loggedIn", false);
@@ -17,6 +21,10 @@ function onLoaded(args) {
 }
 exports.onLoaded = onLoaded;
 
+/**
+ * Sidedrawer navigates to home page.
+ * @param {any} args
+ */
 function navigateToHome(args) {
     const sideDrawer = app.getRootView();
     const featuredFrame = frameModule.getFrameById("root");
@@ -28,9 +36,12 @@ function navigateToHome(args) {
 }
 exports.navigateToHome = navigateToHome;
 
-
+/**
+ * Sidedrawer navigates to search page. Only applicable when logged in.
+ * @param {any} args
+ */
 function navigateToSearch(args) {
-    if (appSettings.getString("token")) {
+    if (appSettings.getString(global.tokenAccess)) {
         const sideDrawer = app.getRootView();
         const featuredFrame = frameModule.getFrameById("root");
         featuredFrame.navigate({
@@ -42,8 +53,12 @@ function navigateToSearch(args) {
 }
 exports.navigateToSearch = navigateToSearch;
 
+/**
+ * Sidedrawer navigates to login page. Only applicable when logged out.
+ * @param {any} args
+ */
 function navigateToLogin(args) {
-    if (!appSettings.getString("token")) {
+    if (!appSettings.getString(global.tokenAccess)) {
         const sideDrawer = app.getRootView();
         const featuredFrame = frameModule.getFrameById("root");
         featuredFrame.navigate({
@@ -55,7 +70,11 @@ function navigateToLogin(args) {
 }
 exports.navigateToLogin = navigateToLogin;
 
-exports.navigateToRecord = function(args) {
+/**
+ * Sidedrawer navigates to recording page.
+ * @param {any} args
+ */
+function navigateToRecord(args) {
     const sideDrawer = app.getRootView();
     const featuredFrame = frameModule.getFrameById("root");
     featuredFrame.navigate({
@@ -64,9 +83,14 @@ exports.navigateToRecord = function(args) {
     });
     sideDrawer.closeDrawer();
 }
+exports.navigateToRecord = navigateToRecord;
 
+/**
+ * Sidedrawer navigates to my profile page. Only applicable when logged in.
+ * @param {any} args
+ */
 function navigateToProfile(args) {
-    if (appSettings.getString("tokenAccess")) {
+    if (appSettings.getString(global.tokenAccess)) {
         const sideDrawer = app.getRootView();
         const featuredFrame = frameModule.getFrameById("root");
         featuredFrame.navigate({
@@ -81,44 +105,64 @@ function navigateToProfile(args) {
 }
 exports.navigateToProfile = navigateToProfile;
 
+/**
+ * Navigate to local saves page.
+ * @param {any} args
+ */
 function navigateToSaved(args) {
     const sideDrawer = app.getRootView();
     const featuredFrame = frameModule.getFrameById("root");
     featuredFrame.navigate({
-        moduleName: "viewshots-page",
+        moduleName: "view-local-shots-page",
         clearHistory: true
     });
     sideDrawer.closeDrawer();
 }
 exports.navigateToSaved = navigateToSaved;
 
+/**
+ * Navigate to Club Creation page. Only applicable when logged in.
+ * @param {any} args
+ */
 function navigateToClubCreate(args) {
-    const sideDrawer = app.getRootView();
-    const featuredFrame = frameModule.getFrameById("root");
-    featuredFrame.navigate({
-        moduleName: "clubcreate-page"
-    });
-    sideDrawer.closeDrawer();
+    if (appSettings.getString(global.tokenAccess)) {
+        const sideDrawer = app.getRootView();
+        const featuredFrame = frameModule.getFrameById("root");
+        featuredFrame.navigate({
+            moduleName: "clubcreate-page"
+        });
+        sideDrawer.closeDrawer();
+    }
 }
 exports.navigateToClubCreate = navigateToClubCreate;
 
+/**
+ * TODO change this to go to a list of our clubs. That page should lead to a
+ * specific club page.
+ * @param {any} args
+ */
 function navigateToMyClub(args) {
-    const sideDrawer = app.getRootView();
-    const featuredFrame = frameModule.getFrameById("root");
-    featuredFrame.navigate({
-        moduleName: "club-page"
-    });
-    sideDrawer.closeDrawer();
+    if (appSettings.getString(global.tokenAccess)) {
+        const sideDrawer = app.getRootView();
+        const featuredFrame = frameModule.getFrameById("root");
+        featuredFrame.navigate({
+            moduleName: "club-page"
+        });
+        sideDrawer.closeDrawer();
+    }
 }
 exports.navigateToMyClub = navigateToMyClub;
 
+/**
+ * Handles logout functionality. Only applicable when logged in.
+ * @param {any} args
+ */
 function logout(args) {
-
-    const tokenRefresh = appSettings.getString("tokenRefresh");
+    const tokenRefresh = appSettings.getString(global.tokenRefresh);
     if (tokenRefresh) {
         // do logout request
         http.request({
-            url: global.serverUrl + "api/token/logout/",
+            url: global.serverUrl + global.endpointToken + "logout/",
             method: "POST",
             headers: { "Content-Type": "application/json" },
             content: JSON.stringify({ "token": tokenRefresh })
@@ -151,22 +195,24 @@ function logout(args) {
             });
         });
     }
-    
-    appSettings.remove("tokenAccess");
-    appSettings.remove("tokenRefresh");
-    appSettings.remove("userId");
-    appSettings.remove("lastRefresh");
+
+    appSettings.remove(global.tokenAccess);
+    appSettings.remove(global.tokenRefresh);
+    appSettings.remove(global.lastRefresh);
     console.log("Logged out on client side.");
-    console.log("Token = " + appSettings.getString("tokenAccess"));
+    console.log("Token = " + appSettings.getString(global.tokenAccess));
     // onLoaded(args);
     navigateToHome(args);
 }
 exports.logout = logout;
 
+/**
+ * Refreshes token.
+ */
 function refresh() {
-    const lastRefresh = appSettings.getNumber("lastRefresh");
-    const tokenRefresh = appSettings.getString("tokenRefresh");
-    const tokenAccess = appSettings.getString("tokenAccess");
+    const lastRefresh = appSettings.getNumber(global.lastRefresh);
+    const tokenRefresh = appSettings.getString(global.tokenRefresh);
+    const tokenAccess = appSettings.getString(global.tokenAccess);
     let curTime = (new Date()).getTime();
     // if (tokenRefresh && lastRefresh && curTime - lastRefresh > global.refreshTime) {
     if (tokenRefresh) {
@@ -209,7 +255,7 @@ function refresh() {
         });
         */
         _doRefresh(tokenRefresh);
-        
+
     } else {
         // logout(args);
     }
@@ -218,7 +264,7 @@ function refresh() {
 function _doRefresh(tokenRefresh) {
     // do request
     http.request({
-        url: global.serverUrl + "api/token/refresh/",
+        url: global.serverUrl + global.endpointToken + "refresh/",
         method: "POST",
         headers: { "Content-Type": "application/json" },
         content: JSON.stringify({ "refresh": tokenRefresh })
@@ -242,8 +288,8 @@ function _doRefresh(tokenRefresh) {
         }
 
         // update access token and reset timer
-        appSettings.setString("tokenAccess", tokenAccess);
-        appSettings.setNumber("lastRefresh", (new Date()).getTime());
+        appSettings.setString(global.tokenAccess, tokenAccess);
+        appSettings.setNumber(global.lastRefresh, (new Date()).getTime());
         console.log("Refreshed with token: " + tokenAccess);
 
     }, function (error) {

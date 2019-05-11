@@ -95,7 +95,7 @@ function _stopRecord() {
         datetime: new Date()
     };
     var navigationOptions = {
-        moduleName: 'viewvideo-page',
+        moduleName: 'edit-shot-page',
         context: {
             editType: editType,
             editTypeOptions: editTypeOptions

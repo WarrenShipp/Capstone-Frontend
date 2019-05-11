@@ -25,11 +25,19 @@ function onShownModally(args) {
 }
 exports.onShownModally = onShownModally;
 
+/**
+ * Shuts the modal.
+ * @param {any} args
+ */
 function onCancel(args) {
     args.object.closeModal();
 }
 exports.onCancel = onCancel;
 
+/**
+ * Send message to server to create new account. Also handles validation.
+ * @param {any} args
+ */
 function onCreate(args) {
     // check if everything is filled out
     firstName = viewModel.get("firstName");

@@ -13,29 +13,42 @@ var viewModel = new observable.Observable();
 var email;
 var password;
 
-exports.onDrawerButtonTap = function(args) {
+/**
+ * Opens the Sidedrawer
+ * @param {any} args
+ */
+function onDrawerButtonTap(args) {
     const sideDrawer = app.getRootView();
     sideDrawer.showDrawer();
 }
+exports.onDrawerButtonTap = onDrawerButtonTap;
 
+/**
+ * Sets up properties when the page loads.
+ * @param {any} args
+ */
 function pageLoaded(args) {
     page = args.object;
     page.bindingContext = viewModel;
 }
 exports.pageLoaded = pageLoaded;
 
-exports.login = function(args) {
+/**
+ * Logs the user in.
+ * @param {any} args
+ */
+function login(args) {
     const button = args.object;
     const page = button.page;
+
+    // TODO need to to clientside validation.
     
-    // let email = page.getViewById("email").text;
-    // let password = page.getViewById("password").text;
     let email = viewModel.get("email");
     let password = viewModel.get("password");
 
     // try to log in.
     http.request({
-        url: global.serverUrl + "api/token/",
+        url: global.serverUrl + global.endpointToken,
         method: "POST",
         headers: { "Content-Type": "application/json" },
         content: JSON.stringify({ "email": email, "password": password })
@@ -64,12 +77,12 @@ exports.login = function(args) {
         } else {
 
             // Set tokens
-            appSettings.setString("tokenAccess", tokenAccess);
-            appSettings.setString("tokenRefresh", tokenRefresh);
-            appSettings.setNumber("lastRefresh", (new Date()).getTime());
-            console.log("access = " + appSettings.getString("tokenAccess"));
-            console.log("refresh = " + appSettings.getString("tokenRefresh"));
-            console.log("lastRefresh = " + appSettings.getNumber("lastRefresh"));
+            appSettings.setString(global.tokenAccess, tokenAccess);
+            appSettings.setString(global.tokenRefresh, tokenRefresh);
+            appSettings.setNumber(global.lastRefresh, (new Date()).getTime());
+            console.log("access = " + appSettings.getString(global.tokenAccess));
+            console.log("refresh = " + appSettings.getString(global.tokenRefresh));
+            console.log("lastRefresh = " + appSettings.getNumber(global.lastRefresh));
             page.frame.navigate({
                 moduleName: "home-page",
                 clearHistory: true
@@ -86,11 +99,17 @@ exports.login = function(args) {
     });
 
 }
+exports.login = login;
 
-exports.createAccount = function(args) {
+/**
+ * Loads the account creation modal.
+ * @param {any} args
+ */
+function createAccount(args) {
     const button = args.object;
     const page = button.page;
     const fullscreen = false;
 
     button.showModal(modalViewModule, {}, () => {}, fullscreen);
 }
+exports.createAccount = createAccount;

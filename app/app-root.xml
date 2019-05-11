@@ -12,9 +12,9 @@
             <Button class="btn btn-primary sidedrawer-list-item-text" text="View Saved Shots"
                 tap="navigateToSaved" />
             <Button class="btn btn-primary sidedrawer-list-item-text" text="Club Creation"
-                tap="navigateToClubCreate" />  
+                tap="navigateToClubCreate" />
             <Button class="btn btn-primary sidedrawer-list-item-text" text="My Club"
-                tap="navigateToMyClub" />        
+                tap="navigateToMyClub" />
             <Button class="btn btn-primary sidedrawer-list-item-text" text="Login"
                 tap="navigateToLogin" visibility="{{ loggedIn ? 'collapsed' : 'visible' }}" />
             <Button class="btn btn-primary sidedrawer-list-item-text" text="Logout"

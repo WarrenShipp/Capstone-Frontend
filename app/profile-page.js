@@ -52,6 +52,10 @@ var birthDate;
 var isCoach;
 var yearsExperience;
 
+/**
+ * Sets up page. Shows the appropriate profile.
+ * @param {any} args
+ */
 function navigatingTo(args) {
     page = args.object;
 
@@ -61,7 +65,7 @@ function navigatingTo(args) {
     if (!isSelf) {
         userId = page.navigationContext.userId;
     }
-    var sendToken = appSettings.getString("tokenAccess");
+    var sendToken = appSettings.getString(global.tokenAccess);
     console.log(sendToken);
 
     // set self-profile-related stuff
@@ -76,7 +80,7 @@ function navigatingTo(args) {
 
     if (isSelf) {
         http.request({
-            url: global.serverUrl + profileUrl + "me/",
+            url: global.serverUrl + global.endpointUser + "me/",
             method: "GET",
             headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken }
         }).then(function (result) {
@@ -98,7 +102,7 @@ function navigatingTo(args) {
         });
     } else if (userId) {
         http.request({
-            url: global.serverUrl + profileUrl + userId,
+            url: global.serverUrl + global.endpointUser + userId,
             method: "GET",
             headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken }
         }).then(function (result) {
@@ -129,27 +133,21 @@ function navigatingTo(args) {
 }
 exports.navigatingTo = navigatingTo;
 
-function onLoaded(args) {
-
-}
-exports.onLoaded = onLoaded;
-
-exports.onDrawerButtonTap = function(args) {
+/**
+ * Opens Sidedrawer.
+ * @param {any} args
+ */
+function onDrawerButtonTap(args) {
     const sideDrawer = app.getRootView();
     sideDrawer.showDrawer();
 }
+exports.onDrawerButtonTap = onDrawerButtonTap;
 
-exports.Requested = function(args) {
-    const button = args.object;
-    const page = button.page;
-    if(page.android) {
-        var Toast = android.widget.Toast;
-        Toast.makeText(application.android.context, "Requested", Toast.LENGTH_SHORT).show();
-    }
-
-
-}
-
+/**
+ * Takes user information and passes it to view.
+ * @param {any} user
+ * @param {any} isSelf
+ */
 function _makeProfilePage(user, isSelf) {
     /*
     name            : String
@@ -202,6 +200,10 @@ function _makeProfilePage(user, isSelf) {
     viewModel.set("canEdit", canEdit);
 }
 
+/**
+ * Link to edit my own profile.
+ * @param {any} args
+ */
 function editSelf(args) {
     if (isSelf) {
         page.frame.navigate({

@@ -16,11 +16,13 @@
             <GridLayout columns="*,*" rows="*,*,*">
                 <Image col="0" row="0" rowspan="3" src="{{ imgSrc }}" />
                 <Label col="1" row="0" text="{{ name }}" />
-                <DockLayout col="1" row="1" stretchLastChild="true" visibility="{{ email ? 'visible' : 'collapsed' }}">
+                <DockLayout col="1" row="1" stretchLastChild="true"
+                            visibility="{{ email ? 'visible' : 'collapsed' }}">
                     <Label dock="left" text="Email:" />
                     <Label dock="left" text="{{ email }}" />
                 </DockLayout>
-                <DockLayout col="1" row="2" stretchLastChild="true" visibility="{{ phone ? 'visible' : 'collapsed' }}">
+                <DockLayout col="1" row="2" stretchLastChild="true"
+                            visibility="{{ phone ? 'visible' : 'collapsed' }}">
                     <Label dock="left" text="Phone:" />
                     <Label dock="left" text="{{ phone }}" />
                 </DockLayout>
@@ -28,8 +30,10 @@
 
             <!-- Registered Clubs -->
             <Label text="Registered Clubs" />
-            <Label text="This user is not registered to any clubs." visibility="{{ inClub ? 'collapsed' : 'visible' }}" />
-            <StackLayout id="clubContainer" visibility="{{ inClub ? 'visible' : 'collapsed' }}">
+            <Label text="This user is not registered to any clubs."
+                   visibility="{{ inClub ? 'collapsed' : 'visible' }}" />
+            <StackLayout id="clubContainer"
+                         visibility="{{ inClub ? 'visible' : 'collapsed' }}">
                 <!-- ViewList goes here -->
             </StackLayout>
 

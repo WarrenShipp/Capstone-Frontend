@@ -13,9 +13,12 @@
     <ScrollView>
         <StackLayout>
 
-	        <TextField id="playername" hint="Player Name" text="{{ playername }}" />
-            <TextField id="coachname" hint="Coach" text="{{ coachname }}" />
-            <TextField id="clubname" hint="Club" text="{{ clubname }}" />
+	        <TextField id="playername" hint="Player Name"
+                       text="{{ playername }}" />
+            <TextField id="coachname" hint="Coach"
+                       text="{{ coachname }}" />
+            <TextField id="clubname" hint="Club"
+                       text="{{ clubname }}" />
 
             <VideoPlayer:Video id="nativeVideoPlayer"
                     controls="true" loop="true" autoplay="false" height="300"
@@ -26,11 +29,13 @@
                 <VideoPlayer:Video id="thumbnailVideo" row="0" col="0"
                     controls="false" loop="false" autoplay="false" height="100"
                     src="{{ videoPath }}" muted="true" />
-                <Slider row="0" col="1" value="{{ sliderValue }}" minValue="0" maxValue="{{ sliderMax }}"
+                <Slider row="0" col="1" value="{{ sliderValue }}"
+                        minValue="0" maxValue="{{ sliderMax }}"
                         valueChange="setThumbnail" id="thumbnailSlider" />
             </GridLayout>
             
-            <GridLayout columns="*,2*" rows="*,*,*,*,*" horizontalAlignment="left" verticalAlignment="top">
+            <GridLayout columns="*,2*" rows="*,*,*,*,*"
+                        horizontalAlignment="left" verticalAlignment="top">
                 
                 <Label text="Date:" row="0" col="0" />
                 <Label id="date" text="{{ date }}" row="0" col="1" />
@@ -39,14 +44,18 @@
                 <Label id="time" text="{{ time }}" row="1" col="1" />
                 
                 <Label text="Shot Type:" row="2" col="0" />
-                <dd:DropDown row="2" col="1"  id="shotType" hint="Shot Type" items="{{ shotTypeItems }}" selectedIndex="{{ shotTypeIndex }}" 
-                        selectedIndexChanged="shotTypeDropdownChanged" 
-                        isEnabled="{{ isEnabled }}" />
+                <dd:DropDown row="2" col="1"  id="shotType" hint="Shot Type"
+                             items="{{ shotTypeItems }}"
+                             selectedIndex="{{ shotTypeIndex }}" 
+                             selectedIndexChanged="shotTypeDropdownChanged" 
+                             isEnabled="{{ isEnabled }}" />
                 
                 <Label row="3" col="0" text="Rating:" />
-                <dd:DropDown row="3" col="1"  id="ratingType" hint="Rating" items="{{ ratingTypeItems }}" selectedIndex="{{ ratingTypeIndex }}" 
-                            selectedIndexChanged="ratingTypeDropdownChanged" 
-                            isEnabled="{{ isEnabled }}" />
+                <dd:DropDown row="3" col="1"  id="ratingType" hint="Rating"
+                             items="{{ ratingTypeItems }}"
+                             selectedIndex="{{ ratingTypeIndex }}" 
+                             selectedIndexChanged="ratingTypeDropdownChanged" 
+                             isEnabled="{{ isEnabled }}" />
                 
                 <Label row="4" col="0" text="Duration:" />
                 <Label row="4" col="1" text="{{ duration }}" />

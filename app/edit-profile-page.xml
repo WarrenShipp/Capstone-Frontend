@@ -3,7 +3,7 @@
       xmlns="http://www.nativescript.org/tns.xsd"
       xmlns:dd="nativescript-drop-down"
       >
-<ActionBar class="action-bar">
+    <ActionBar class="action-bar">
         <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
         <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
             tap="onDrawerButtonTap" ios.position="left">
@@ -18,7 +18,7 @@
             <Label text="Profile Picture" />
             <Image src="{{ imgSrc }}" stretch="aspectFill" />
             <Button text="Change Image" tap="changeImage" />
-            
+
             <!-- User info -->
             <Label text="User Information" />
             <DockLayout stretchLastChild="true">
@@ -87,7 +87,7 @@
                 <TextField dock="left" text="{{ confirmPassword }}"
                        autocapitalizationType="none" secure="true" />
             </DockLayout>
-            
+
             <!-- Buttons -->
             <DockLayout>
                 <Button dock="right" text="Cancel" tap="cancel" />
@@ -96,5 +96,5 @@
 
         </StackLayout>
     </ScrollView>
-    
+
 </Page>

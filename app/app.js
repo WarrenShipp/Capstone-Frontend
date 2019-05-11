@@ -9,7 +9,21 @@ const appSettings = require("application-settings");
 
 // set server location
 global.serverUrl = "https://cricket.kinross.co/";
+global.endpointUser = "user/";
+global.endpointClub = "club/";
+global.endpointCoach = "coach/";
+global.endpointJoin = "join/";
+global.endpointUser = "user/";
+global.endpointPlayer = "player/";
+global.endpointShot = "shot/";
+global.endpointVideo = "video/";
+global.endpointToken = "api/token/";
+
+// other params
 global.refreshTime = 300000;    // half of ten minutes
+global.tokenRefresh = "tokenRefresh";
+global.tokenAccess = "tokenAccess";
+global.lastRefresh = "lastRefresh";
 
 application.run({ moduleName: "app-root" });
 

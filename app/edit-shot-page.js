@@ -43,8 +43,6 @@ var ratingTypeName;
 var thumbnail;
 var pageName;
 
-
-
 // helpers
 var player;     // the big video player.
 var shotTypeList;
@@ -123,6 +121,12 @@ function onNavigatingTo(args) {
 }
 exports.onNavigatingTo = onNavigatingTo;
 
+/**
+ * Handles the bulk of the loading. Data passed to the editing page will be
+ * added to the form. Otherwise, if this Shot is newly created, the form will
+ * be set to default values.
+ * @param {any} args
+ */
 function onLoad(args) {
     page = args.object;
 
@@ -174,7 +178,7 @@ function onLoad(args) {
     viewModel.set("time", time);
     console.log("the date " + date);
     console.log("the time " + time);
-    
+
     // set file path
     path = _getVideoPath(editType, editTypeOptions);
     viewModel.set("videoPath", path);
@@ -218,129 +222,125 @@ function onLoad(args) {
 }
 exports.onLoad = onLoad;
 
-exports.upload = function(args){
+/**
+ * Uploads data to the server. If the shot is only being edited (not new), it
+ * only add the changed data rather than upload.
+ *
+ * TODO upload is sending dummy data for now. Change to form data!
+ * TODO upload does not distinguish between new shot and edited.
+ * TODO video sending is not complete. Sends a bunch of fake data / not taken from form.
+ * TODO video is being sent after upload request has been received. This needs to change.
+ * @param {any} args
+ */
+function upload(args) {
     var id;
-    var sendToken = appSet.getString("token");
+    var sendToken = appSet.getString(global.tokenAccess);
     console.log(sendToken);
     const documentsFolder = fileSystemModule.knownFolders.currentApp();
     console.log(path);
     console.log(sendToken);
     http.request({
-        url: "https://cricket.kinross.co/shot/",
+        url: global.serverUrl + global.endpointShot,
         method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": sendToken },
-        content: JSON.stringify({ "player": "bb656952-d2a9-4ed9-bd56-df4f1c591cae", "club": "4af99431-1408-4753-a913-62e54ceeaf98", "type": 2, "rating": 2})
-    }).then(function(result) {
+        headers: { "Content-Type": "application/json", "Authorization": "BEARER " + sendToken },
+        content: JSON.stringify({ "player": "bb656952-d2a9-4ed9-bd56-df4f1c591cae", "club": "4af99431-1408-4753-a913-62e54ceeaf98", "type": 2, "rating": 2 })
+    }).then(function (result) {
         console.log(JSON.stringify(result));
         var obj = JSON.stringify(result);
         obj = JSON.parse(obj);
         console.log(obj.content.id);
         id = obj.content.id;
 
-        var file =  path;
+        var file = path;
         console.log("filepath: " + file);
-        var url = "https://cricket.kinross.co/video/";
+        var url = global.serverUrl + global.endpointVideo;
         var name = file.substr(file.lastIndexOf("/") + 1);
         console.log("id is: " + id);
         // upload configuration
-    
+
         var request = {
-                url: url,
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/octet-stream", "Authorization": sendToken
-                },
-                description: "Uploading " + name
-                
-            };
-    
-            var params = [
-                { name: "shot", value: id },
-                { name: "file", filename: file, mimeType: "video/mp4" },
-                { name: "length", value: "3001"}
-                
-             ];
-             //var task = session.uploadFile(file, request);
-             var task = session.multipartUpload(params, request);
-             task.on("complete", completeHandler);
-             task.on("error", errorHandler);
-    }, function(error) {
+            url: url,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/octet-stream", "Authorization": "BEARER " + sendToken
+            },
+            description: "Uploading " + name
+        };
+
+        var params = [
+            { name: "shot", value: id },
+            { name: "file", filename: file, mimeType: "video/mp4" },
+            { name: "length", value: "3001" }
+        ];
+        //var task = session.uploadFile(file, request);
+        var task = session.multipartUpload(params, request);
+        task.on("complete", completeHandler);
+        task.on("error", errorHandler);
+    }, function (error) {
         console.error(JSON.stringify(error));
     });
 
-    // var filepath = path.split("/");
-    // console.log(filepath);
-    // var file = filepath[6];
-    // console.log(file);
-    // fileString = file.toString();
-    // console.log(fileString);
-    // myFolder = fileSystemModule.knownFolders.temp();
-    // myFile = myFolder + fileString;
-    // console.log("filepath" + myFile);
+    //task.on("progress", progressHandler);
+    // task.on("error", errorHandler);
+    // task.on("responded", respondedHandler);
+    // task.on("complete", completeHandler);
+
+    // event arguments:
+    // task: Task
+    // currentBytes: number
+    // totalBytes: number
+    function progressHandler(e) {
+        alert("uploaded " + e.currentBytes + " / " + e.totalBytes);
+    }
+
+    // event arguments:
+    // task: Task
+    // responseCode: number
+    // error: java.lang.Exception (Android) / NSError (iOS)
+    // response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
+    function errorHandler(e) {
+        alert("received " + e.responseCode + " code.");
+        var serverResponse = e.response;
+        console.log(serverResponse);
+        console.log(e);
+        console.log(e.response.getBodyAsString());
+    }
 
 
+    // event arguments:
+    // task: Task
+    // responseCode: number
+    // data: string
+    function respondedHandler(e) {
+        //alert("received " + e.responseCode + " code. Server sent: " + e.data);
+        alert("File has been uploaded to the server");
+    }
 
-                 //task.on("progress", progressHandler);
-        // task.on("error", errorHandler);
-        // task.on("responded", respondedHandler);
-        // task.on("complete", completeHandler);
+    // event arguments:
+    // task: Task
+    // responseCode: number
+    // response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
+    function completeHandler(e) {
+        alert("received " + e.responseCode + " code");
+        var serverResponse = e.response;
+    }
 
-
-// event arguments:
-// task: Task
-// currentBytes: number
-// totalBytes: number
-function progressHandler(e) {
-    alert("uploaded " + e.currentBytes + " / " + e.totalBytes);
-}
-
-// event arguments:
-// task: Task
-// responseCode: number
-// error: java.lang.Exception (Android) / NSError (iOS)
-// response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
-function errorHandler(e) {
-    alert("received " + e.responseCode + " code.");
-    var serverResponse = e.response;
-    console.log(serverResponse);
-    console.log(e);
-    console.log(e.response.getBodyAsString());
-}
-
-
-// event arguments:
-// task: Task
-// responseCode: number
-// data: string
-function respondedHandler(e) {
-    //alert("received " + e.responseCode + " code. Server sent: " + e.data);
-    alert("File has been uploaded to the server");
-}
-
-// event arguments:
-// task: Task
-// responseCode: number
-// response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
-function completeHandler(e) {
-    alert("received " + e.responseCode + " code");
-    var serverResponse = e.response;
-}
-
-// event arguments:
-// task: Task
-function cancelledHandler(e) {
-    alert("upload cancelled");
-}
+    // event arguments:
+    // task: Task
+    function cancelledHandler(e) {
+        alert("upload cancelled");
+    }
 
 }
+exports.upload = upload;
 
-
+/**
+ * Saves the file locally.
+ * @param {any} args
+ */
 function saveLocally(args) {
     page = args.object;
-    // console.log("argstest " + args.newIndex);
-    // console.log("pathway" + path);
     firstname = viewModel.get("playername");
-    // console.log("dd value: " + shotTypeName);
     var dbdate = new Date();    // TODO mash date and time together in datetime string, conver to UTC
     (new Sqlite("my.db")).then(db => {
         db.execSQL(
@@ -352,12 +352,12 @@ function saveLocally(args) {
             console.log("INSERT ERROR", error);
         });
     });
-    if(page.android) {
+    if (page.android) {
         var Toast = android.widget.Toast;
         Toast.makeText(application.android.context, "Video Saved", Toast.LENGTH_SHORT).show();
     }
-    var navigationOptions={
-        moduleName:'videocamera-page',
+    var navigationOptions = {
+        moduleName: 'record-shot-page',
         backstackVisible: false
     }
 
@@ -394,7 +394,7 @@ function discard(args) {
     myFolder = fileSystemModule.knownFolders.temp();
     myFile = myFolder.getFile(fileString);
     myFile.remove();
-    var navigationOptions={
+    var navigationOptions = {
         moduleName: sourcePage
     }
 
@@ -403,6 +403,12 @@ function discard(args) {
 }
 exports.discard = discard;
 
+/**
+ * Called to change Shot Type dropdown value.
+ *
+ * TODO change to collect data from viewmodel vars
+ * @param {any} args
+ */
 function shotTypeDropdownChanged(args) {
     let dropdownShot = page.getViewById("shotType");
     shotTypeIndex = dropdownShot.selectedIndex;
@@ -411,6 +417,12 @@ function shotTypeDropdownChanged(args) {
 }
 exports.shotTypeDropdownChanged = shotTypeDropdownChanged;
 
+/**
+ * Called to change Rating Type dropdown value.
+ *
+ * TODO change to collect data from viewmodel vars
+ * @param {any} args
+ */
 function ratingTypeDropdownChanged(args) {
     let dropdownRating = page.getViewById("ratingType");
     ratingTypeIndex = dropdownRating.selectedIndex;
