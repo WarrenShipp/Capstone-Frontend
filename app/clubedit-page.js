@@ -13,6 +13,13 @@ var viewModel = new observable();
 var gotData;
 var clubId;
 
+const app = require("tns-core-modules/application");
+
+exports.onDrawerButtonTap = function (args) {
+    const sideDrawer = app.getRootView();
+    sideDrawer.showDrawer();
+}
+
 exports.onNavigatingTo = function(args){
     
 	console.log("pageLoaded");

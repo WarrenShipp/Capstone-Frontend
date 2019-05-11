@@ -1,16 +1,17 @@
 ﻿const appSettings = require("application-settings");
 var observable = require("data/observable").Observable;
-const fileSystemModule = require("tns-core-modules/file-system");
+var fileSystemModule = require("tns-core-modules/file-system");
 var imagepicker = require("nativescript-imagepicker");
-
+var app = require("tns-core-modules/application");
 var http = require("http");
 var bghttp = require("nativescript-background-http");
 var session = bghttp.session("file-upload");
 
+
+// Variables
 var logo = null;
 var sendToken;
-var viewModel = new observable();
-
+var viewModel;
 var clubName = "";
 var clubPhone = "";
 var adddressLine1 = "";
@@ -25,6 +26,7 @@ var addressCountry = "";
  */
 function onNavigatingTo(args) {
     page = args.object;
+    viewModel = new observable();
     page.bindingContext = viewModel;
     viewModel.set("phoneNumber", "");
     var token = appSettings.getString(global.tokenAccess);
