@@ -1,39 +1,46 @@
+// Requirements
 var frameModule = require("ui/frame");
 var observable = require("data/observable");
-var observableArray = require("data/observable-array");
-var pages = require("ui/page");
-var viewModel = observable.Observable;
-const labelModule = require("tns-core-modules/ui/label");
-
-var videoPlayer = require("nativescript-videoplayer");
-
-var observableModule = require("data/observable");
-
 const app = require("tns-core-modules/application");
 const appSettings = require("application-settings");
 var http = require("http");
 var bghttp = require("nativescript-background-http");
 var session = bghttp.session("file-upload");
+
+// Variables
 var gotData;
+var viewModel;
 
-
-exports.onDrawerButtonTap = function(args) {
+/**
+ * Opens the Sidedrawer
+ */
+function onDrawerButtonTap(args) {
     const sideDrawer = app.getRootView();
     sideDrawer.showDrawer();
 }
+exports.onDrawerButtonTap = onDrawerButtonTap;
 
+
+/**
+ * Displays club details
+ */
 exports.pageLoaded = function(args) {
-	console.log("pageLoaded");
-    var sendToken = appSettings.getString("token");
-        
+    // todo: finish displaying the members of a club
+    console.log("pageLoaded");
+    
+    // Get authorisation token
+    var sendToken = appSettings.getString(global.tokenAccess);
+
+    // initialise view model    
     var page = args.object;
-    const container = page.getViewById("container");
     viewModel = new observable.Observable();
     page.bindingContext = viewModel;
+
+    // Get club parameters passed on from the list to decide which club to display
     gotData=page.navigationContext;
     var clubId = gotData.id;
-    console.log(clubId);
-    var clubUrl = "https://cricket.kinross.co/club/" + clubId;
+    var clubUrl = global.serverUrl + global.endpointClub + clubId;
+    // Club Request
     http.request({
         url: clubUrl,
         method: "GET",
@@ -42,12 +49,6 @@ exports.pageLoaded = function(args) {
         var obj = JSON.stringify(result);
         obj = JSON.parse(obj);
         console.log(obj.content.name);
-        // const myLabel = new labelModule.Label();
-        // myLabel.text = "The quick brown fox jumps over the lazy dog.";
-        // const myLabel2 = new labelModule.Label();
-        // myLabel2.text = "The quick brown fox jumps over the lazy dog2.";
-        // container.addChild(myLabel);
-        // container.addChild(myLabel2);
         clubDetails(obj.content);
     }, function(error) {
         console.error(JSON.stringify(error));
@@ -56,6 +57,9 @@ exports.pageLoaded = function(args) {
     
 };
 
+/**
+ * Displaying club details
+ */
 function clubDetails(data){
     console.log(data.suburb);
     console.log(data.logo);
@@ -66,6 +70,10 @@ function clubDetails(data){
     viewModel.set("country", data.country);
 }
 
+
+/**
+ * Goes to the club edit page to allow changing of club details
+ */
 exports.navigateToEditClub = function(args){
     var navigationOptions={
         moduleName:'clubedit-page',

@@ -34,53 +34,20 @@ function onNavigatingTo(args) {
 }
 exports.onNavigatingTo = onNavigatingTo;
 
-/*
-function getClubs() {
-    // appSettings.getString("token");
-    // var sendToken = "Token " + token;
-    console.log(viewModel.get("clubName"));
-    var clubName = viewModel.get("clubName");
-    var urlSearch = global.serverUrl + global.endpointClub;
-    http.request({
-        url: urlSearch,
-        method: "GET",
-        headers: { "Content-Type": "application/json", "Authorization": sendToken }
-    }).then(function (result) {
-        console.log(JSON.stringify(result));
-        var obj = JSON.stringify(result);
-        obj = JSON.parse(obj);
-    }, function (error) {
-        console.error(JSON.stringify(error));
-    });
+/**
+ * Opens the Sidedrawer
+ */
+function onDrawerButtonTap(args) {
+    const sideDrawer = app.getRootView();
+    sideDrawer.showDrawer();
 }
-exports.getClubs = getClubs;
-*/
-
-/*
-function createClubs() {
-
-    var urlSearch = global.serverUrl + global.endpointClub + "?name=" + clubName;
-    http.request({
-        url: urlSearch,
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": sendToken }
-    }).then(function (result) {
-        console.log(JSON.stringify(result));
-        var obj = JSON.stringify(result);
-        obj = JSON.parse(obj);
-        console.log(obj.content.results[0].name);
-    }, function (error) {
-        console.error(JSON.stringify(error));
-    });
-}
-exports.createClubs = createClubs;
-*/
+exports.onDrawerButtonTap = onDrawerButtonTap;
 
 /**
  * Picks an image. Sets it as the logo.
  */
 function imagePicker() {
-    console.log("test image picker");
+    console.log("Image Pick Club Logo");
     var context = imagepicker.create({ mode: "single" });
     context
         .authorize()
@@ -133,7 +100,7 @@ function clubRequest() {
         url: url,
         method: "POST",
         headers: {
-            "Content-Type": "multipart/form-data", "Authorization": sendToken
+            "Content-Type": "multipart/form-data", "Authorization": "Bearer " + sendToken
         },
         description: "Uploading "
     };
@@ -151,18 +118,9 @@ function clubRequest() {
 
     var task = session.multipartUpload(params, request);
 
-    //task.on("progress", progressHandler);
     task.on("error", errorHandler);
     task.on("responded", respondedHandler);
     task.on("complete", completeHandler);
-
-    // event arguments:
-    // task: Task
-    // currentBytes: number
-    // totalBytes: number
-    function progressHandler(e) {
-        alert("uploaded " + e.currentBytes + " / " + e.totalBytes);
-    }
 
     // event arguments:
     // task: Task
@@ -178,7 +136,6 @@ function clubRequest() {
         console.log(e.response.getBodyAsString());
         console.log(e.task);
     }
-
 
     // event arguments:
     // task: Task
@@ -197,13 +154,6 @@ function clubRequest() {
         var serverResponse = e.response;
         alert("Club Created");
     }
-
-    // event arguments:
-    // task: Task
-    function cancelledHandler(e) {
-        alert("upload cancelled");
-    }
-
 }
 exports.clubRequest = clubRequest;
 
