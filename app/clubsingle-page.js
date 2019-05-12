@@ -27,7 +27,7 @@ exports.onDrawerButtonTap = onDrawerButtonTap;
 exports.pageLoaded = function(args) {
     // todo: finish displaying the members of a club
     console.log("pageLoaded");
-    
+
     // Get authorisation token
     var sendToken = appSettings.getString(global.tokenAccess);
 
@@ -61,8 +61,6 @@ exports.pageLoaded = function(args) {
  * Displaying club details
  */
 function clubDetails(data){
-    console.log(data.suburb);
-    console.log(data.logo);
     viewModel.set("name", data.name);
     viewModel.set("imageUri", data.logo);
     viewModel.set("phone", data.phone_number);
