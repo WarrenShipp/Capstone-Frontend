@@ -4,22 +4,32 @@ const appSettings = require("application-settings");
 var observable = require("data/observable");
 var http = require("http");
 
+let viewModel;
+
 /**
  * Called when the frame is loaded. Handles access and token refreshing.
  * @param {any} args
  */
 function onLoaded(args) {
     const page = args.object;
-    let viewModel = new observable.Observable();
+    viewModel = new observable.Observable();
+    page.bindingContext = viewModel;
+    resetPage();
+    refresh(args);
+}
+exports.onLoaded = onLoaded;
+
+/**
+ * Changes sidedrawer. Allows it to update its fields.
+ * 
+ */
+function resetPage() {
     if (appSettings.getString(global.tokenAccess)) {
         viewModel.set("loggedIn", true);
     } else {
         viewModel.set("loggedIn", false);
     }
-    page.bindingContext = viewModel;
-    refresh();
 }
-exports.onLoaded = onLoaded;
 
 /**
  * Sidedrawer navigates to home page.
@@ -78,7 +88,7 @@ function navigateToRecord(args) {
     const sideDrawer = app.getRootView();
     const featuredFrame = frameModule.getFrameById("root");
     featuredFrame.navigate({
-        moduleName: "recordshot-page",
+        moduleName: "record-shot-page",
         clearHistory: true
     });
     sideDrawer.closeDrawer();
@@ -167,13 +177,13 @@ function logout(args) {
             headers: { "Content-Type": "application/json" },
             content: JSON.stringify({ "token": tokenRefresh })
         }).then(function (result) {
-            var obj = JSON.stringify(result)
+            var obj = JSON.stringify(result);
             obj = JSON.parse(obj);
             var removed = obj.content.removed;
 
             // could not get token / login with credentials.
             if (removed == null || obj.content.detail) {
-                console.log("Login Error: " + obj.content.detail);
+                console.log("Logout Error: " + obj.content.detail);
                 let message = obj.content.detail ? obj.content.detail : "Could not log out.";
                 dialogs.alert({
                     title: "Logout Error!",
@@ -201,7 +211,7 @@ function logout(args) {
     appSettings.remove(global.lastRefresh);
     console.log("Logged out on client side.");
     console.log("Token = " + appSettings.getString(global.tokenAccess));
-    // onLoaded(args);
+    resetPage();
     navigateToHome(args);
 }
 exports.logout = logout;
@@ -209,55 +219,16 @@ exports.logout = logout;
 /**
  * Refreshes token.
  */
-function refresh() {
+function refresh(args) {
     const lastRefresh = appSettings.getNumber(global.lastRefresh);
     const tokenRefresh = appSettings.getString(global.tokenRefresh);
     const tokenAccess = appSettings.getString(global.tokenAccess);
     let curTime = (new Date()).getTime();
     // if (tokenRefresh && lastRefresh && curTime - lastRefresh > global.refreshTime) {
     if (tokenRefresh) {
-
-        // check server if we're logged in.
-        /*
-        http.request({
-            url: global.serverUrl + "api/token/verify/",
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            content: JSON.stringify({ "token": tokenAccess })
-        }).then(function (result) {
-            console.log(result);
-            var obj = JSON.stringify(result)
-            obj = JSON.parse(obj);
-
-            // something broke. Don't log in.
-            if (!userId || obj.content.detail) {
-                console.error("UserId Error: " + obj.content.detail);
-                let message = obj.content.detail ? obj.content.detail : "Could not check if we are logged in.";
-                dialogs.alert({
-                    title: "Could not refresh!",
-                    message: message,
-                    okButtonText: "Okay"
-                }).then(function () { });
-                return;
-            }
-
-            // everything works. Save data and login.
-            if (userId) {
-                _doRefresh(tokenRefresh);
-            }
-        }, function (error) {
-            console.error(JSON.stringify(error));
-            dialogs.alert({
-                title: "Error!",
-                message: JSON.stringify(error),
-                okButtonText: "Okay"
-            });
-        });
-        */
         _doRefresh(tokenRefresh);
-
     } else {
-        // logout(args);
+        logout(args);
     }
 }
 
@@ -279,11 +250,13 @@ function _doRefresh(tokenRefresh) {
         if (!tokenAccess || obj.content.detail) {
             console.log("Refresh Error: " + obj.content.detail);
             let message = obj.content.detail ? obj.content.detail : "Could not log refresh authorization token.";
+            message += "\n You have been logged out."
             dialogs.alert({
                 title: "Refresh Error!",
                 message: message,
                 okButtonText: "Okay"
             }).then(function () { });
+            logout(args);
             return;
         }
 
@@ -296,8 +269,9 @@ function _doRefresh(tokenRefresh) {
         console.error(JSON.stringify(error));
         dialogs.alert({
             title: "Error!",
-            message: JSON.stringify(error),
+            message: JSON.stringify(error) + "\n You have been logged out.",
             okButtonText: "Okay"
         });
+        logout(args);
     });
 }
