@@ -1,37 +1,46 @@
+// Requirements
 var frameModule = require("ui/frame");
 var observable = require("data/observable");
-var observableArray = require("data/observable-array");
-var pages = require("ui/page");
-var viewModel = observable.Observable;
-
-var videoPlayer = require("nativescript-videoplayer");
-
-var observableModule = require("data/observable");
-
 const app = require("tns-core-modules/application");
 const appSettings = require("application-settings");
 var http = require("http");
 var bghttp = require("nativescript-background-http");
 var session = bghttp.session("file-upload");
+
+// Variables
 var gotData;
+var viewModel;
 
-
-exports.onDrawerButtonTap = function(args) {
+/**
+ * Opens the Sidedrawer
+ */
+function onDrawerButtonTap(args) {
     const sideDrawer = app.getRootView();
     sideDrawer.showDrawer();
 }
+exports.onDrawerButtonTap = onDrawerButtonTap;
 
-exports.record_shot = function(args) {
-	console.log("pageLoaded");
-    var sendToken = appSettings.getString("token");
-        
-	var page = args.object;
+
+/**
+ * Displays club details
+ */
+exports.pageLoaded = function(args) {
+    // todo: finish displaying the members of a club
+    console.log("pageLoaded");
+
+    // Get authorisation token
+    var sendToken = appSettings.getString(global.tokenAccess);
+
+    // initialise view model    
+    var page = args.object;
     viewModel = new observable.Observable();
     page.bindingContext = viewModel;
+
+    // Get club parameters passed on from the list to decide which club to display
     gotData=page.navigationContext;
     var clubId = gotData.id;
-    console.log(clubId);
-    var clubUrl = "https://cricket.kinross.co/club/" + clubId;
+    var clubUrl = global.serverUrl + global.endpointClub + clubId;
+    // Club Request
     http.request({
         url: clubUrl,
         method: "GET",
@@ -48,9 +57,10 @@ exports.record_shot = function(args) {
     
 };
 
+/**
+ * Displaying club details
+ */
 function clubDetails(data){
-    console.log(data.suburb);
-    console.log(data.logo);
     viewModel.set("name", data.name);
     viewModel.set("imageUri", data.logo);
     viewModel.set("phone", data.phone_number);
@@ -58,6 +68,10 @@ function clubDetails(data){
     viewModel.set("country", data.country);
 }
 
+
+/**
+ * Goes to the club edit page to allow changing of club details
+ */
 exports.navigateToEditClub = function(args){
     var navigationOptions={
         moduleName:'clubedit-page',

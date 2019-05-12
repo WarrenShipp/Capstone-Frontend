@@ -1,4 +1,4 @@
-<Page loaded="record_shot" xmlns:df="nativescript-pro-ui/dataform" xmlns="http://schemas.nativescript.org/tns.xsd">
+<Page loaded="pageLoaded" xmlns:df="nativescript-pro-ui/dataform" xmlns="http://schemas.nativescript.org/tns.xsd">
     <ActionBar class="action-bar">
         <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
         <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
@@ -6,6 +6,7 @@
         </ActionItem>
         <Label class="action-bar-title" text="Selected Club"></Label>
     </ActionBar>
+    <ScrollView>
     <StackLayout>
         <Label text="Name: "></Label>
 		<Label text="{{ name }}"></Label>
@@ -19,7 +20,9 @@
         <Label text="{{ country }}"></Label>
 
         <Button text="Edit Club" tap="navigateToEditClub" />
-    </StackLayout>
+        <!-- <StackLayout id="container"/> -->
+        </StackLayout>
+    </ScrollView>
 
     
 </Page>

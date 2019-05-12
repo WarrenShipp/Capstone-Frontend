@@ -1,35 +1,35 @@
 var observable = require("data/observable");
-var Sqlite = require("nativescript-sqlite");
 var listViewModule = require("tns-core-modules/ui/list-view");
 var Label = require("tns-core-modules/ui/label").Label;
 var ObservableArray = require("data/observable-array").ObservableArray;
-var viewModel = new observable.Observable();
+
 var frameModule = require("ui/frame");
-const app = require("tns-core-modules/application");
-//const dialogs = require("tns-core-modules/ui/dialogs");
-const appSettings = require("application-settings");
+var app = require("tns-core-modules/application");
+var appSettings = require("application-settings");
 var http = require("http");
 var bghttp = require("nativescript-background-http");
-var session = bghttp.session("file-upload");
+var viewModel;
 
 
-
+// Gets a list of all the clubs that the user is an admin of
 function onNavigatingTo(args) {
-    console.log("lol");
     page = args.object; 
+    viewModel = new observable.Observable();
+    page.bindingContext = viewModel;
+
+    // initialise list container
     const container = page.getViewById("container");
     const listView = new listViewModule.ListView();
     var lists = new ObservableArray([]);
 
+    // retrieve saved token
+    var sendToken = appSettings.getString(global.tokenAccess);
+    var sendUrl = global.serverUrl + global.endpointUser + "me";
 
-    var gotData=page.navigationContext;
-    console.log("this is it");
-    var sendToken = appSettings.getString("token");
-    console.log(sendToken);
     http.request({
-        url: "https://cricket.kinross.co/user/me",
+        url: sendUrl,
         method: "GET",
-        headers: { "Content-Type": "application/json", "Authorization": sendToken }
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken }
     }).then(function(result) {
         var obj = JSON.stringify(result);
         obj = JSON.parse(obj);
@@ -65,11 +65,6 @@ function onNavigatingTo(args) {
         }
         container.removeChild(listView);
         frameModule.topmost().navigate(navigationOptions);
-
-        // dialogs.alert(`Index: ${tappedItemIndex} View: ${tappedItemView}` + listView.items.getItem(args.index).name)
-        //     .then(() => {
-        //         console.log("Dialog closed!");
-        //     });
     });
 
     container.addChild(listView);
@@ -79,14 +74,8 @@ function onNavigatingTo(args) {
 }
 exports.onNavigatingTo = onNavigatingTo;
 
-exports.onDrawerButtonTap = function(args) {
+function onDrawerButtonTap(args) {
     const sideDrawer = app.getRootView();
     sideDrawer.showDrawer();
 }
-
-exports.navigateToSingle = function(args) {
-    const button = args.object;
-    const page = button.page;
-    page.frame.navigate("singleshot-page");
-}
-
+exports.onDrawerButtonTap = onDrawerButtonTap;
