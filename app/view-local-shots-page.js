@@ -6,81 +6,52 @@ var ObservableArray = require("data/observable-array").ObservableArray;
 var viewModel = new observable.Observable();
 var frameModule = require("ui/frame");
 //const dialogs = require("tns-core-modules/ui/dialogs");
+var LocalSave = require("../app/localsave/localsave.js");
+var db = new LocalSave();
+
+// page vars
+var itemList;
 
 /**
  * Loads data when page is opened.
  * @param {any} args
  */
-function onNavigatingTo(args) {
+function onLoading(args) {
     page = args.object;
-    const container = page.getViewById("container");
-    const listView = new listViewModule.ListView();
-    var lists = new ObservableArray([]);
+    console.log(args.object);
+    var container = page.getViewById("listContainer");
+    var itemListContainer = page.getViewById("itemList");
+    console.log(container);
+    var itemList = new ObservableArray([]);
+    viewModel.set("itemList", itemList);
+    page.bindingContext = viewModel;
 
     // get list of local shots and display.
-    (new Sqlite("my.db")).then(db => {
-        db.execSQL("CREATE TABLE IF NOT EXISTS test1 (id INTEGER PRIMARY KEY AUTOINCREMENT, path TEXT, name TEXT, shottype TEXT, ratingtype TEXT)").then(id => {
-            console.log("table created");
-
-            (new Sqlite("my.db")).then(db => {
-                db.all("SELECT path,name, shottype, ratingtype, date FROM test1").then(rows => {
-                    for (var row in rows) {
-                        console.log("RESULT", rows[row]);
-                        // var test = rows[row].toString();
-                        // console.log(test);
-                        lists.push({ path: rows[row][0], name: rows[row][1], shottype: rows[row][2], rating: rows[row][3], date: rows[row][4] });
-                        console.log(rows[row][3]);
-                    }
-                    // console.log(rows);
-                    // listView.items = rows;
-                }, error => {
-                    console.log("SELECT ERROR", error);
-                });
-            });
-
-        }, error => {
-            console.log("CREATE TABLE ERROR", error);
-        });
-    }, error => {
-        console.log("OPEN DB ERROR", error);
-    });
-
-    listView.items = lists;
-
-    // trigger for when shots are loaded from DB.
-    listView.on(listViewModule.ListView.itemLoadingEvent, (args) => {
-        if (!args.view) {
-            // Create label if it is not already created.
-            args.view = new Label();
-            args.view.className = "list-group-item";
+    db.queryAll(
+        "SELECT * FROM " + LocalSave._tableName,
+        [],
+        function (resultSet) {
+            console.log(resultSet);
+            toAdd = [];
+            for (var row in resultSet) {
+                var item = {
+                    id: resultSet[row][0],
+                    path: resultSet[row][1],
+                    playerName: resultSet[row][2],
+                    shotType: resultSet[row][7],
+                    ratingType: resultSet[row][8],
+                    date: resultSet[row][6]
+                };
+                console.log("RESULT: ", item);
+                toAdd.push(item);
+            }
+            itemList.push(toAdd);
+            itemListContainer.refresh();
         }
-        (args.view).text = "Player: " + listView.items.getItem(args.index).name + " Shot: " + listView.items.getItem(args.index).shottype + " Rating: " +
-            listView.items.getItem(args.index).rating;
-        (args.view).textWrap = true;
-
-    });
-
-    // trigger for when an item is tapped.
-    listView.on(listViewModule.ListView.itemTapEvent, (args) => {
-        const tappedItemIndex = args.index;
-        const tappedItemView = args.view;
-        var file = listView.items.getItem(args.index).path;
-        var name = listView.items.getItem(args.index).name;
-        var shottype = listView.items.getItem(args.index).shottype;
-        var rating = listView.items.getItem(args.index).rating;
-        var date = listView.items.getItem(args.index).date;
-        var navigationOptions = {
-            moduleName: 'view-shot-page',
-            context: { path: file, name: name, shottype: shottype, rating: rating, date: date }
-        }
-        container.removeChild(listView);
-        frameModule.topmost().navigate(navigationOptions);
-    });
-
-    container.addChild(listView);
-
+    );
+    
 }
-exports.onNavigatingTo = onNavigatingTo;
+exports.onLoading = onLoading;
 
 /**
  * Opens Sidedrawer.
@@ -103,3 +74,37 @@ function navigateToSingle(args) {
     page.frame.navigate("view-shot-page");
 }
 exports.navigateToSingle = navigateToSingle;
+
+function addItem(args) {
+    let query = "INSERT INTO " + LocalSave._tableName + " (id, path, playername, coachname, clubname, thumbnail, shottype, ratingtype, date, duration) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    let vals = [
+        Math.ceil(Math.random() * 1000000),
+        null,
+        "Alex",
+        "Alex",
+        "Alex",
+        1000,
+        2,
+        3,
+        new Date(),
+        2000
+    ];
+    db.queryExec(query, vals, function (id) {
+        console.log("Added row: " + id);
+    });
+}
+exports.addItem = addItem;
+
+/**
+ * Opens the selected Shot in view-shot-page.
+ *
+ * @param {any} args
+ */
+function onItemTap(args) {
+    // TODO make sure to send over data in the following format:
+    //      {
+    //          type: ["view_local", "view_online"],
+    //          id: String
+    //      }
+}
+exports.onItemTap = onItemTap;

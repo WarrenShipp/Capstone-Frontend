@@ -1,11 +1,29 @@
-<Page xmlns="http://www.nativescript.org/tns.xsd" navigatingTo="onNavigatingTo">
-    <Page.actionBar>
-        <ActionBar title="Saved Shots"/>
-    </Page.actionBar>
-    <StackLayout id="container">
-        <ScrollView>
-            <!-- ListView goes here -->
-        </ScrollView>
+<Page xmlns="http://www.nativescript.org/tns.xsd" navigatedTo="onLoading">
+    <ActionBar class="action-bar">
+        <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
+        <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
+            tap="onDrawerButtonTap" ios.position="left">
+        </ActionItem>
+        <Label class="action-bar-title" text="Local Shots"></Label>
+    </ActionBar>
+    <StackLayout id="listContainer">
+        <ListView items="{{ itemList }}" itemTap="onItemTap" id="itemList">
+            <ListView.itemTemplate>
+                <StackLayout>
+                    <GridLayout cols="*,3*" rows="*">
+                        <!-- Label col="0" row="0" text="Thumb" / -->
+                        <StackLayout col="1" row="0">
+                            <Label text="{{ 'Name: ' + playerName }}" />
+                            <Label text="{{ 'Shot: ' + shotType }}" />
+                            <Label text="{{ 'Rating: ' + ratingType }}" />
+                            <Label text="{{ 'Date: ' + date }}" />
+                        </StackLayout>
+                    </GridLayout>
+                </StackLayout>
+            </ListView.itemTemplate>
+        </ListView>
+        <Label text="Shots" />
+        <!-- ListView goes here -->
     </StackLayout>
 
 </Page>
