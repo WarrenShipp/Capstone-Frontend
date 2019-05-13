@@ -40,12 +40,14 @@ exports.pageLoaded = function(args) {
     gotData=page.navigationContext;
     var clubId = gotData.id;
     var clubUrl = global.serverUrl + global.endpointClub + clubId;
+    console.log(clubUrl);
     // Club Request
     http.request({
         url: clubUrl,
         method: "GET",
-        headers: { "Content-Type": "application/json", "Authorization": sendToken }
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken }
     }).then(function(result) {
+        console.log(result);
         var obj = JSON.stringify(result);
         obj = JSON.parse(obj);
         console.log(obj.content.name);

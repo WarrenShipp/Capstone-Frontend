@@ -71,7 +71,7 @@ function navigatingTo(args) {
     // set self-profile-related stuff
     if (isSelf) {
         pageTitle = "My Profile";
-        viewModel.set("isSelf", true); // displays buttons only available when another user
+        viewModel.set("isSelf", false); // displays buttons only available when another user
     } else {
         pageTitle = "User Profile";
     }

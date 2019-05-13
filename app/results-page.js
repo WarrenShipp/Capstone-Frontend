@@ -10,6 +10,8 @@ var http = require("http");
 var bghttp = require("nativescript-background-http");
 var session = bghttp.session("file-upload");
 
+const VIEW_ONLINE = "view_online";
+
 /**
  * Loads data when page is navigated to.
  * @param {any} args
@@ -113,7 +115,12 @@ function onNavigatingTo(args) {
         }
         else if (searchType == 1) {
             redirect = 'view-shot-page';
-            passContext = { path: path, id: id };
+            passContext = {
+                sourcePage: "view-local-shots-page",
+                type: VIEW_ONLINE,
+                id: id
+            };
+
         }
         else if (searchType == 2) {
             redirect = 'profile-page';
