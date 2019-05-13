@@ -44,7 +44,7 @@ exports.pageLoaded = function(args) {
     http.request({
         url: clubUrl,
         method: "GET",
-        headers: { "Content-Type": "application/json", "Authorization": sendToken }
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken }
     }).then(function(result) {
         var obj = JSON.stringify(result);
         obj = JSON.parse(obj);
