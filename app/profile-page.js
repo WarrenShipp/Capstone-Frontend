@@ -71,6 +71,7 @@ function navigatingTo(args) {
     // set self-profile-related stuff
     if (isSelf) {
         pageTitle = "My Profile";
+        viewModel.set("isSelf", true) // displays buttons only available when another user
     } else {
         pageTitle = "User Profile";
     }
@@ -217,3 +218,20 @@ function editSelf(args) {
     }
 }
 exports.editSelf = editSelf;
+
+exports.requestUser = function() {
+    var sendToken = appSettings.getString(global.tokenAccess);
+
+
+    console.log(sendToken);
+    http.request({
+        url: "https://cricket.kinross.co/join/",
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken },
+        content: JSON.stringify({ "club": "0d808588-e2cc-4141-8921-01e568e2c965",  "user": "a96b6156-5c16-4ff3-a546-1f5dd537b211", "join_type": "a"})
+    }).then(function(result) {
+        console.log(JSON.stringify(result));
+    }, function(error) {
+        console.error(JSON.stringify(error));
+    });
+}

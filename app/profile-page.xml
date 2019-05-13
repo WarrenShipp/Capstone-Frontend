@@ -66,6 +66,7 @@
             <!-- Actions -->
             <Label text="Actions" />
             <!-- Nothing for now -->
+            <Button class="btn btn-primary" horizontalAlignment="stretch" tap="requestUser" text="Request" visibility="{{ isSelf ? 'visible' : 'collapsed' }}"></Button>
             
             <!-- Buttons -->
             <DockLayout visibility="{{ canEdit ? 'visible' : 'collapsed' }}">
