@@ -32,5 +32,3 @@ typings/
 
 # Other
 .vs
-package.json
-package-lock.json
