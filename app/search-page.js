@@ -90,11 +90,30 @@ function onLoaded(args) {
     // Blank default search type
     viewModel.set("typeIndex", null);
 
+    // cacheShots();
+
     //set viewmodel
     page.bindingContext = viewModel;
 
 };
 exports.onLoaded = onLoaded;
+
+// function cacheShots(){
+//     console.log("caching");
+//     var sendToken = appSettings.getString(global.tokenAccess);
+//     http.request({
+//         url: gotData.urlSearch,
+//         method: "GET",
+//         headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken }
+//     }).then(function (result) {
+//         console.log(JSON.stringify(result));
+//         var obj = JSON.stringify(result);
+//         obj = JSON.parse(obj);
+//         var test = obj.content.results;
+//     }, function (error) {
+//         console.error(JSON.stringify(error));
+//     });
+// }
 
 /**
  * Send search information entered to results page for data request depending on search Type
@@ -110,13 +129,14 @@ exports.sendSearch = function () {
     }
     // Shot Search
     else if (searchSubmitType == 1) {
+        console.log("shot search");
         var clubName = viewModel.get("shotClub");
         var coachName = viewModel.get("shotCoach");
         var playerName = viewModel.get("shotPlayer");
         var date_before = dateStart;
         var date_after = dateEnd;
         var urlSearch = global.serverUrl + "shot/?" + "club_name=" + clubName + "&coach_name=" + coachName + "&player_name=" + playerName
-        "&date_before=" + date_before + "&date_after=" + date_after;
+        "&date_before=" + date_before + "&date_after=" + date_after + "&rating" + rating + "&type" + shot;
     }
     // User Search
     else if (searchSubmitType == 2) {
@@ -132,7 +152,7 @@ exports.sendSearch = function () {
             searchType: searchSubmitType
         }
     }
-
+    console.log("url is:" + urlSearch);
     frameModule.topmost().navigate(navigationOptions);
 
 }

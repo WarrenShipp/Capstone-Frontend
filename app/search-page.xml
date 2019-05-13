@@ -70,7 +70,7 @@
                 hint="User Type" items="{{ userType }}" selectedIndex="{{ selectedIndex2 }}" isEnabled="{{ isEnabled }}" />
             </GridLayout>
 
-            <Button class="btn btn-primary" horizontalAlignment="stretch" tap="getShots" text="Search" visibility="{{ showSubmit ? 'visible' : 'collapsed' }}"></Button>
+            <Button class="btn btn-primary" horizontalAlignment="stretch" tap="sendSearch" text="Search" visibility="{{ showSubmit ? 'visible' : 'collapsed' }}"></Button>
 
         </StackLayout>
     </ScrollView>
