@@ -5,6 +5,7 @@ var observable = require("data/observable");
 var http = require("http");
 
 let viewModel;
+const DEBUG = true;
 
 /**
  * Called when the frame is loaded. Handles access and token refreshing.
@@ -13,6 +14,7 @@ let viewModel;
 function onLoaded(args) {
     const page = args.object;
     viewModel = new observable.Observable();
+    viewModel.set("debug", DEBUG);
     page.bindingContext = viewModel;
     resetPage();
     refresh(args);
@@ -275,3 +277,20 @@ function _doRefresh(tokenRefresh) {
         logout(args);
     });
 }
+
+/**
+ * Navigate to admin tools.
+ * @param {any} args
+ */
+function navigateToAdmin(args) {
+    if (DEBUG) {
+        const sideDrawer = app.getRootView();
+        const featuredFrame = frameModule.getFrameById("root");
+        featuredFrame.navigate({
+            moduleName: "admin-tools-page",
+            clearHistory: true
+        });
+        sideDrawer.closeDrawer();
+    }
+}
+exports.navigateToAdmin = navigateToAdmin;

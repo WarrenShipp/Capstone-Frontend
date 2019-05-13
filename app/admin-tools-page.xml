@@ -1,0 +1,14 @@
+<Page loaded="pageLoaded" xmlns="http://www.nativescript.org/tns.xsd">
+<ActionBar class="action-bar">
+        <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
+        <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
+            tap="onDrawerButtonTap" ios.position="left">
+        </ActionItem>
+        <Label class="action-bar-title" text="ADMIN TOOLS"></Label>
+    </ActionBar>
+
+		<StackLayout>
+            <Button text="REBUILD LOCAL DATABASE" tap="rebuildDatabase" />
+            <Button text="ADD TEST SHOT" tap="addTestShot" />
+		</StackLayout>
+</Page>

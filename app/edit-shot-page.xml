@@ -71,7 +71,9 @@
                         visibility="{{ localOnly ? 'visible' : 'collapsed' }}"
                         isEnabled="{{ localOnly ? 'true' : 'false' }}"
                         text="Save" tap="saveLocally" />
-                <Button col="3" class="smallbtn" text="Upload" tap="upload" />
+                <Button col="3" class="smallbtn"
+                        isEnabled="{{ localOnly ? 'false' : 'true' }}"
+                        text="Upload" tap="upload" />
             </GridLayout>
         </StackLayout>
     </ScrollView>

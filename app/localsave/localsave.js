@@ -1,4 +1,4 @@
-var Sqlite = require("nativescript-sqlite");
+﻿var Sqlite = require("nativescript-sqlite");
 var dialogs = require("tns-core-modules/ui/dialogs");
 const localSaveTimeout = 500;
 
@@ -12,7 +12,7 @@ class LocalSave {
     static _dbname = "cricketdb";
     static _tableName = "localshot";
     static _columns = [
-        { name: "id", type: "INTEGER PRIMARY KEY" },
+        { name: "id", type: "INTEGER PRIMARY KEY AUTOINCREMENT" },
         { name: "path", type: "TEXT" },
         { name: "playername", type: "TEXT" },
         { name: "coachname", type: "TEXT" },
@@ -68,7 +68,7 @@ class LocalSave {
                         if (err) {
                             console.error(err);
                             dialogs.alert({
-                                title: "Error checking database",
+                                title: "Error creating database",
                                 message: err,
                                 okButtonText: "Okay"
                             }).then(function () { });
@@ -110,7 +110,12 @@ class LocalSave {
             console.error("Timout error.");
             return false;
         }
-        let promise = this.database.get(query, vals);
+        let promise;
+        if (!vals || vals.length == 0) {
+            promise = this.database.get(query);
+        } else {
+            promise = this.database.get(query, vals);
+        }
         promise.then(
             function (row) {
                 try {
@@ -150,7 +155,12 @@ class LocalSave {
             console.error("Timout error.");
             return false;
         }
-        let promise = this.database.execSQL(query, vals);
+        let promise;
+        if (!vals || vals.length == 0) {
+            promise = this.database.execSQL(query);
+        } else {
+            promise = this.database.execSQL(query, vals);
+        }
         promise.then(
             function (id) {
                 try {
@@ -172,6 +182,7 @@ class LocalSave {
                     okButtonText: "Okay"
                 }).then(function () { });
             });
+        
     }
 
     /**
@@ -190,7 +201,12 @@ class LocalSave {
             console.error("Timout error.");
             return false;
         }
-        let promise = this.database.all(query, vals);
+        let promise;
+        if (!vals || vals.length == 0) {
+            promise = this.database.all(query);
+        } else {
+            promise = this.database.all(query, vals);
+        }
         promise.then(
             function (resultSet) {
                 try {
@@ -231,7 +247,12 @@ class LocalSave {
             console.error("Timout error.");
             return false;
         }
-        let promise = this.database.each(query, vals);
+        let promise;
+        if (!vals || vals.length == 0) {
+            promise = this.database.each(query);
+        } else {
+            promise = this.database.each(query, vals);
+        }
         promise.then(
             function (row) {
                 try {
@@ -269,6 +290,108 @@ class LocalSave {
             timeNow = (new Date()).getTime();
         } while (timeNow - timeStart < localSaveTimeout);
         return false;
+    }
+
+    /**
+     * Deletes all tables and rebuilds the local database.
+     */
+    rebuild() {
+        if (this.error) {
+            console.error("Database not open due to error.");
+            return false;
+        }
+        if (!this._timeout()) {
+            // cannot get DB
+            console.error("Timout error.");
+            return false;
+        }
+
+        // check if table exists. If not, then create.
+        let dbLayer0 = this.database;
+        let query = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '%metadata%';";
+        this.database.all(query, function (err, rows) {
+            console.log("deleting tables " + rows);
+
+            try {
+
+                if (err) {
+                    console.error(err);
+                    dialogs.alert({
+                        title: "Error getting tables",
+                        message: err,
+                        okButtonText: "Okay"
+                    }).then(function () { });
+                    return;
+                }
+
+                // delete tables
+                var deleteCount = 0;
+                var doneDeleting = false;
+                for (var row in rows) {
+                    var curTable = rows[row][0];
+                    console.log(curTable);
+                    let deleteQuery = "DROP TABLE IF EXISTS " + curTable + ";";
+                    dbLayer0.execSQL(deleteQuery, function (err, id) {
+                        if (err) {
+                            console.error(err);
+                            dialogs.alert({
+                                title: "Error deleting table",
+                                message: "Table: " + curTable + "\n" + err,
+                                okButtonText: "Okay"
+                            }).then(function () { });
+                            return;
+                        }
+
+                        console.log("ID = " + id);
+                        // add to complete count
+                        deleteCount++;
+                        console.log("Deleted table " + curTable);
+                    });
+                    // doneDeleting = true;
+                }
+
+                // wait until done.
+                console.log("Start wait.");
+                while (deleteCount < rows.length) {
+                    // error. Escape.
+                    if (doneDeleting && (deleteCount < rows.length)) {
+                        console.error("Couldn't delete every Table. Aborted operation.");
+                        return;
+                    }
+                }
+                console.log("End wait.");
+
+                // create the final table
+                console.log("Creating table with name " + LocalSave._tableName);
+                let createQuery = "CREATE TABLE IF NOT EXISTS " + LocalSave._tableName + " (";
+                let first = true;
+                for (var i = 0; i < LocalSave._columns.length; i++) {
+                    var item = LocalSave._columns[i];
+                    if (!first) {
+                        createQuery += ", ";
+                    }
+                    createQuery += item.name + " " + item.type;
+                    first = false;
+                }
+                createQuery += ")";
+                dbLayer0.execSQL(createQuery, function (err, id) {
+                    if (err) {
+                        console.error(err);
+                        dialogs.alert({
+                            title: "Error creating database",
+                            message: err,
+                            okButtonText: "Okay"
+                        }).then(function () { });
+                        return;
+                    }
+                    console.log("Table created.");
+                });
+
+            } catch (err) {
+                console.error(err);
+            }
+
+        });
     }
 }
 module.exports = LocalSave;

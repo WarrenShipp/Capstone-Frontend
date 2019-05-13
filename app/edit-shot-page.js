@@ -9,6 +9,9 @@ var view = require("ui/core/view");
 var dropdown = require("nativescript-drop-down");
 var VideoPlayer = require("nativescript-videoplayer");
 var Slider = require("ui/slider");
+const dialogs = require("tns-core-modules/ui/dialogs");
+var LocalSave = require("../app/localsave/localsave.js");
+var db = new LocalSave();
 
 var http = require("http");
 var bghttp = require("nativescript-background-http");
@@ -130,18 +133,6 @@ exports.onNavigatingTo = onNavigatingTo;
 function onLoad(args) {
     page = args.object;
 
-    // set up local database if needed.
-    (new Sqlite("my.db")).then(db => {
-        db.execSQL("CREATE TABLE IF NOT EXISTS testb (id INTEGER PRIMARY KEY, path TEXT, name TEXT, coach TEXT, club TEXT, shottype TEXT, ratingtype TEXT, date TEXT, thumbnail INTEGER)").then(id => {
-            console.log("table created");
-
-        }, error => {
-            console.log("CREATE TABLE ERROR", error);
-        });
-    }, error => {
-        console.log("OPEN DB ERROR", error);
-    });
-
     // set page name
     if (editType == EDIT_RECORD) {
         pageName = "Record Shot";
@@ -150,43 +141,8 @@ function onLoad(args) {
     }
     viewModel.set("pageName", pageName);
 
-    // set id
-    shotId = _getShotId(editType, editTypeOptions);
-
-    // set shot type
-    shotTypeList = new dropdown.ValueList(shotTypeListArray);
-    let shotType = page.getViewById("shotType");
-    viewModel.set("shotTypeItems", shotTypeList);
-    shotTypeIndex = _getShotType(editType, editTypeOptions);
-    viewModel.set("shotTypeIndex", shotTypeIndex);
-
-    // set rating type
-    ratingTypeList = new dropdown.ValueList(ratingTypeListArray);
-    let ratingType = page.getViewById("ratingType");
-    viewModel.set("ratingTypeItems", ratingTypeList);
-    ratingTypeIndex = _getRatingType(editType, editTypeOptions);
-    viewModel.set("ratingTypeIndex", ratingTypeIndex);
-
-    // set date / time data
-    dateTimeObj = _getDateTimeObj(editType, editTypeOptions);
-    dateTimeObj = !dateTimeObj ? (new Date()) : dateTimeObj;
-    date = _getDate(editType, editTypeOptions);
-    date = !date ? dateTimeObj.toDateString() : date;
-    time = _getTime(editType, editTypeOptions);
-    time = !time ? dateTimeObj.toLocaleTimeString("en-US") : time;
-    viewModel.set("date", date);
-    viewModel.set("time", time);
-    console.log("the date " + date);
-    console.log("the time " + time);
-
-    // set file path
-    path = _getVideoPath(editType, editTypeOptions);
-    viewModel.set("videoPath", path);
-    console.log("file path " + path);
-
     // set duration and slider max
     player = page.getViewById("nativeVideoPlayer");
-    viewModel.set("duration", 0);
     player.on(VideoPlayer.Video.playbackReadyEvent, args => {
         console.log("Ready to play video");
         duration = player.getDuration();
@@ -205,8 +161,6 @@ function onLoad(args) {
     });
 
     // set slider
-    thumbnail = _getThumbnail(editType, editTypeOptions);
-    viewModel.set("sliderValue", thumbnail);
     var slider = page.getViewById("thumbnailSlider");
     slider.on("valueChange", args => {
         setThumbnail();
@@ -218,6 +172,9 @@ function onLoad(args) {
 
     // set viewmodel
     page.bindingContext = viewModel;
+
+    // load data
+    _getShot(editType, editTypeOptions);
 
 }
 exports.onLoad = onLoad;
@@ -242,7 +199,7 @@ function upload(args) {
     http.request({
         url: global.serverUrl + global.endpointShot,
         method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": "BEARER " + sendToken },
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken },
         content: JSON.stringify({ "player": "bb656952-d2a9-4ed9-bd56-df4f1c591cae", "club": "4af99431-1408-4753-a913-62e54ceeaf98", "type": 2, "rating": 2 })
     }).then(function (result) {
         console.log(JSON.stringify(result));
@@ -340,28 +297,149 @@ exports.upload = upload;
  */
 function saveLocally(args) {
     page = args.object;
-    firstname = viewModel.get("playername");
-    var dbdate = new Date();    // TODO mash date and time together in datetime string, conver to UTC
-    (new Sqlite("my.db")).then(db => {
-        db.execSQL(
-            "INSERT INTO testb (id, path, name, coach, club, shottype, ratingtype, date, thumbnail) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            [shotId, path, firstname, coachname, clubname, shotTypeName, ratingTypeName, dbdate, thumbnail]
-        ).then(id => {
-            console.log("INSERT RESULT", id);
-        }, error => {
-            console.log("INSERT ERROR", error);
-        });
-    });
-    if (page.android) {
-        var Toast = android.widget.Toast;
-        Toast.makeText(application.android.context, "Video Saved", Toast.LENGTH_SHORT).show();
-    }
-    var navigationOptions = {
-        moduleName: 'record-shot-page',
-        backstackVisible: false
-    }
+    console.log("Start save");
+    
+    // shot is already locally saved. Update.
+    if (shotId) {
+        console.log("Edit");
 
-    frameModule.topmost().navigate(navigationOptions);
+        // get changed vars
+        var columnList = [];
+        if (firstname != viewModel.get("playername")) {
+            columnList.push({ column: "playername", value: viewModel.get("playername") });
+        }
+        if (coachname != viewModel.get("coachname")) {
+            columnList.push({ column: "coachname", value: viewModel.get("coachname") });
+        }
+        if (clubname != viewModel.get("clubname")) {
+            columnList.push({ column: "clubname", value: viewModel.get("clubname") });
+        }
+        if (path != viewModel.get("videoPath")) {
+            columnList.push({ column: "path", value: viewModel.get("videoPath") });
+        }
+        if (thumbnail != viewModel.get("thumbnail")) {
+            columnList.push({ column: "thumbnail", value: viewModel.get("thumbnail") });
+        }
+        if (shotTypeIndex != viewModel.get("shotTypeIndex")) {
+            columnList.push({ column: "shottype", value: viewModel.get("shotTypeIndex") });
+        }
+        if (ratingTypeIndex != viewModel.get("ratingTypeIndex")) {
+            columnList.push({ column: "ratingtype", value: viewModel.get("ratingTypeIndex") });
+        }
+        var dateCheck = viewModel.get("date");
+        var timeCheck = viewModel.get("time");
+        var dateTimeCheck = dateCheck + " " + timeCheck;
+        var curDateTime = dateTimeObj.toDateString() + " " + dateTimeObj.toLocaleTimeString("en-US");
+        if (curDateTime != dateTimeCheck) {
+            columnList.push({ column: "date", value: new Date(dateCheck + " " + timeCheck) });
+        }
+
+        // build query
+        var query = "UPDATE " + LocalSave._tableName + " SET ";
+        var first = true;
+        var valList = [];
+        for (var i = 0; i < columnList.length; i++) {
+            var item = columnList[i];
+            if (!first) {
+                query += ", ";
+            }
+            query += item.column + "='?'";
+            valList.push(item.value);
+            first = false;
+        }
+        query += " WHERE id='" + shotId + "';";
+
+        // run query.
+        var complete = false
+        db.queryExec(query, valList, function (id) {
+            console.log("Edited shot with id " + id);
+            if (page.android) {
+                var Toast = android.widget.Toast;
+                Toast.makeText(application.android.context, "Video Saved", Toast.LENGTH_SHORT).show();
+            };
+            complete = true;
+        });
+
+        // leave
+        var startTimer = (new Date()).getTime();
+        while (!complete) {
+            if ((new Date()).getTime() - startTimer >= 5000) {
+                console.error("Local saving timeout.");
+                return;
+            }
+        }
+        frameModule.topmost().goBack();
+    }
+    // shot is new. Insert.
+    else {
+        console.log("Insert");
+
+        // get all vars (don't worry if they've been changed).
+        var columnList = [];
+        columnList.push({ column: "playername", value: viewModel.get("playername") });
+        columnList.push({ column: "coachname", value: viewModel.get("coachname") });
+        columnList.push({ column: "clubname", value: viewModel.get("clubname") });
+        columnList.push({ column: "path", value: viewModel.get("videoPath") });
+        columnList.push({ column: "thumbnail", value: viewModel.get("sliderValue") });
+        columnList.push({ column: "shottype", value: viewModel.get("shotTypeIndex") });
+        columnList.push({ column: "ratingtype", value: viewModel.get("ratingTypeIndex") });
+        // columnList.push({ column: "duration", value: viewModel.get("duration") });
+        var dateCheck = viewModel.get("date");
+        var timeCheck = viewModel.get("time");
+        columnList.push({ column: "date", value: new Date(dateCheck + " " + timeCheck) });
+
+        console.log("list made");
+        // build query
+        var query = "INSERT INTO " + LocalSave._tableName + " (";
+        var first = true;
+        for (var i = 0; i < columnList.length; i++) {
+            var item = columnList[i];
+            if (!first) {
+                query += ", ";
+            }
+            query += item.column;
+            first = false;
+        }
+        query += ") VALUES (";
+        first = true;
+        var valList = [];
+        for (var i = 0; i < columnList.length; i++) {
+            var item = columnList[i];
+            if (!first) {
+                query += ", ";
+            }
+            query += "?";
+            first = false;
+            valList.push(item.value);
+        }
+        query += ");";
+        console.log(query);
+
+        // run query.
+        var complete = false;
+        db.queryExec(query, valList, function (id) {
+            console.log("Saved new shot with id " + id);
+            if (page.android) {
+                var Toast = android.widget.Toast;
+                Toast.makeText(application.android.context, "Video Saved", Toast.LENGTH_SHORT).show();
+            }
+            complete = true;
+        });
+
+        // leave
+        var startTimer = (new Date()).getTime();
+        while (!complete) {
+            if ((new Date()).getTime() - startTimer >= 5000) {
+                console.error("Local saving timeout.");
+                return;
+            }
+        }
+        var navigationOptions = {
+            moduleName: "record-shot-page",
+            backstackVisible: false
+        };
+        frameModule.topmost().navigate(navigationOptions);
+    }
 
 }
 exports.saveLocally = saveLocally;
@@ -373,18 +451,50 @@ exports.saveLocally = saveLocally;
 function discard(args) {
 
     // discard from database
-    (new Sqlite("my.db")).then(db => {
-        db.execSQL(
+    if (shotId) {
+        db.queryExec(
             "DELETE FROM testb WHERE id=?",
-            [shotId]
-        ).then(id => {
-            console.log("Shot with id " + shotId + " deleted.", id);
-        }, error => {
-            console.error("Error deleting shot with id " + shotId, error);
-        });
-    });
+            [shotId],
+            function (err, id) {
+                if (err) {
+                    console.error("Error deleting shot with id " + shotId, error);
+                    dialogs.alert({
+                        title: "Can't delete shot",
+                        message: "Error deleting shot with id " + shotId + "\n" + error,
+                        okButtonText: "Okay"
+                    }).then(function () { });
+                    return;
+                }
+                console.log("Shot with id " + shotId + " deleted.", id);
 
-    // discard video
+                // discard video
+                _discardVideo();
+
+                // go to source page.
+                var navigationOptions = {
+                    moduleName: sourcePage,
+                    backstackVisible: true
+                }
+                frameModule.topmost().navigate(navigationOptions);
+            });
+    } else {
+        _discardVideo();
+
+        // go to record page since we are recording.
+        var navigationOptions = {
+            moduleName: "record-shot-page",
+            backstackVisible: true
+        }
+        frameModule.topmost().navigate(navigationOptions);
+    }
+
+}
+exports.discard = discard;
+
+/**
+ * Discards a locally saved video.
+ */
+function _discardVideo() {
     var filepath = path.split("/");
     console.log(filepath);
     file = filepath[6];
@@ -394,14 +504,7 @@ function discard(args) {
     myFolder = fileSystemModule.knownFolders.temp();
     myFile = myFolder.getFile(fileString);
     myFile.remove();
-    var navigationOptions = {
-        moduleName: sourcePage
-    }
-
-    frameModule.topmost().navigate(navigationOptions);
-
 }
-exports.discard = discard;
 
 /**
  * Called to change Shot Type dropdown value.
@@ -411,9 +514,9 @@ exports.discard = discard;
  */
 function shotTypeDropdownChanged(args) {
     let dropdownShot = page.getViewById("shotType");
-    shotTypeIndex = dropdownShot.selectedIndex;
+    // shotTypeIndex = dropdownShot.selectedIndex;
     shotTypeName = shotTypeListArray[dropdownShot.selectedIndex].display;
-    console.log(shotTypeIndex + " " + shotTypeName);
+    console.log(dropdownShot.selectedIndex + " " + shotTypeName);
 }
 exports.shotTypeDropdownChanged = shotTypeDropdownChanged;
 
@@ -425,9 +528,9 @@ exports.shotTypeDropdownChanged = shotTypeDropdownChanged;
  */
 function ratingTypeDropdownChanged(args) {
     let dropdownRating = page.getViewById("ratingType");
-    ratingTypeIndex = dropdownRating.selectedIndex;
+    // ratingTypeIndex = dropdownRating.selectedIndex;
     ratingTypeName = ratingTypeListArray[dropdownRating.selectedIndex].display;
-    console.log(ratingTypeIndex + " " + ratingTypeName);
+    console.log(dropdownRating.selectedIndex + " " + ratingTypeName);
 }
 exports.ratingTypeDropdownChanged = ratingTypeDropdownChanged;
 
@@ -443,148 +546,242 @@ function setThumbnail() {
 }
 exports.setThumbnail = setThumbnail;
 
-function _getShotId(editType, editTypeOptions) {
+function _getShot(editType, editTypeOptions) {
     if (!editType) {
         return _throwNoContextError();
     }
     else if (editType == EDIT_RECORD) {
-        let newId = -1;
-        let check = -1;
-        do {
-            check = -1;
-            newId = Math.floor(Math.random() * 2147483647);     // max int32
-            (new Sqlite("my.db")).then(db => {
-                db.get("SELECT id FROM testb WHERE id=?", [newId]).then(row => {
-                    check = row.id;
-                }, error => {
-                    console.error("Problem selecting id when creating new shot.", error);
-                });
+        _setShotRecord(editTypeOptions);
+    }
+    else if (editType == EDIT_VIEW_LOCAL) {
+        _setShotLocal(editTypeOptions);
+    }
+    else if (editType == EDIT_VIEW_SEARCH) {
+        _setShotSearch(editTypeOptions);
+    }
+}
+
+function _setShotRecord(editTypeOptions) {
+
+    // no shot id. Added by DBs
+
+    // player name
+    firstname = null;
+    viewModel.set("playername", firstname);
+
+    // coach name
+    coachname = null;
+    viewModel.set("coachname", coachname);
+
+    // player name
+    clubname = null;
+    viewModel.set("clubname", clubname);
+
+    // set shot type
+    shotTypeList = new dropdown.ValueList(shotTypeListArray);
+    let shotType = page.getViewById("shotType");
+    viewModel.set("shotTypeItems", shotTypeList);
+    shotTypeIndex = 0;
+    viewModel.set("shotTypeIndex", shotTypeIndex);
+
+    // set rating type
+    ratingTypeList = new dropdown.ValueList(ratingTypeListArray);
+    let ratingType = page.getViewById("ratingType");
+    viewModel.set("ratingTypeItems", ratingTypeList);
+    ratingTypeIndex = 0;
+    viewModel.set("ratingTypeIndex", ratingTypeIndex);
+
+    // set date / time data
+    dateTimeObj = editTypeOptions.datetime ? editTypeOptions.datetime : (new Date());
+    date = dateTimeObj.toDateString();
+    time = dateTimeObj.toLocaleTimeString("en-US");
+    viewModel.set("date", date);
+    viewModel.set("time", time);
+    console.log("the date " + date);
+    console.log("the time " + time);
+
+    // set file path
+    if (!editTypeOptions.filePath) {
+        return new Error("Recorded shot did not pass a file path.");
+    } else {
+        path = editTypeOptions.filePath;
+    }
+    viewModel.set("videoPath", path);
+    console.log("file path " + path);
+
+    // set duration
+    duration = 0;
+    viewModel.set("duration", duration);
+
+    // set thumbnail
+    thumbnail = 0;
+    viewModel.set("sliderValue", thumbnail);
+
+}
+
+function _setShotLocal(editTypeOptions) {
+
+    // shot id
+    shotId = editTypeOptions.id;
+    if (!shotId) {
+        console.error("No shot ID has been set. Cannot load local shot.");
+        dialogs.alert({
+            title: "No ID set",
+            message: "The Shot doesn't have an ID. It can't be loaded.",
+            okButtonText: "Okay"
+        }).then(function () {
+            frameModule.topmost().goBack();
             });
-        } while (check === newId);
-        return newId;
+        return;
     }
-    return null;
+
+    // player name
+    firstname = null;
+    viewModel.set("playername", firstname);
+
+    // coach name
+    coachname = null;
+    viewModel.set("coachname", coachname);
+
+    // player name
+    clubname = null;
+    viewModel.set("clubname", clubname);
+
+    // set shot type
+    shotTypeList = new dropdown.ValueList(shotTypeListArray);
+    let shotType = page.getViewById("shotType");
+    viewModel.set("shotTypeItems", shotTypeList);
+    shotTypeIndex = 0;
+    viewModel.set("shotTypeIndex", shotTypeIndex);
+
+    // set rating type
+    ratingTypeList = new dropdown.ValueList(ratingTypeListArray);
+    let ratingType = page.getViewById("ratingType");
+    viewModel.set("ratingTypeItems", ratingTypeList);
+    ratingTypeIndex = 0;
+    viewModel.set("ratingTypeIndex", ratingTypeIndex);
+
+    // set date / time data
+    dateTimeObj = (new Date());
+    date = dateTimeObj.toDateString();
+    time = dateTimeObj.toLocaleTimeString("en-US");
+    viewModel.set("date", date);
+    viewModel.set("time", time);
+
+    // set file path
+    path = null;
+    viewModel.set("videoPath", path);
+
+    // set duration
+    duration = 0;
+    viewModel.set("duration", duration);
+
+    // set thumbnail
+    thumbnail = 0;
+    viewModel.set("sliderValue", thumbnail);
+
+    // get item
+    var query = "SELECT * FROM " + LocalSave._tableName + "WHERE id='?'";
+    db.queryGet(query, [shotId], function (row) {
+        /*
+        { name: "id", type: "INTEGER PRIMARY KEY AUTOINCREMENT" },
+        { name: "path", type: "TEXT" },
+        { name: "playername", type: "TEXT" },
+        { name: "coachname", type: "TEXT" },
+        { name: "clubname", type: "TEXT" },
+        { name: "thumbnail", type: "INTEGER" },
+        { name: "date", type: "DATETIME" },
+        { name: "shottype", type: "INTEGER" },
+        { name: "ratingtype", type: "INTEGER" },
+        { name: "duration", type: "INTEGER" }
+        */
+
+        // player name
+        firstname = row[2] ? row[2] : null;
+        viewModel.set("playername", firstname);
+
+        // coach name
+        coachname = row[3] ? row[3] : null;
+        viewModel.set("coachname", coachname);
+
+        // player name
+        clubname = row[4] ? row[4] : null;
+        viewModel.set("clubname", clubname);
+
+        // set shot type
+        shotTypeIndex = row[7] ? row[7] : 0;
+        viewModel.set("shotTypeIndex", shotTypeIndex);
+
+        // set rating type
+        ratingTypeIndex = row[8] ? row[8] : 0;
+        viewModel.set("ratingTypeIndex", ratingTypeIndex);
+
+        // set date / time data
+        dateTimeObj = row[6] ? row[6] : (new Date());
+        date = dateTimeObj.toDateString();
+        time = dateTimeObj.toLocaleTimeString("en-US");
+        viewModel.set("date", date);
+        viewModel.set("time", time);
+
+        // set file path
+        path = row[1] ? row[1] : null;
+        viewModel.set("videoPath", path);
+
+        // set duration
+        duration = row[9] ? row[9] : 0;
+        viewModel.set("duration", duration);
+
+        // set thumbnail
+        thumbnail = row[5] ? row[5] : 0;
+        viewModel.set("sliderValue", thumbnail);
+    });
+
 }
 
-function _getPlayerName(editType, editTypeOptions) {
-    if (!editType) {
-        return _throwNoContextError();
-    }
-    else if (editType == EDIT_RECORD) {
-        return null;
-    }
-    return null;
-}
+function _setShotSearch(editTypeOptions) {
 
-function _getCoachName(editType, editTypeOptions) {
-    if (!editType) {
-        return _throwNoContextError();
-    }
-    else if (editType == EDIT_RECORD) {
-        return null;
-    }
-    return null;
-}
+    // no shot id. Added by DBs
 
-function _getClubName(editType, editTypeOptions) {
-    if (!editType) {
-        return _throwNoContextError();
-    }
-    else if (editType == EDIT_RECORD) {
-        return null;
-    }
-    return null;
-}
+    // set shot type
+    shotTypeList = new dropdown.ValueList(shotTypeListArray);
+    let shotType = page.getViewById("shotType");
+    viewModel.set("shotTypeItems", shotTypeList);
+    shotTypeIndex = 0;
+    viewModel.set("shotTypeIndex", shotTypeIndex);
 
-function _getVideoPath(editType, editTypeOptions) {
-    if (!editType) {
-        return _throwNoContextError();
-    }
-    else if (editType == EDIT_RECORD) {
-        if (!editTypeOptions.filePath) {
-            console.error("Recorded shot did not pass a file path.");
-            return new Error("Recorded shot did not pass a file path.");
-        } else {
-            return editTypeOptions.filePath;
-        }
-    }
-    return null;
-}
+    // set rating type
+    ratingTypeList = new dropdown.ValueList(ratingTypeListArray);
+    let ratingType = page.getViewById("ratingType");
+    viewModel.set("ratingTypeItems", ratingTypeList);
+    ratingTypeIndex = 0;
+    viewModel.set("ratingTypeIndex", ratingTypeIndex);
 
-function _getShotType(editType, editTypeOptions) {
-    if (!editType) {
-        return _throwNoContextError();
-    }
-    else if (editType == EDIT_RECORD) {
-        return null;
-    }
-    return null;
-}
+    // set date / time data
+    dateTimeObj = editTypeOptions.datetime ? editTypeOptions.datetime.toDateString() : (new Date());
+    date = dateTimeObj.toDateString();
+    time = dateTimeObj.toLocaleTimeString("en-US");
+    viewModel.set("date", date);
+    viewModel.set("time", time);
+    console.log("the date " + date);
+    console.log("the time " + time);
 
-function _getRatingType(editType, editTypeOptions) {
-    if (!editType) {
-        return _throwNoContextError();
+    // set file path
+    if (!editTypeOptions.filePath) {
+        return new Error("Recorded shot did not pass a file path.");
+    } else {
+        path = editTypeOptions.filePath;
     }
-    else if (editType == EDIT_RECORD) {
-        return null;
-    }
-    return null;
-}
+    viewModel.set("videoPath", path);
+    console.log("file path " + path);
 
-function _getThumbnail(editType, editTypeOptions) {
-    if (!editType) {
-        return _throwNoContextError();
-    }
-    else if (editType == EDIT_RECORD) {
-        return 0;   // always reset to 0.
-    }
-    return null;
-}
+    // set duration
+    duration = 0;
+    viewModel.set("duration", duration);
 
-/**
- * Gets datetime. This has three options based upon the type of loaded:
- *   - from Recording: 
- */
-function _getDate(editType, editTypeOptions) {
-    if (!editType) {
-        return _throwNoContextError();
-    }
-    else if (editType == EDIT_RECORD) {
-        if (!editTypeOptions.datetime) {
-            return null;    // can create new date.
-        } else {
-            return editTypeOptions.datetime.toDateString();
-        }
-    }
-    return null;
-}
+    // set thumbnail
+    thumbnail = 0;
+    viewModel.set("sliderValue", thumbnail);
 
-function _getTime(editType, editTypeOptions) {
-    if (!editType) {
-        return _throwNoContextError();
-    }
-    else if (editType == EDIT_RECORD) {
-        if (!editTypeOptions.datetime) {
-            return null;    // can create new date.
-        } else {
-            return editTypeOptions.datetime.toLocaleTimeString("en-US");
-        }
-    }
-    return null;
-}
-
-function _getDateTimeObj(editType, editTypeOptions) {
-    if (!editType) {
-        return _throwNoContextError();
-    }
-    else if (editType == EDIT_RECORD) {
-        if (!editTypeOptions.datetime) {
-            return null;    // can create new date.
-        } else {
-            return editTypeOptions.datetime;
-        }
-    }
-    return null;
 }
 
 function _throwNoContextError() {

@@ -22,8 +22,6 @@
                 </StackLayout>
             </ListView.itemTemplate>
         </ListView>
-        <Label text="Shots" />
-        <!-- ListView goes here -->
     </StackLayout>
 
 </Page>

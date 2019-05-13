@@ -19,6 +19,8 @@
                 tap="navigateToLogin" visibility="{{ loggedIn ? 'collapsed' : 'visible' }}" />
             <Button class="btn btn-primary sidedrawer-list-item-text" text="Logout"
                 tap="logout" visibility="{{ loggedIn ? 'visible' : 'collapsed' }}" />
+            <Button class="btn btn-primary sidedrawer-list-item-text" text="ADMIN TOOLS"
+                tap="navigateToAdmin" visibility="{{ debug ? 'visible' : 'collapsed' }}" />
         </StackLayout>
     </nsDrawer:RadSideDrawer.drawerContent>
 

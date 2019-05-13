@@ -1,4 +1,5 @@
-﻿var observable = require("data/observable");
+﻿const app = require("tns-core-modules/application");
+var observable = require("data/observable");
 var Sqlite = require("nativescript-sqlite");
 var listViewModule = require("tns-core-modules/ui/list-view");
 var Label = require("tns-core-modules/ui/label").Label;
@@ -74,26 +75,6 @@ function navigateToSingle(args) {
     page.frame.navigate("view-shot-page");
 }
 exports.navigateToSingle = navigateToSingle;
-
-function addItem(args) {
-    let query = "INSERT INTO " + LocalSave._tableName + " (id, path, playername, coachname, clubname, thumbnail, shottype, ratingtype, date, duration) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    let vals = [
-        Math.ceil(Math.random() * 1000000),
-        null,
-        "Alex",
-        "Alex",
-        "Alex",
-        1000,
-        2,
-        3,
-        new Date(),
-        2000
-    ];
-    db.queryExec(query, vals, function (id) {
-        console.log("Added row: " + id);
-    });
-}
-exports.addItem = addItem;
 
 /**
  * Opens the selected Shot in view-shot-page.
