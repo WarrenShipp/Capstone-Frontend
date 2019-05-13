@@ -51,6 +51,7 @@ var player;     // the big video player.
 var shotTypeList;
 var ratingTypeList;
 const shotTypeListArray = [
+    { display: "Not Set" },
     { display: "Straight Drive" },
     { display: "Cover Drive" },
     { display: "Square Cut" },
@@ -63,6 +64,7 @@ const shotTypeListArray = [
     { display: "Off Drive" }
 ];
 const ratingTypeListArray = [
+    { display: "Not Set" },
     { display: "Perfect" },
     { display: "Good" },
     { display: "Off Balanced" },
@@ -343,27 +345,29 @@ function saveLocally(args) {
             if (!first) {
                 query += ", ";
             }
-            query += item.column + "='?'";
+            query += item.column + "=?";
             valList.push(item.value);
             first = false;
         }
-        query += " WHERE id='" + shotId + "';";
+        query += " WHERE id=?;";
+        valList.push(shotId);
+        console.log(query);
 
         // run query.
         var complete = false
         db.queryExec(query, valList, function (id) {
+            complete = true;
             console.log("Edited shot with id " + id);
             if (page.android) {
                 var Toast = android.widget.Toast;
                 Toast.makeText(application.android.context, "Video Saved", Toast.LENGTH_SHORT).show();
             };
-            complete = true;
         });
 
         // leave
         var startTimer = (new Date()).getTime();
         while (!complete) {
-            if ((new Date()).getTime() - startTimer >= 5000) {
+            if ((new Date()).getTime() - startTimer >= 10000) {
                 console.error("Local saving timeout.");
                 return;
             }
@@ -381,8 +385,8 @@ function saveLocally(args) {
         columnList.push({ column: "clubname", value: viewModel.get("clubname") });
         columnList.push({ column: "path", value: viewModel.get("videoPath") });
         columnList.push({ column: "thumbnail", value: viewModel.get("sliderValue") });
-        columnList.push({ column: "shottype", value: viewModel.get("shotTypeIndex") });
-        columnList.push({ column: "ratingtype", value: viewModel.get("ratingTypeIndex") });
+        columnList.push({ column: "shottype", value: viewModel.get("shotTypeIndex") + 1 });
+        columnList.push({ column: "ratingtype", value: viewModel.get("ratingTypeIndex") + 1 });
         // columnList.push({ column: "duration", value: viewModel.get("duration") });
         var dateCheck = viewModel.get("date");
         var timeCheck = viewModel.get("time");
@@ -418,12 +422,12 @@ function saveLocally(args) {
         // run query.
         var complete = false;
         db.queryExec(query, valList, function (id) {
+            complete = true;
             console.log("Saved new shot with id " + id);
             if (page.android) {
                 var Toast = android.widget.Toast;
                 Toast.makeText(application.android.context, "Video Saved", Toast.LENGTH_SHORT).show();
             }
-            complete = true;
         });
 
         // leave
@@ -681,7 +685,7 @@ function _setShotLocal(editTypeOptions) {
     viewModel.set("sliderValue", thumbnail);
 
     // get item
-    var query = "SELECT * FROM " + LocalSave._tableName + "WHERE id='?'";
+    var query = "SELECT * FROM " + LocalSave._tableName + " WHERE id=?";
     db.queryGet(query, [shotId], function (row) {
         /*
         { name: "id", type: "INTEGER PRIMARY KEY AUTOINCREMENT" },
@@ -717,7 +721,7 @@ function _setShotLocal(editTypeOptions) {
         viewModel.set("ratingTypeIndex", ratingTypeIndex);
 
         // set date / time data
-        dateTimeObj = row[6] ? row[6] : (new Date());
+        dateTimeObj = row[6] ? (new Date(row[6])) : (new Date());
         date = dateTimeObj.toDateString();
         time = dateTimeObj.toLocaleTimeString("en-US");
         viewModel.set("date", date);

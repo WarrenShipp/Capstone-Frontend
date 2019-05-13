@@ -10,6 +10,10 @@ var frameModule = require("ui/frame");
 var LocalSave = require("../app/localsave/localsave.js");
 var db = new LocalSave();
 
+// View Types
+const VIEW_LOCAL = "view_local";
+const VIEW_ONLINE = "view_online";
+
 // page vars
 var itemList;
 
@@ -23,7 +27,7 @@ function onLoading(args) {
     var container = page.getViewById("listContainer");
     var itemListContainer = page.getViewById("itemList");
     console.log(container);
-    var itemList = new ObservableArray([]);
+    itemList = new ObservableArray([]);
     viewModel.set("itemList", itemList);
     page.bindingContext = viewModel;
 
@@ -82,10 +86,16 @@ exports.navigateToSingle = navigateToSingle;
  * @param {any} args
  */
 function onItemTap(args) {
-    // TODO make sure to send over data in the following format:
-    //      {
-    //          type: ["view_local", "view_online"],
-    //          id: String
-    //      }
+    let viewOptions = {
+        sourcePage: "view-local-shots-page",
+        type: VIEW_LOCAL,
+        id: itemList.getItem(args.index).id
+    };
+    let navigationOptions = {
+        moduleName: 'view-shot-page',
+        context: viewOptions,
+        backstackVisible: true
+    };
+    frameModule.topmost().navigate(navigationOptions);
 }
 exports.onItemTap = onItemTap;

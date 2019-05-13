@@ -2,92 +2,375 @@
 var viewModel = new observable.Observable();
 const fileSystemModule = require("tns-core-modules/file-system");
 var appSet = require("application-settings");
-var frameModule =require("ui/frame");
+var frameModule = require("ui/frame");
 var Sqlite = require("nativescript-sqlite");
 var application = require("application");
-
-var Observable = require("data/observable").Observable;
-var viewModel = new Observable();
 var view = require("ui/core/view");
-var dropdown = require("nativescript-drop-down");
-var firstname;
-var shot;
-var path;
-var shotIndex;
-var shotType;
-var rating;
-//var dd = new dropdown.DropDown();
+var VideoPlayer = require("nativescript-videoplayer");
+var Slider = require("ui/slider");
+const dialogs = require("tns-core-modules/ui/dialogs");
+var LocalSave = require("../app/localsave/localsave.js");
+var db = new LocalSave();
 
+// Edit Types
+const EDIT_RECORD = "record_shot";
+const EDIT_VIEW_LOCAL = "edit_local";
+const EDIT_VIEW_SEARCH = "edit_online";
+
+// View Types
+const VIEW_LOCAL = "view_local";
+const VIEW_ONLINE = "view_online";
+var canEdit = false;
+
+// nav vars
+var sourcePage;
+var type;
+var editType;
+
+// page vars
+var shotId;
+var firstname;
+var coachname;
+var clubname;
+var path;
+var duration;
+var date;
+var time;
+var dateTimeObj;
+var shotTypeName;
+var ratingTypeName;
+var pageName;
+
+// helpers
+var player;     // the big video player.
+var shotTypeList;
+var ratingTypeList;
+const shotTypeListArray = [
+    { display: "Not Set" },
+    { display: "Straight Drive" },
+    { display: "Cover Drive" },
+    { display: "Square Cut" },
+    { display: "Late Cut" },
+    { display: "Leg Glance" },
+    { display: "Hook" },
+    { display: "Pull" },
+    { display: "Drive through square leg" },
+    { display: "On drive" },
+    { display: "Off Drive" }
+];
+const ratingTypeListArray = [
+    { display: "Not Set" },
+    { display: "Perfect" },
+    { display: "Good" },
+    { display: "Off Balanced" },
+    { display: "Off Position" },
+    { display: "Played Late" },
+    { display: "Played Early" }
+];
+
+/**
+ * Handles Hamburger Menu
+ * @param {any} args
+ */
+function onDrawerButtonTap(args) {
+    const sideDrawer = application.getRootView();
+    sideDrawer.showDrawer();
+}
+exports.onDrawerButtonTap = onDrawerButtonTap;
+
+/**
+ * Set up basic Shot Editing parameters. This mostly deals with redirects and is
+ * used to tell the page how to function / look / handle the given Shot data.
+ * @param {any} args
+ */
 function onNavigatingTo(args) {
     page = args.object;
 
-    // TODO replace Dropdowns with lists that contain data, like in profile page.
-    
-    shotType = new dropdown.ValueList({display: "Straight Drive"}, {display: "Cover Drive"}, {display: "Square Cut"},
-    {display: "Late Cut"}, {display: "Leg Glance"}, {display: "Hook"}, {display: "Pull"}, {display: "Drive through square leg"},
-    {display: "On drive"}, {display: "Off Drive"});
+    /**
+     * The page that, when we cancel, this edit page will go back to.
+     */
+    sourcePage = page.navigationContext.sourcePage ? page.navigationContext.sourcePage : "home-page";
+    /**
+     * The type of editing that will be performed. Either local, record (new) or from search.
+     */
+    type = page.navigationContext.type;
+    /**
+     * The extra parameters. We place them here rather than directly in the
+     * navigationContext to keep things neat.
+     */
+    shotId = page.navigationContext.id;
 
-    ratingType = new dropdown.ValueList({display: "Perfect"}, {display: "Good"}, {display: "Off Balanced"},
-    {display: "Off Position"}, {display: "Played Late"}, {display: "Played Early"});
+    console.log("sourcePage: " + sourcePage);
+    console.log("type: " + type);
+    console.log("shotId: " + shotId);
 
-    dd = page.getViewById("dd");
-    aa = page.getViewById("aa");
-
-    
-    viewModel.set("selectedIndex1", null);
-    viewModel.set("ratingType", ratingType);
-
-    viewModel.set("selectedIndex", null);
-    viewModel.set("shotType", shotType);
-    
-    var gotData=page.navigationContext;
-    console.log("this is it" + gotData.path);
-    path = gotData.path;
-    id = gotData.id;
-    // shottype = gotData.shottype;
-    // rating = gotData.rating;
-    // date = gotData.date;
-    viewModel.set('selectedVideo', path);
-    viewModel.set("name", id);
-    // viewModel.set("shottype", shottype);
-    // viewModel.set("rating", rating);
-    // viewModel.set("date", date);
-
-    page.bindingContext = viewModel;
+    // set edit button params
+    switch (type) {
+        case VIEW_LOCAL:
+        default:
+            canEdit = true;
+            editType = EDIT_VIEW_LOCAL;
+            break;
+        case VIEW_ONLINE:
+            canEdit = true;
+            editType = EDIT_VIEW_SEARCH;
+            break;
+    }
 
 }
 exports.onNavigatingTo = onNavigatingTo;
 
-exports.discard = function() {
-    //path.remove();
-    //need to figure out how to discard from local storage
-    var filepath = path.split("/");
-    file = filepath[6];
-    fileString = filename.toString();
-    console.log(fileString);
-    myFolder = fileSystemModule.knownFolders.temp();
-    myFile = myFolder.getFile(fileString);
-    myFile.remove();
-    var navigationOptions={
-        moduleName:'home-page'
+/**
+ * Handles the bulk of the loading. Data passed to the editing page will be
+ * added to the form. Otherwise, if this Shot is newly created, the form will
+ * be set to default values.
+ * @param {any} args
+ */
+function onLoad(args) {
+    page = args.object;
+
+    // set page name
+    if (type == VIEW_LOCAL) {
+        pageName = "View Local Shot";
+    } else {
+        pageName = "View Shot";
+    }
+    viewModel.set("pageName", pageName);
+
+    // set duration and slider max
+    player = page.getViewById("nativeVideoPlayer");
+    player.on(VideoPlayer.Video.playbackReadyEvent, args => {
+        console.log("Ready to play video");
+        duration = player.getDuration();
+        // need to "kickstart" player, otherwise video won't show.
+        if (duration == 0) {
+            player.play();
+            player.pause();
+            player.seekToTime(0);
+            duration = player.getDuration();
+        }
+        let durSeconds = duration / 1000;
+        viewModel.set("duration", durSeconds);
+        console.log("duration: " + duration);
+    });
+
+    // set edit button params
+    viewModel.set("canEdit", canEdit);
+
+    // set viewmodel
+    page.bindingContext = viewModel;
+
+    // load data
+    _getShot();
+
+}
+exports.onLoad = onLoad;
+
+/**
+ * Goes back.
+ * @param {any} args
+ */
+function cancel(args) {
+    frameModule.topmost().goBack();
+}
+exports.cancel = cancel;
+
+/**
+ * Goes through to edit page.
+ * TODO add security to ensure you can only do this for pages you can edit.
+ * @param {any} args
+ */
+function edit(args) {
+    // go to shot record page.
+    let editTypeOptions = {
+        id: shotId
+    };
+    var navigationOptions = {
+        moduleName: 'edit-shot-page',
+        context: {
+            sourcePage: sourcePage,
+            editType: editType,
+            editTypeOptions: editTypeOptions
+        },
+        backstackVisible: true
+    };
+    frameModule.topmost().navigate(navigationOptions);
+}
+exports.edit = edit;
+
+function _getShot() {
+    if (!type) {
+        return _throwNoContextError();
+    }
+    else if (type == VIEW_LOCAL) {
+        _setShotLocal();
+    }
+    else if (type == VIEW_ONLINE) {
+        _setShotSearch();
+    }
+}
+
+function _setShotLocal() {
+
+    // shot id
+    if (!shotId) {
+        console.error("No shot ID has been set. Cannot load local shot.");
+        dialogs.alert({
+            title: "No ID set",
+            message: "The Shot doesn't have an ID. It can't be loaded.",
+            okButtonText: "Okay"
+        }).then(function () {
+            frameModule.topmost().goBack();
+        });
+        return;
     }
 
-    frameModule.topmost().navigate(navigationOptions);
+    // player name
+    firstname = null;
+    viewModel.set("playername", firstname);
+
+    // coach name
+    coachname = null;
+    viewModel.set("coachname", coachname);
+
+    // player name
+    clubname = null;
+    viewModel.set("clubname", clubname);
+
+    // set shot type
+    shotTypeName = null;
+    viewModel.set("shotTypeName", shotTypeName);
+
+    // set rating type
+    ratingTypeName = null;
+    viewModel.set("ratingTypeName", ratingTypeName);
+
+    // set date / time data
+    dateTimeObj = (new Date());
+    date = dateTimeObj.toDateString();
+    time = dateTimeObj.toLocaleTimeString("en-US");
+    viewModel.set("date", date);
+    viewModel.set("time", time);
+
+    // set file path
+    path = null;
+    viewModel.set("videoPath", path);
+
+    // set duration
+    duration = 0;
+    viewModel.set("duration", duration);
+
+    // get item
+    var query = "SELECT * FROM " + LocalSave._tableName + " WHERE id=?";
+    console.log(query);
+    db.queryGet(query, [shotId], function (row) {
+        /*
+        { name: "id", type: "INTEGER PRIMARY KEY AUTOINCREMENT" },
+        { name: "path", type: "TEXT" },
+        { name: "playername", type: "TEXT" },
+        { name: "coachname", type: "TEXT" },
+        { name: "clubname", type: "TEXT" },
+        { name: "thumbnail", type: "INTEGER" },
+        { name: "date", type: "DATETIME" },
+        { name: "shottype", type: "INTEGER" },
+        { name: "ratingtype", type: "INTEGER" },
+        { name: "duration", type: "INTEGER" }
+        */
+        console.log(row);
+
+        // player name
+        firstname = row[2] ? row[2] : null;
+        viewModel.set("playername", firstname);
+
+        // coach name
+        coachname = row[3] ? row[3] : null;
+        viewModel.set("coachname", coachname);
+
+        // player name
+        clubname = row[4] ? row[4] : null;
+        viewModel.set("clubname", clubname);
+
+        // set shot type
+        var shotTypeIndex = row[7] ? row[7] : 0;
+        if (shotTypeIndex != 0) {
+            shotTypeName = shotTypeListArray[shotTypeIndex ].display;
+        }
+        console.log("shottype = " + shotTypeIndex + " " + row[7]);
+        viewModel.set("shotTypeName", shotTypeName);
+
+        // set rating type
+        var ratingTypeIndex = row[8] ? row[8] : 0;
+        if (ratingTypeIndex != 0) {
+            ratingTypeName = ratingTypeListArray[ratingTypeIndex].display;
+        }
+        console.log("ratingtype = " + ratingTypeIndex + " " + row[8]);
+        viewModel.set("ratingTypeName", ratingTypeName);
+
+        // set date / time data
+        dateTimeObj = row[6] ? (new Date(row[6])) : (new Date());
+        date = dateTimeObj.toDateString();
+        time = dateTimeObj.toLocaleTimeString("en-US");
+        viewModel.set("date", date);
+        viewModel.set("time", time);
+
+        // set file path
+        path = row[1] ? row[1] : null;
+        viewModel.set("videoPath", path);
+
+        // set duration
+        duration = row[9] ? row[9] : 0;
+        viewModel.set("duration", duration);
+    });
 
 }
 
-function dropDownSelectedIndexChanged(args) {
-    console.log("Drop Down selected index changed from " + args.oldIndex + " to " + args.newIndex + ". New value is '" + viewModel.get("shotType").getDisplay(args.newIndex) + "'");
-    shot = viewModel.get("shotType").getDisplay(args.newIndex);
-    console.log(shot);
-}
-exports.dropDownSelectedIndexChanged = dropDownSelectedIndexChanged;
+function _setShotSearch(editTypeOptions) {
 
-function second(args) {
-    console.log("Drop Down selected index changed from " + args.oldIndex + " to " + args.newIndex + ". New value is '" + viewModel.get("ratingType").getDisplay(args.newIndex) + "'");
-    rating = viewModel.get("ratingType").getDisplay(args.newIndex);
-    console.log(rating);
-}
-exports.second = second;
+    // no shot id. Added by DBs
 
-// TODO go to editing page.
+    // set shot type
+    shotTypeList = new dropdown.ValueList(shotTypeListArray);
+    let shotType = page.getViewById("shotType");
+    viewModel.set("shotTypeItems", shotTypeList);
+    shotTypeIndex = 0;
+    viewModel.set("shotTypeIndex", shotTypeIndex);
+
+    // set rating type
+    ratingTypeList = new dropdown.ValueList(ratingTypeListArray);
+    let ratingType = page.getViewById("ratingType");
+    viewModel.set("ratingTypeItems", ratingTypeList);
+    ratingTypeIndex = 0;
+    viewModel.set("ratingTypeIndex", ratingTypeIndex);
+
+    // set date / time data
+    dateTimeObj = editTypeOptions.datetime ? editTypeOptions.datetime.toDateString() : (new Date());
+    date = dateTimeObj.toDateString();
+    time = dateTimeObj.toLocaleTimeString("en-US");
+    viewModel.set("date", date);
+    viewModel.set("time", time);
+    console.log("the date " + date);
+    console.log("the time " + time);
+
+    // set file path
+    if (!editTypeOptions.filePath) {
+        return new Error("Recorded shot did not pass a file path.");
+    } else {
+        path = editTypeOptions.filePath;
+    }
+    viewModel.set("videoPath", path);
+    console.log("file path " + path);
+
+    // set duration
+    duration = 0;
+    viewModel.set("duration", duration);
+
+    // set thumbnail
+    thumbnail = 0;
+    viewModel.set("sliderValue", thumbnail);
+
+}
+
+function _throwNoContextError() {
+    console.error("Cannot view a Shot without knowing the context.");
+    return new Error("Cannot view a Shot without knowing the context.");
+}
