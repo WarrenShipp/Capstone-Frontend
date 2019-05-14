@@ -23,7 +23,7 @@ jobs:
             - ./node_modules
       - run:
           name: build
-          command: 'tns build android --copy-to ~/cricket-frontend/build/android.apk'
+          command: 'tns build android --bundle --copy-to ~/cricket-frontend/build/android.apk'
       - store_artifacts:
           path: ~/cricket-frontend/build/
           prefix: android
