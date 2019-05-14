@@ -23,6 +23,7 @@ const EDIT_VIEW_LOCAL = "edit_local";
 const EDIT_VIEW_SEARCH = "edit_online";
 var canCancel = false;
 var localOnly = false;
+var canUpload = false;
 
 // nav vars
 var sourcePage;
@@ -123,6 +124,10 @@ function onNavigatingTo(args) {
             break;
     }
 
+    // can upload?
+    // TODO need to make sure you have permissions. This should be passed by the server.
+    canUpload = appSet.getString(global.tokenAccess) ? true : false;
+
 }
 exports.onNavigatingTo = onNavigatingTo;
 
@@ -171,6 +176,7 @@ function onLoad(args) {
     // set edit button params
     viewModel.set("canCancel", canCancel);
     viewModel.set("localOnly", localOnly);
+    viewModel.set("canUpload", canUpload);
 
     // set viewmodel
     page.bindingContext = viewModel;
@@ -194,47 +200,102 @@ exports.onLoad = onLoad;
 function upload(args) {
     var id;
     var sendToken = appSet.getString(global.tokenAccess);
-    console.log(sendToken);
     const documentsFolder = fileSystemModule.knownFolders.currentApp();
     console.log(path);
     console.log(sendToken);
+
+    // set uploading data
+    var toUpload = {};
+    var uploadType;
+    var uploadVideo;
+    var videoDuration;
+
+    // if editing an uploaded shot, we need a PATCH request.
+    if (editType == EDIT_VIEW_SEARCH) {
+        // TODO no PATCH option available on server.
+    }
+    // if editing a local shot, we post
+    else if (editType == EDIT_VIEW_LOCAL || editType == EDIT_RECORD) {
+        uploadType = "POST";
+        toUpload["player"] = "5df86c6e-6396-42e4-bcf0-da8d12dbe5b6";
+        // toUpload["club"] = "2182e986-3390-4b11-be8d-271a7751210f";
+
+        // get data
+        if (viewModel.get("shotTypeIndex")) {
+            toUpload["type"] = viewModel.get("shotTypeIndex");
+        }
+        if (viewModel.get("ratingTypeIndex")) {
+            toUpload["rating"] = viewModel.get("ratingTypeIndex");
+        }
+        var dateStr = dateTimeObj.toISOString();
+        if (dateStr) {
+            // toUpload["date_recorded"] = dateStr;
+        }
+
+        // video data
+        if (viewModel.get("videoPath")) {
+            uploadVideo = true;
+            videoDuration = duration;
+            if (!videoDuration) {
+                videoDuration = "0";
+            } else {
+                videoDuration = videoDuration.toString();
+            }
+        }
+    }
+
+    console.log(toUpload);
+    // do upload request
     http.request({
         url: global.serverUrl + global.endpointShot,
-        method: "POST",
+        method: uploadType,
         headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken },
-        content: JSON.stringify({ "player": "bb656952-d2a9-4ed9-bd56-df4f1c591cae", "club": "4af99431-1408-4753-a913-62e54ceeaf98", "type": 2, "rating": 2 })
+        content: JSON.stringify(toUpload)
     }).then(function (result) {
-        console.log(JSON.stringify(result));
-        var obj = JSON.stringify(result);
-        obj = JSON.parse(obj);
-        console.log(obj.content.id);
-        id = obj.content.id;
+        if (result.statusCode) {
+            console.log(result.statusCode);
+        }
+        try {
+            console.log(result);
+            var obj = JSON.stringify(result);
+            obj = JSON.parse(obj);
+            console.log(obj.content.id);
+            id = obj.content.id;
 
-        var file = path;
-        console.log("filepath: " + file);
-        var url = global.serverUrl + global.endpointVideo;
-        var name = file.substr(file.lastIndexOf("/") + 1);
-        console.log("id is: " + id);
-        // upload configuration
+            // set up video uploading
+            var file = path;
+            console.log("filepath: " + file);
+            var url = global.serverUrl + global.endpointVideo;
+            var name = file.substr(file.lastIndexOf("/") + 1);
+            console.log("id is: " + id);
 
-        var request = {
-            url: url,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/octet-stream", "Authorization": "BEARER " + sendToken
-            },
-            description: "Uploading " + name
-        };
+            // only upload video if asked to.
+            if (uploadVideo) {
+                var request = {
+                    url: url,
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/octet-stream", "Authorization": "Bearer " + sendToken
+                    },
+                    description: "Uploading " + name
+                };
 
-        var params = [
-            { name: "shot", value: id },
-            { name: "file", filename: file, mimeType: "video/mp4" },
-            { name: "length", value: "3001" }
-        ];
-        //var task = session.uploadFile(file, request);
-        var task = session.multipartUpload(params, request);
-        task.on("complete", completeHandler);
-        task.on("error", errorHandler);
+                var params = [
+                    { name: "shot", value: id },
+                    { name: "file", filename: file, mimeType: "video/mp4" },
+                    { name: "length", value: videoDuration }
+                ];
+                //var task = session.uploadFile(file, request);
+                var task = session.multipartUpload(params, request);
+                task.on("complete", completeHandler);
+                task.on("error", errorHandler);
+            } else {
+                // TODO navigate out once done.
+            }
+        } catch (err) {
+            console.error(err);
+        }
+        
     }, function (error) {
         console.error(JSON.stringify(error));
     });
@@ -282,6 +343,7 @@ function upload(args) {
     function completeHandler(e) {
         alert("received " + e.responseCode + " code");
         var serverResponse = e.response;
+        // TODO navigate out once done.
     }
 
     // event arguments:

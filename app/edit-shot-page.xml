@@ -72,7 +72,7 @@
                         isEnabled="{{ localOnly ? 'true' : 'false' }}"
                         text="Save" tap="saveLocally" />
                 <Button col="3" class="smallbtn"
-                        isEnabled="{{ localOnly ? 'false' : 'true' }}"
+                        isEnabled="{{ canUpload ? 'true' : 'false' }}"
                         text="Upload" tap="upload" />
             </GridLayout>
         </StackLayout>
