@@ -10,7 +10,7 @@
   },
   "description": "NativeScript Application",
   "license": "SEE LICENSE IN <your-license-filename>",
-  "repository": "<fill-your-repository-here>",
+  "repository": "https://github.com/rmit-s3628653-alex-huang/Capstone-Frontend/",
   "dependencies": {
     "nativescript-background-http": "^3.4.0",
     "nativescript-drop-down": "^5.0.0",
