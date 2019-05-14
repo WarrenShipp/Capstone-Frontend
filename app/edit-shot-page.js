@@ -215,9 +215,10 @@ function upload(args) {
         // TODO no PATCH option available on server.
     }
     // if editing a local shot, we post
-    else if (editType == EDIT_VIEW_SEARCH || editType == EDIT_RECORD) {
+    else if (editType == EDIT_VIEW_LOCAL || editType == EDIT_RECORD) {
         uploadType = "POST";
         toUpload["player"] = "5df86c6e-6396-42e4-bcf0-da8d12dbe5b6";
+        // toUpload["club"] = "2182e986-3390-4b11-be8d-271a7751210f";
 
         // get data
         if (viewModel.get("shotTypeIndex")) {
@@ -228,7 +229,7 @@ function upload(args) {
         }
         var dateStr = dateTimeObj.toISOString();
         if (dateStr) {
-            toUpload["date_recorded"] = dateStr;
+            // toUpload["date_recorded"] = dateStr;
         }
 
         // video data
@@ -236,13 +237,14 @@ function upload(args) {
             uploadVideo = true;
             videoDuration = viewModel.get("duration");
             if (!videoDuration) {
-                videoDuration = "0";
+                videoDuration = 0;
             } else {
-                videoDuration = videoDuration.toString();
+                videoDuration = videoDuration;
             }
         }
     }
 
+    console.log(toUpload);
     // do upload request
     http.request({
         url: global.serverUrl + global.endpointShot,
@@ -250,39 +252,48 @@ function upload(args) {
         headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken },
         content: JSON.stringify(toUpload)
     }).then(function (result) {
-        console.log(JSON.stringify(result));
-        var obj = JSON.stringify(result);
-        obj = JSON.parse(obj);
-        console.log(obj.content.id);
-        id = obj.content.id;
+        if (result.statusCode) {
+            console.log(result.statusCode);
+        }
+        try {
+            console.log(result);
+            var obj = JSON.stringify(result);
+            obj = JSON.parse(obj);
+            console.log(obj.content.id);
+            id = obj.content.id;
 
-        // set up video uploading
-        var file = path;
-        console.log("filepath: " + file);
-        var url = global.serverUrl + global.endpointVideo;
-        var name = file.substr(file.lastIndexOf("/") + 1);
-        console.log("id is: " + id);
+            // set up video uploading
+            var file = path;
+            console.log("filepath: " + file);
+            var url = global.serverUrl + global.endpointVideo;
+            var name = file.substr(file.lastIndexOf("/") + 1);
+            console.log("id is: " + id);
 
-        // only upload video if asked to.
-        if (uploadVideo) {
-            var request = {
-                url: url,
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/octet-stream", "Authorization": "Bearer " + sendToken
-                },
-                description: "Uploading " + name
-            };
+            // only upload video if asked to.
+            if (uploadVideo) {
+                var request = {
+                    url: url,
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/octet-stream", "Authorization": "Bearer " + sendToken
+                    },
+                    description: "Uploading " + name
+                };
 
-            var params = [
-                { name: "shot", value: id },
-                { name: "file", filename: file, mimeType: "video/mp4" },
-                { name: "length", value: videoDuration }
-            ];
-            //var task = session.uploadFile(file, request);
-            var task = session.multipartUpload(params, request);
-            task.on("complete", completeHandler);
-            task.on("error", errorHandler);
+                var params = [
+                    { name: "shot", value: id },
+                    { name: "file", filename: file, mimeType: "video/mp4" },
+                    { name: "length", value: videoDuration }
+                ];
+                //var task = session.uploadFile(file, request);
+                var task = session.multipartUpload(params, request);
+                task.on("complete", completeHandler);
+                task.on("error", errorHandler);
+            } else {
+                // TODO navigate out once done.
+            }
+        } catch (err) {
+            console.error(err);
         }
         
     }, function (error) {
@@ -332,6 +343,7 @@ function upload(args) {
     function completeHandler(e) {
         alert("received " + e.responseCode + " code");
         var serverResponse = e.response;
+        // TODO navigate out once done.
     }
 
     // event arguments:
