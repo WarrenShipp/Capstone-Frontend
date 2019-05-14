@@ -13,12 +13,15 @@
     <ScrollView>
         <StackLayout>
 
-            <TextField id="playername" hint="Player Name"
-                       text="{{ playername ? playername : 'None' }}" />
-            <TextField id="coachname" hint="Coach"
-                       text="{{ coachname ? coachname : 'None' }}" />
-            <TextField id="clubname" hint="Club"
-                       text="{{ clubname ? clubname : 'None' }}" />
+            <GridLayout columns="*,*" rows="*,*,*"
+                        horizontalAlignment="left" verticalAlignment="top">
+                <Label col="0" row="0" text="Player:" />
+                <Label col="1" row="0" text="{{ playername ? playername : 'None' }}" />
+                <Label col="0" row="1" text="Coach:" />
+                <Label col="1" row="1" text="{{ coachname ? coachname : 'None' }}" />
+                <Label col="0" row="2" text="Club:" />
+                <Label col="1" row="2" text="{{ clubname ? clubname : 'None' }}" />
+            </GridLayout>
 
             <VideoPlayer:Video id="nativeVideoPlayer"
                     controls="true" loop="true" autoplay="false" height="300"

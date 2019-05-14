@@ -235,11 +235,11 @@ function upload(args) {
         // video data
         if (viewModel.get("videoPath")) {
             uploadVideo = true;
-            videoDuration = viewModel.get("duration");
+            videoDuration = duration;
             if (!videoDuration) {
-                videoDuration = 0;
+                videoDuration = "0";
             } else {
-                videoDuration = videoDuration;
+                videoDuration = videoDuration.toString();
             }
         }
     }
