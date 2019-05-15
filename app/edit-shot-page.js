@@ -10,7 +10,8 @@ var dropdown = require("nativescript-drop-down");
 var VideoPlayer = require("nativescript-videoplayer");
 var Slider = require("ui/slider");
 const dialogs = require("tns-core-modules/ui/dialogs");
-var LocalSave = require("../app/localsave/localsave.js");
+const LocalSave = require("../app/localsave/localsave.js");
+const HTTPRequestWrapper = require("../app/http/http-request.js");
 var db = new LocalSave();
 
 var http = require("http");
@@ -22,8 +23,12 @@ const EDIT_RECORD = "record_shot";
 const EDIT_VIEW_LOCAL = "edit_local";
 const EDIT_VIEW_SEARCH = "edit_online";
 var canCancel = false;
-var localOnly = false;
+var canDiscard = false;
+var canSave = false;
 var canUpload = false;
+var lockUserActions = false;
+
+var lockMutex = false;
 
 // nav vars
 var sourcePage;
@@ -113,14 +118,20 @@ function onNavigatingTo(args) {
     // set edit button params
     switch (editType) {
         case EDIT_RECORD:
-        case EDIT_VIEW_LOCAL:
         default:
             canCancel = false;
-            localOnly = true;
+            canSave = true;
+            canDiscard = true;
+            break;
+        case EDIT_VIEW_LOCAL:
+            canCancel = true;
+            canSave = true;
+            canDiscard = true;
             break;
         case EDIT_VIEW_SEARCH:
             canCancel = true;
-            localOnly = false;
+            canSave = false;
+            canDiscard = false; // TODO change this based upon permissions
             break;
     }
 
@@ -175,8 +186,10 @@ function onLoad(args) {
 
     // set edit button params
     viewModel.set("canCancel", canCancel);
-    viewModel.set("localOnly", localOnly);
+    viewModel.set("canSave", canSave);
     viewModel.set("canUpload", canUpload);
+    viewModel.set("canDiscard", canDiscard);
+    _unlockFunctionality();     // always start with unlocked features
 
     // set viewmodel
     page.bindingContext = viewModel;
@@ -192,9 +205,6 @@ exports.onLoad = onLoad;
  * only add the changed data rather than upload.
  *
  * TODO upload is sending dummy data for now. Change to form data!
- * TODO upload does not distinguish between new shot and edited.
- * TODO video sending is not complete. Sends a bunch of fake data / not taken from form.
- * TODO video is being sent after upload request has been received. This needs to change.
  * @param {any} args
  */
 function upload(args) {
@@ -217,7 +227,7 @@ function upload(args) {
     // if editing a local shot, we post
     else if (editType == EDIT_VIEW_LOCAL || editType == EDIT_RECORD) {
         uploadType = "POST";
-        toUpload["player"] = "5df86c6e-6396-42e4-bcf0-da8d12dbe5b6";
+        toUpload["player"] = "6e1df8c5-dfa8-4e2c-8afd-d668088bd67f";
         // toUpload["club"] = "2182e986-3390-4b11-be8d-271a7751210f";
 
         // get data
@@ -230,6 +240,9 @@ function upload(args) {
         var dateStr = dateTimeObj.toISOString();
         if (dateStr) {
             // toUpload["date_recorded"] = dateStr;
+        }
+        if (thumbnail) {
+            // toUpload["thumbnail"] = thumbnail;
         }
 
         // video data
@@ -246,94 +259,122 @@ function upload(args) {
 
     console.log(toUpload);
     // do upload request
-    http.request({
-        url: global.serverUrl + global.endpointShot,
-        method: uploadType,
-        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken },
-        content: JSON.stringify(toUpload)
-    }).then(function (result) {
-        if (result.statusCode) {
-            console.log(result.statusCode);
-        }
-        try {
-            console.log(result);
-            var obj = JSON.stringify(result);
-            obj = JSON.parse(obj);
-            console.log(obj.content.id);
-            id = obj.content.id;
+    var request = new HTTPRequestWrapper(
+        global.serverUrl + global.endpointShot,
+        uploadType,
+        HTTPRequestWrapper.defaultContentType,
+        sendToken
+    );
+    request.setContent(toUpload);
+    request.send(function (result) {
+        // console.log(result);
+        var obj = JSON.stringify(result);
+        obj = JSON.parse(obj);
+        console.log(obj.content.id);
+        id = obj.content.id;
 
-            // set up video uploading
-            var file = path;
-            console.log("filepath: " + file);
-            var url = global.serverUrl + global.endpointVideo;
-            var name = file.substr(file.lastIndexOf("/") + 1);
-            console.log("id is: " + id);
+        // set up video uploading
+        var file = path;
+        console.log("filepath: " + file);
+        var name = file.substr(file.lastIndexOf("/") + 1);
+        console.log("id is: " + id);
 
-            // only upload video if asked to.
-            if (uploadVideo) {
-                var request = {
-                    url: url,
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/octet-stream", "Authorization": "Bearer " + sendToken
-                    },
-                    description: "Uploading " + name
+        // do video upload request.
+        if (uploadVideo) {
+            var request = {
+                url: global.serverUrl + global.endpointVideo,
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/octet-stream", "Authorization": "Bearer " + sendToken
+                },
+                description: "Uploading " + name
+            };
+            var params = [
+                { name: "shot", value: id },
+                { name: "file", filename: file, mimeType: "video/mp4" },
+                { name: "length", value: videoDuration }
+            ];
+
+            // multiupload
+            var task = session.multipartUpload(params, request);
+            task.on("complete", completeHandler);
+            task.on("error", errorHandler);
+            task.on("responded", respondedHandler);
+
+            // Currently the responded task isn't working. Just force an exit!
+            if (page.android) {
+                var Toast = android.widget.Toast;
+                Toast.makeText(application.android.context, "Video is Uploading", Toast.LENGTH_SHORT).show();
+            };
+            // navigate out once the server has received the request
+            if (editType == EDIT_RECORD) {
+                var navigationOptions = {
+                    moduleName: "record-shot-page",
+                    backstackVisible: false
                 };
-
-                var params = [
-                    { name: "shot", value: id },
-                    { name: "file", filename: file, mimeType: "video/mp4" },
-                    { name: "length", value: videoDuration }
-                ];
-                //var task = session.uploadFile(file, request);
-                var task = session.multipartUpload(params, request);
-                task.on("complete", completeHandler);
-                task.on("error", errorHandler);
+                frameModule.topmost().navigate(navigationOptions);
             } else {
-                // TODO navigate out once done.
+                frameModule.topmost().goBack();
             }
-        } catch (err) {
-            console.error(err);
         }
-        
-    }, function (error) {
-        console.error(JSON.stringify(error));
+        // if no video to upload (usually due to edit request) nav out
+        else {
+            if (editType == EDIT_RECORD) {
+                var navigationOptions = {
+                    moduleName: "record-shot-page",
+                    backstackVisible: false
+                };
+                frameModule.topmost().navigate(navigationOptions);
+            } else {
+                frameModule.topmost().goBack();
+            }
+        }
+
     });
 
-    //task.on("progress", progressHandler);
-    // task.on("error", errorHandler);
-    // task.on("responded", respondedHandler);
-    // task.on("complete", completeHandler);
-
-    // event arguments:
-    // task: Task
-    // currentBytes: number
-    // totalBytes: number
-    function progressHandler(e) {
-        alert("uploaded " + e.currentBytes + " / " + e.totalBytes);
-    }
-
-    // event arguments:
-    // task: Task
-    // responseCode: number
-    // error: java.lang.Exception (Android) / NSError (iOS)
-    // response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
+    /**
+     * Throws an error. No leaving the page once done.
+     * @param {any} e
+     */
     function errorHandler(e) {
-        alert("received " + e.responseCode + " code.");
-        var serverResponse = e.response;
-        console.log(serverResponse);
-        console.log(e);
-        console.log(e.response.getBodyAsString());
+        // The error handler is being called on completion.
+        // For now just suppress the error.
+        // TODO fix this bug!
+        if (!e.response) {
+            return;
+        }
+        console.error(e.response);
+        console.error(e);
+        console.error(e.response.getBodyAsString());
+        dialogs.alert({
+            title: "Error uploading video",
+            message: e.response.getBodyAsString(),
+            okButtonText: "Okay"
+        }).then(function () { });
     }
-
 
     // event arguments:
     // task: Task
     // responseCode: number
     // data: string
     function respondedHandler(e) {
-        //alert("received " + e.responseCode + " code. Server sent: " + e.data);
-        alert("File has been uploaded to the server");
+        /* Disabled since this function does not seem to work.
+        console.log("Video being uploaded with responseCode: " + e.responseCode);
+        if (page.android) {
+            var Toast = android.widget.Toast;
+            Toast.makeText(application.android.context, "Video is Uploading", Toast.LENGTH_SHORT).show();
+        };
+        // navigate out once the server has received the request
+        if (editType == EDIT_RECORD) {
+            var navigationOptions = {
+                moduleName: "record-shot-page",
+                backstackVisible: false
+            };
+            frameModule.topmost().navigate(navigationOptions);
+        } else {
+            frameModule.topmost().goBack();
+        }
+        */
     }
 
     // event arguments:
@@ -341,9 +382,11 @@ function upload(args) {
     // responseCode: number
     // response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
     function completeHandler(e) {
-        alert("received " + e.responseCode + " code");
-        var serverResponse = e.response;
-        // TODO navigate out once done.
+        console.log("Video uploaded with responseCode: " + e.responseCode);
+        if (page.android) {
+            var Toast = android.widget.Toast;
+            Toast.makeText(application.android.context, "Video Finished Uploading", Toast.LENGTH_SHORT).show();
+        };
     }
 
     // event arguments:
@@ -361,154 +404,174 @@ exports.upload = upload;
  */
 function saveLocally(args) {
     page = args.object;
-    console.log("Start save");
+
+    // lock functionality while saving
+    _lockFunctionality();
     
     // shot is already locally saved. Update.
-    if (shotId) {
-        console.log("Edit");
-
-        // get changed vars
-        var columnList = [];
-        if (firstname != viewModel.get("playername")) {
-            columnList.push({ column: "playername", value: viewModel.get("playername") });
-        }
-        if (coachname != viewModel.get("coachname")) {
-            columnList.push({ column: "coachname", value: viewModel.get("coachname") });
-        }
-        if (clubname != viewModel.get("clubname")) {
-            columnList.push({ column: "clubname", value: viewModel.get("clubname") });
-        }
-        if (path != viewModel.get("videoPath")) {
-            columnList.push({ column: "path", value: viewModel.get("videoPath") });
-        }
-        if (thumbnail != viewModel.get("thumbnail")) {
-            columnList.push({ column: "thumbnail", value: viewModel.get("thumbnail") });
-        }
-        if (shotTypeIndex != viewModel.get("shotTypeIndex")) {
-            columnList.push({ column: "shottype", value: viewModel.get("shotTypeIndex") });
-        }
-        if (ratingTypeIndex != viewModel.get("ratingTypeIndex")) {
-            columnList.push({ column: "ratingtype", value: viewModel.get("ratingTypeIndex") });
-        }
-        var dateCheck = viewModel.get("date");
-        var timeCheck = viewModel.get("time");
-        var dateTimeCheck = dateCheck + " " + timeCheck;
-        var curDateTime = dateTimeObj.toDateString() + " " + dateTimeObj.toLocaleTimeString("en-US");
-        if (curDateTime != dateTimeCheck) {
-            columnList.push({ column: "date", value: new Date(dateCheck + " " + timeCheck) });
-        }
-
-        // build query
-        var query = "UPDATE " + LocalSave._tableName + " SET ";
-        var first = true;
-        var valList = [];
-        for (var i = 0; i < columnList.length; i++) {
-            var item = columnList[i];
-            if (!first) {
-                query += ", ";
-            }
-            query += item.column + "=?";
-            valList.push(item.value);
-            first = false;
-        }
-        query += " WHERE id=?;";
-        valList.push(shotId);
-        console.log(query);
-
-        // run query.
-        var complete = false
-        db.queryExec(query, valList, function (id) {
-            complete = true;
-            console.log("Edited shot with id " + id);
-            if (page.android) {
-                var Toast = android.widget.Toast;
-                Toast.makeText(application.android.context, "Video Saved", Toast.LENGTH_SHORT).show();
-            };
-        });
-
-        // leave
-        var startTimer = (new Date()).getTime();
-        while (!complete) {
-            if ((new Date()).getTime() - startTimer >= 10000) {
-                console.error("Local saving timeout.");
-                return;
-            }
-        }
-        frameModule.topmost().goBack();
+    if (editType == EDIT_VIEW_LOCAL) {
+        _saveLocalEdit();
     }
     // shot is new. Insert.
     else {
-        console.log("Insert");
-
-        // get all vars (don't worry if they've been changed).
-        var columnList = [];
-        columnList.push({ column: "playername", value: viewModel.get("playername") });
-        columnList.push({ column: "coachname", value: viewModel.get("coachname") });
-        columnList.push({ column: "clubname", value: viewModel.get("clubname") });
-        columnList.push({ column: "path", value: viewModel.get("videoPath") });
-        columnList.push({ column: "thumbnail", value: viewModel.get("sliderValue") });
-        columnList.push({ column: "shottype", value: viewModel.get("shotTypeIndex") + 1 });
-        columnList.push({ column: "ratingtype", value: viewModel.get("ratingTypeIndex") + 1 });
-        // columnList.push({ column: "duration", value: viewModel.get("duration") });
-        var dateCheck = viewModel.get("date");
-        var timeCheck = viewModel.get("time");
-        columnList.push({ column: "date", value: new Date(dateCheck + " " + timeCheck) });
-
-        console.log("list made");
-        // build query
-        var query = "INSERT INTO " + LocalSave._tableName + " (";
-        var first = true;
-        for (var i = 0; i < columnList.length; i++) {
-            var item = columnList[i];
-            if (!first) {
-                query += ", ";
-            }
-            query += item.column;
-            first = false;
-        }
-        query += ") VALUES (";
-        first = true;
-        var valList = [];
-        for (var i = 0; i < columnList.length; i++) {
-            var item = columnList[i];
-            if (!first) {
-                query += ", ";
-            }
-            query += "?";
-            first = false;
-            valList.push(item.value);
-        }
-        query += ");";
-        console.log(query);
-
-        // run query.
-        var complete = false;
-        db.queryExec(query, valList, function (id) {
-            complete = true;
-            console.log("Saved new shot with id " + id);
-            if (page.android) {
-                var Toast = android.widget.Toast;
-                Toast.makeText(application.android.context, "Video Saved", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        // leave
-        var startTimer = (new Date()).getTime();
-        while (!complete) {
-            if ((new Date()).getTime() - startTimer >= 5000) {
-                console.error("Local saving timeout.");
-                return;
-            }
-        }
-        var navigationOptions = {
-            moduleName: "record-shot-page",
-            backstackVisible: false
-        };
-        frameModule.topmost().navigate(navigationOptions);
+        _saveLocalRecord();
     }
 
 }
 exports.saveLocally = saveLocally;
+
+function _saveLocalEdit() {
+    console.log("Saving during View Edit");
+
+    // get changed vars
+    var columnList = [];
+    if (firstname != viewModel.get("playername")) {
+        columnList.push({ column: "playername", value: viewModel.get("playername") });
+    }
+    if (coachname != viewModel.get("coachname")) {
+        columnList.push({ column: "coachname", value: viewModel.get("coachname") });
+    }
+    if (clubname != viewModel.get("clubname")) {
+        columnList.push({ column: "clubname", value: viewModel.get("clubname") });
+    }
+    if (path != viewModel.get("videoPath")) {
+        columnList.push({ column: "path", value: viewModel.get("videoPath") });
+    }
+    if (thumbnail != viewModel.get("thumbnail")) {
+        columnList.push({ column: "thumbnail", value: viewModel.get("thumbnail") });
+    }
+    if (shotTypeIndex != viewModel.get("shotTypeIndex")) {
+        columnList.push({ column: "shottype", value: viewModel.get("shotTypeIndex") });
+    }
+    if (ratingTypeIndex != viewModel.get("ratingTypeIndex")) {
+        columnList.push({ column: "ratingtype", value: viewModel.get("ratingTypeIndex") });
+    }
+    var dateCheck = viewModel.get("date");
+    var timeCheck = viewModel.get("time");
+    var dateTimeCheck = dateCheck + " " + timeCheck;
+    var curDateTime = dateTimeObj.toDateString() + " " + dateTimeObj.toLocaleTimeString("en-US");
+    if (curDateTime != dateTimeCheck) {
+        columnList.push({ column: "date", value: new Date(dateCheck + " " + timeCheck) });
+    }
+
+    // build query
+    var query = "UPDATE " + LocalSave._tableName + " SET ";
+    var first = true;
+    var valList = [];
+    for (var i = 0; i < columnList.length; i++) {
+        var item = columnList[i];
+        if (!first) {
+            query += ", ";
+        }
+        query += item.column + "=?";
+        valList.push(item.value);
+        first = false;
+    }
+    query += " WHERE id=?;";
+    valList.push(shotId);
+    console.log(query);
+
+    // run query.
+    var complete = new Promise(function (resolve, reject) {
+        db.queryExec(query, valList,
+            function (id) {
+                console.log("Edited shot with id " + id);
+                resolve(id);
+            },
+            function (err) {
+                reject(err);
+            });
+    });
+
+    // handle query after it has completed
+    complete.then(
+        function (val) {
+            if (page.android) {
+                var Toast = android.widget.Toast;
+                Toast.makeText(application.android.context, "Shot Saved", Toast.LENGTH_SHORT).show();
+            }
+            // leave page
+            frameModule.topmost().goBack();
+        },
+        function (err) {
+            _unlockFunctionality();
+        });
+}
+
+function _saveLocalRecord() {
+    console.log("Insert");
+
+    // get all vars (don't worry if they've been changed).
+    var columnList = [];
+    columnList.push({ column: "playername", value: viewModel.get("playername") });
+    columnList.push({ column: "coachname", value: viewModel.get("coachname") });
+    columnList.push({ column: "clubname", value: viewModel.get("clubname") });
+    columnList.push({ column: "path", value: viewModel.get("videoPath") });
+    columnList.push({ column: "thumbnail", value: viewModel.get("sliderValue") });
+    columnList.push({ column: "shottype", value: viewModel.get("shotTypeIndex") + 1 });
+    columnList.push({ column: "ratingtype", value: viewModel.get("ratingTypeIndex") + 1 });
+    // columnList.push({ column: "duration", value: viewModel.get("duration") });
+    var dateCheck = viewModel.get("date");
+    var timeCheck = viewModel.get("time");
+    columnList.push({ column: "date", value: new Date(dateCheck + " " + timeCheck) });
+
+    console.log("list made");
+    // build query
+    var query = "INSERT INTO " + LocalSave._tableName + " (";
+    var first = true;
+    for (var i = 0; i < columnList.length; i++) {
+        var item = columnList[i];
+        if (!first) {
+            query += ", ";
+        }
+        query += item.column;
+        first = false;
+    }
+    query += ") VALUES (";
+    first = true;
+    var valList = [];
+    for (var i = 0; i < columnList.length; i++) {
+        var item = columnList[i];
+        if (!first) {
+            query += ", ";
+        }
+        query += "?";
+        first = false;
+        valList.push(item.value);
+    }
+    query += ");";
+    console.log(query);
+
+    // run query.
+    var complete = new Promise(function (resolve, reject) {
+        db.queryExec(query, valList,
+            function (id) {
+                console.log("Saved new shot with id " + id);
+                resolve(id);
+            },
+            function (err) {
+                reject(err);
+            });
+    });
+
+    // handle query after it has completed
+    complete.then(
+        function (val) {
+            if (page.android) {
+                var Toast = android.widget.Toast;
+                Toast.makeText(application.android.context, "New Shot Saved", Toast.LENGTH_SHORT).show();
+            }
+            // leave page
+            var navigationOptions = {
+                moduleName: "record-shot-page",
+                backstackVisible: false
+            };
+            frameModule.topmost().navigate(navigationOptions);
+        },
+        function (err) {
+            _unlockFunctionality();
+        });
+}
 
 /**
  * Discards the current shot.
@@ -516,22 +579,35 @@ exports.saveLocally = saveLocally;
  */
 function discard(args) {
 
+    // lock to prevent weird user interactions
+    _lockFunctionality();
+
     // discard from database
     if (shotId) {
-        db.queryExec(
-            "DELETE FROM testb WHERE id=?",
-            [shotId],
-            function (err, id) {
-                if (err) {
-                    console.error("Error deleting shot with id " + shotId, error);
-                    dialogs.alert({
-                        title: "Can't delete shot",
-                        message: "Error deleting shot with id " + shotId + "\n" + error,
-                        okButtonText: "Okay"
-                    }).then(function () { });
-                    return;
+
+        var query = "DELETE FROM " + LocalSave._tableName + " WHERE id=?";
+        valList = [shotId];
+        console.log(query);
+
+        // run query.
+        var complete = new Promise(function (resolve, reject) {
+            db.queryExec(query, valList,
+                function (id) {
+                    console.log("Deleted shot with id " + id);
+                    resolve(id);
+                },
+                function (err) {
+                    reject(err);
+                });
+        });
+
+        // handle query after it has completed
+        complete.then(
+            function (val) {
+                if (page.android) {
+                    var Toast = android.widget.Toast;
+                    Toast.makeText(application.android.context, "Shot Deleted", Toast.LENGTH_SHORT).show();
                 }
-                console.log("Shot with id " + shotId + " deleted.", id);
 
                 // discard video
                 _discardVideo();
@@ -542,8 +618,14 @@ function discard(args) {
                     backstackVisible: true
                 }
                 frameModule.topmost().navigate(navigationOptions);
+            },
+            function (err) {
+                _unlockFunctionality();
             });
-    } else {
+        
+    }
+    // if the shot is new, there is nothing saved locally.
+    else {
         _discardVideo();
 
         // go to record page since we are recording.
@@ -612,6 +694,11 @@ function setThumbnail() {
 }
 exports.setThumbnail = setThumbnail;
 
+/**
+ * Passes shot data collection / display off to appropriate method.
+ * @param {any} editType
+ * @param {any} editTypeOptions
+ */
 function _getShot(editType, editTypeOptions) {
     if (!editType) {
         return _throwNoContextError();
@@ -627,6 +714,10 @@ function _getShot(editType, editTypeOptions) {
     }
 }
 
+/**
+ * Set shot data that comes from the Record Page.
+ * @param {any} editTypeOptions
+ */
 function _setShotRecord(editTypeOptions) {
 
     // no shot id. Added by DBs
@@ -685,7 +776,14 @@ function _setShotRecord(editTypeOptions) {
 
 }
 
+/**
+ * Set shot data that comes from the local DB.
+ * @param {any} editTypeOptions
+ */
 function _setShotLocal(editTypeOptions) {
+
+    // lock while loading from DB
+    _lockFunctionality();
 
     // shot id
     shotId = editTypeOptions.id;
@@ -748,65 +846,90 @@ function _setShotLocal(editTypeOptions) {
 
     // get item
     var query = "SELECT * FROM " + LocalSave._tableName + " WHERE id=?";
-    db.queryGet(query, [shotId], function (row) {
-        /*
-        { name: "id", type: "INTEGER PRIMARY KEY AUTOINCREMENT" },
-        { name: "path", type: "TEXT" },
-        { name: "playername", type: "TEXT" },
-        { name: "coachname", type: "TEXT" },
-        { name: "clubname", type: "TEXT" },
-        { name: "thumbnail", type: "INTEGER" },
-        { name: "date", type: "DATETIME" },
-        { name: "shottype", type: "INTEGER" },
-        { name: "ratingtype", type: "INTEGER" },
-        { name: "duration", type: "INTEGER" }
-        */
+    db.queryGet(query, [shotId],
+        function (row) {
+            /*
+            { name: "id", type: "INTEGER PRIMARY KEY AUTOINCREMENT" },
+            { name: "path", type: "TEXT" },
+            { name: "playername", type: "TEXT" },
+            { name: "coachname", type: "TEXT" },
+            { name: "clubname", type: "TEXT" },
+            { name: "thumbnail", type: "INTEGER" },
+            { name: "date", type: "DATETIME" },
+            { name: "shottype", type: "INTEGER" },
+            { name: "ratingtype", type: "INTEGER" },
+            { name: "duration", type: "INTEGER" }
+            */
 
-        // player name
-        firstname = row[2] ? row[2] : null;
-        viewModel.set("playername", firstname);
+            // player name
+            firstname = row[2] ? row[2] : null;
+            viewModel.set("playername", firstname);
 
-        // coach name
-        coachname = row[3] ? row[3] : null;
-        viewModel.set("coachname", coachname);
+            // coach name
+            coachname = row[3] ? row[3] : null;
+            viewModel.set("coachname", coachname);
 
-        // player name
-        clubname = row[4] ? row[4] : null;
-        viewModel.set("clubname", clubname);
+            // player name
+            clubname = row[4] ? row[4] : null;
+            viewModel.set("clubname", clubname);
 
-        // set shot type
-        shotTypeIndex = row[7] ? row[7] : 0;
-        viewModel.set("shotTypeIndex", shotTypeIndex);
+            // set shot type
+            shotTypeIndex = row[7] ? row[7] : 0;
+            viewModel.set("shotTypeIndex", shotTypeIndex);
 
-        // set rating type
-        ratingTypeIndex = row[8] ? row[8] : 0;
-        viewModel.set("ratingTypeIndex", ratingTypeIndex);
+            // set rating type
+            ratingTypeIndex = row[8] ? row[8] : 0;
+            viewModel.set("ratingTypeIndex", ratingTypeIndex);
 
-        // set date / time data
-        dateTimeObj = row[6] ? (new Date(row[6])) : (new Date());
-        date = dateTimeObj.toDateString();
-        time = dateTimeObj.toLocaleTimeString("en-US");
-        viewModel.set("date", date);
-        viewModel.set("time", time);
+            // set date / time data
+            dateTimeObj = row[6] ? (new Date(row[6])) : (new Date());
+            date = dateTimeObj.toDateString();
+            time = dateTimeObj.toLocaleTimeString("en-US");
+            viewModel.set("date", date);
+            viewModel.set("time", time);
 
-        // set file path
-        path = row[1] ? row[1] : null;
-        viewModel.set("videoPath", path);
+            // set file path
+            path = row[1] ? row[1] : null;
+            viewModel.set("videoPath", path);
 
-        // set duration
-        duration = row[9] ? row[9] : 0;
-        viewModel.set("duration", duration);
+            // set duration
+            duration = row[9] ? row[9] : 0;
+            viewModel.set("duration", duration);
 
-        // set thumbnail
-        thumbnail = row[5] ? row[5] : 0;
-        viewModel.set("sliderValue", thumbnail);
-    });
+            // set thumbnail
+            thumbnail = row[5] ? row[5] : 0;
+            viewModel.set("sliderValue", thumbnail);
+
+            // unlock once completed
+            _unlockFunctionality();
+        },
+        function (err) {
+            // go back since the page failed!
+            frameModule.topmost().goBack();
+        });
 
 }
 
+/**
+ * Set shot data that comes from the server.
+ * TODO not implemented!
+ * @param {any} editTypeOptions
+ */
 function _setShotSearch(editTypeOptions) {
 
-    // no shot id. Added by DBs
+    // shot id
+    shotId = editTypeOptions.id;
+    if (!shotId) {
+        console.error("No shot ID has been set. Cannot load local shot.");
+        dialogs.alert({
+            title: "No ID set",
+            message: "The Shot doesn't have an ID. It can't be loaded.",
+            okButtonText: "Okay"
+        }).then(function () {
+            frameModule.topmost().goBack();
+        });
+        return;
+    }
 
     // set shot type
     shotTypeList = new dropdown.ValueList(shotTypeListArray);
@@ -848,6 +971,22 @@ function _setShotSearch(editTypeOptions) {
     thumbnail = 0;
     viewModel.set("sliderValue", thumbnail);
 
+}
+
+/**
+ * Prevents user from interacting with the page.
+ */
+function _lockFunctionality() {
+    lockUserActions = true;
+    viewModel.set("lockUserActions", lockUserActions);
+}
+
+/**
+ * Allows the user to interact with the page.
+ */
+function _unlockFunctionality() {
+    lockUserActions = false;
+    viewModel.set("lockUserActions", lockUserActions);
 }
 
 function _throwNoContextError() {

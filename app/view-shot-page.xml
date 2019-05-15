@@ -17,10 +17,12 @@
                         horizontalAlignment="left" verticalAlignment="top">
                 <Label col="0" row="0" text="Player:" />
                 <Label col="1" row="0" text="{{ playername ? playername : 'None' }}" />
+                <!--
                 <Label col="0" row="1" text="Coach:" />
                 <Label col="1" row="1" text="{{ coachname ? coachname : 'None' }}" />
                 <Label col="0" row="2" text="Club:" />
                 <Label col="1" row="2" text="{{ clubname ? clubname : 'None' }}" />
+                -->
             </GridLayout>
 
             <VideoPlayer:Video id="nativeVideoPlayer"
@@ -30,11 +32,13 @@
             <GridLayout columns="*,2*" rows="*,*,*,*,*"
                         horizontalAlignment="left" verticalAlignment="top">
 
+                <!--
                 <Label text="Date:" row="0" col="0" />
                 <Label id="date" text="{{ date }}" row="0" col="1" />
 
                 <Label text="Date:" row="1" col="0" />
                 <Label id="time" text="{{ time }}" row="1" col="1" />
+                -->
 
                 <Label text="Shot Type:" row="2" col="0" />
                 <Label row="2" col="1" text="{{ shotTypeName ? shotTypeName : 'Not set' }}" />

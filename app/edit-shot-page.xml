@@ -14,11 +14,16 @@
         <StackLayout>
 
 	        <TextField id="playername" hint="Player Name"
-                       text="{{ playername }}" />
+                       text="{{ playername }}"
+                       isEnabled="{{ !lockUserActions }}" />
+            <!--
             <TextField id="coachname" hint="Coach"
-                       text="{{ coachname }}" />
+                       text="{{ coachname }}"
+                       isEnabled="{{ !lockUserActions }}" />
             <TextField id="clubname" hint="Club"
-                       text="{{ clubname }}" />
+                       text="{{ clubname }}"
+                       isEnabled="{{ !lockUserActions }}" />
+            -->
 
             <VideoPlayer:Video id="nativeVideoPlayer"
                     controls="true" loop="true" autoplay="false" height="300"
@@ -31,31 +36,36 @@
                     src="{{ videoPath }}" muted="true" />
                 <Slider row="0" col="1" value="{{ sliderValue }}"
                         minValue="0" maxValue="{{ sliderMax }}"
-                        valueChange="setThumbnail" id="thumbnailSlider" />
+                        valueChange="setThumbnail" id="thumbnailSlider"
+                        isEnabled="{{ !lockUserActions }}" />
             </GridLayout>
             
             <GridLayout columns="*,2*" rows="*,*,*,*,*"
                         horizontalAlignment="left" verticalAlignment="top">
                 
+                <!--
                 <Label text="Date:" row="0" col="0" />
                 <Label id="date" text="{{ date }}" row="0" col="1" />
+                -->
                 
+                <!--
                 <Label text="Date:" row="1" col="0" />
                 <Label id="time" text="{{ time }}" row="1" col="1" />
+                -->
                 
                 <Label text="Shot Type:" row="2" col="0" />
                 <dd:DropDown row="2" col="1"  id="shotType" hint="Shot Type"
                              items="{{ shotTypeItems }}"
-                             selectedIndex="{{ shotTypeIndex }}" 
-                             selectedIndexChanged="shotTypeDropdownChanged" 
-                             isEnabled="{{ isEnabled }}" />
+                             selectedIndex="{{ shotTypeIndex }}"
+                             selectedIndexChanged="shotTypeDropdownChanged"
+                       isEnabled="{{ !lockUserActions }}" />
                 
                 <Label row="3" col="0" text="Rating:" />
                 <dd:DropDown row="3" col="1"  id="ratingType" hint="Rating"
                              items="{{ ratingTypeItems }}"
-                             selectedIndex="{{ ratingTypeIndex }}" 
-                             selectedIndexChanged="ratingTypeDropdownChanged" 
-                             isEnabled="{{ isEnabled }}" />
+                             selectedIndex="{{ ratingTypeIndex }}"
+                             selectedIndexChanged="ratingTypeDropdownChanged"
+                             isEnabled="{{ !lockUserActions }}" />
                 
                 <Label row="4" col="0" text="Duration:" />
                 <Label row="4" col="1" text="{{ duration }}" />
@@ -64,15 +74,16 @@
             <GridLayout columns="*,*,*,*" rows="*,*">
                 <Button col="0" class="smallbtn"
                         visibility="{{ canCancel ? 'visible' : 'collapsed' }}"
-                        isEnabled="{{ canCancel ? 'true' : 'false' }}"
+                        isEnabled="{{ (canCancel && !lockUserActions) }}"
                         text="Cancel" tap="cancel" />
-                <Button col="1" class="smallbtn" text="Discard" tap="discard" />
+                <Button col="1" class="smallbtn" text="Discard" tap="discard"
+                        isEnabled="{{ (canDiscard && !lockUserActions) }}" />
                 <Button col="2" class="smallbtn"
-                        visibility="{{ localOnly ? 'visible' : 'collapsed' }}"
-                        isEnabled="{{ localOnly ? 'true' : 'false' }}"
+                        visibility="{{ canSave ? 'visible' : 'collapsed' }}"
+                        isEnabled="{{ (canSave && !lockUserActions) }}"
                         text="Save" tap="saveLocally" />
                 <Button col="3" class="smallbtn"
-                        isEnabled="{{ canUpload ? 'true' : 'false' }}"
+                        isEnabled="{{ (canUpload && !luckUserActions) }}"
                         text="Upload" tap="upload" />
             </GridLayout>
         </StackLayout>

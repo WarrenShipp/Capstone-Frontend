@@ -98,9 +98,10 @@ class LocalSave {
      * Runs a get query on this database.
      * @param {any} query
      * @param {any} vals
-     * @param {any} callback
+     * @param {Function} callback
+     * @param {Function} errorCallback
      */
-    queryGet(query, vals, callback) {
+    queryGet(query, vals, callback, errorCallback = null) {
         if (this.error) {
             console.error("Database not open due to error.");
             return false;
@@ -122,6 +123,9 @@ class LocalSave {
                     callback(row);
                 } catch (err) {
                     console.error(err);
+                    if (errorCallback) {
+                        errorCallback(err);
+                    }
                     dialogs.alert({
                         title: "Error on get query",
                         message: err,
@@ -129,7 +133,7 @@ class LocalSave {
                     }).then(function () { });
                 }
             },
-            function (error) {
+            function (err) {
                 console.error(err);
                 dialogs.alert({
                     title: "Error on get query",
@@ -143,9 +147,10 @@ class LocalSave {
      * Runs an exec query on this database.
      * @param {any} query
      * @param {any} vals
-     * @param {any} callback
+     * @param {Function} callback
+     * @param {Function} errorCallback
      */
-    queryExec(query, vals, callback) {
+    queryExec(query, vals, callback, errorCallback = null) {
         if (this.error) {
             console.error("Database not open due to error.");
             return false;
@@ -167,6 +172,9 @@ class LocalSave {
                     callback(id);
                 } catch (err) {
                     console.error(err);
+                    if (errorCallback) {
+                        errorCallback(err);
+                    }
                     dialogs.alert({
                         title: "Error on exec query",
                         message: err,
@@ -174,7 +182,7 @@ class LocalSave {
                     }).then(function () { });
                 }
             },
-            function (error) {
+            function (err) {
                 console.error(err);
                 dialogs.alert({
                     title: "Error on exec query",
@@ -189,9 +197,10 @@ class LocalSave {
      * Runs an all query on this database.
      * @param {any} query
      * @param {any} vals
-     * @param {any} callback
+     * @param {Function} callback
+     * @param {Function} errorCallback
      */
-    queryAll(query, vals, anotherName) {
+    queryAll(query, vals, callback, errorCallback = null) {
         if (this.error) {
             console.error("Database not open due to error.");
             return false;
@@ -210,9 +219,12 @@ class LocalSave {
         promise.then(
             function (resultSet) {
                 try {
-                    anotherName(resultSet);
+                    callback(resultSet);
                 } catch (err) {
                     console.error(err);
+                    if (errorCallback) {
+                        errorCallback(err);
+                    }
                     dialogs.alert({
                         title: "Error on all query",
                         message: err,
@@ -235,9 +247,10 @@ class LocalSave {
      * Runs an each query on this database.
      * @param {any} query
      * @param {any} vals
-     * @param {any} callback
+     * @param {Function} callback
+     * @param {Function} errorCallback
      */
-    queryEach(query, vals, callback) {
+    queryEach(query, vals, callback, errorCallback = null) {
         if (this.error) {
             console.error("Database not open due to error.");
             return false;
@@ -259,6 +272,9 @@ class LocalSave {
                     callback(row);
                 } catch (err) {
                     console.error(err);
+                    if (errorCallback) {
+                        errorCallback(err);
+                    }
                     dialogs.alert({
                         title: "Error on each query",
                         message: err,
@@ -266,7 +282,7 @@ class LocalSave {
                     }).then(function () { });
                 }
             },
-            function (error) {
+            function (err) {
                 console.error(err);
                 dialogs.alert({
                     title: "Error on each query",
@@ -279,8 +295,11 @@ class LocalSave {
     /**
      * Times out and waits to see if DB is ready. No function works until the
      * DB does its setup.
+     * TODO this function is bad. Needs to be replaced with a promise!
+     * For now it just returns the state of the DB.
      */
     _timeout() {
+        /*
         let timeStart = (new Date()).getTime();
         let timeNow = 0;
         do {
@@ -290,6 +309,8 @@ class LocalSave {
             timeNow = (new Date()).getTime();
         } while (timeNow - timeStart < localSaveTimeout);
         return false;
+        */
+        return this.ready;
     }
 
     /**
