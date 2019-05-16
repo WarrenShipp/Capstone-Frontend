@@ -1,7 +1,11 @@
 <Page xmlns="http://www.nativescript.org/tns.xsd" navigatingTo="onNavigatingTo">
-    <Page.actionBar>
-        <ActionBar title="Search Results"/>
-    </Page.actionBar>
+    <ActionBar class="action-bar">
+        <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
+        <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
+            tap="onDrawerButtonTap" ios.position="left">
+        </ActionItem>
+        <Label class="action-bar-title" text="Results"></Label>
+    </ActionBar>
     <StackLayout>
         <ActivityIndicator busy="{{ isLoading }}" visibility= "{{ isLoading ? 'visible' : 'collapse' }}" />
         <StackLayout id="container">

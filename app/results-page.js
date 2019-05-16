@@ -10,6 +10,7 @@ var http = require("http");
 var bghttp = require("nativescript-background-http");
 var session = bghttp.session("file-upload");
 const ActivityIndicator = require("tns-core-modules/ui/activity-indicator").ActivityIndicator;
+const app = require("tns-core-modules/application");
 
 const VIEW_ONLINE = "view_online";
 
