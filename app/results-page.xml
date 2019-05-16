@@ -2,10 +2,14 @@
     <Page.actionBar>
         <ActionBar title="Search Results"/>
     </Page.actionBar>
-    <StackLayout id="container">
-        <ScrollView>
-            <!-- All results go here -->
-        </ScrollView>
+    <StackLayout>
+        <ActivityIndicator busy="{{ isLoading }}" visibility= "{{ isLoading ? 'visible' : 'collapse' }}" />
+        <StackLayout id="container">
+            <ScrollView>
+            
+                <!-- All results go here -->
+            </ScrollView>
+        </StackLayout>
     </StackLayout>
 
 </Page>

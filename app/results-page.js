@@ -9,6 +9,7 @@ const appSettings = require("application-settings");
 var http = require("http");
 var bghttp = require("nativescript-background-http");
 var session = bghttp.session("file-upload");
+const ActivityIndicator = require("tns-core-modules/ui/activity-indicator").ActivityIndicator;
 
 const VIEW_ONLINE = "view_online";
 
@@ -27,12 +28,15 @@ function onNavigatingTo(args) {
     console.log(searchType);
     var sendToken = appSettings.getString(global.tokenAccess);
     console.log("token is:" + sendToken);
+    viewModel.set("isLoading", true);
+    
 
     http.request({
         url: gotData.urlSearch,
         method: "GET",
         headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken }
     }).then(function (result) {
+        viewModel.set("isLoading", false);
         console.log(JSON.stringify(result));
         var obj = JSON.stringify(result);
         obj = JSON.parse(obj);
@@ -70,6 +74,7 @@ function onNavigatingTo(args) {
                 });
             }
         }
+        
 
     }, function (error) {
         console.error(JSON.stringify(error));
@@ -135,6 +140,7 @@ function onNavigatingTo(args) {
     });
 
     container.addChild(listView);
+    page.bindingContext = viewModel;
 
 }
 exports.onNavigatingTo = onNavigatingTo;
