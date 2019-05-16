@@ -114,7 +114,7 @@ function onNavigatingTo(args) {
             editType = EDIT_VIEW_LOCAL;
             break;
         case VIEW_ONLINE:
-            canEdit = true;
+            canEdit = false;
             editType = EDIT_VIEW_SEARCH;
             break;
     }
@@ -354,18 +354,18 @@ function _setShotSearch(editTypeOptions) {
         rating = info.rating ? info.rating : null; 
         dateTimeObj = info.date_recorded;
         console.log(dateTimeObj);
-        //date = dateTimeObj.toDateString(); // date broken?
-        //time = dateTimeObj.toLocaleTimeString("en-US");
-        //path = info.video_set ? info.video_set[0].file : null; // videosetbroken
+        //date = dateTimeObj.toDateString();                // not used
+        //time = dateTimeObj.toLocaleTimeString("en-US");   // not used
+        path = info.video_set ? info.video_set[0].file : null;
         console.log(playername);
         viewModel.set("playername", playername);
         viewModel.set("coachname", coachname);
         viewModel.set("clubname", clubname);
         viewModel.set("shotTypeName", shotTypeListArray[type].display);
         viewModel.set("ratingTypeName", ratingTypeListArray[rating].display);
-        viewModel.set("date", date);
-        viewModel.set("time", time);
-        //viewModel.set("videoPath", path); //videoset broken
+        // viewModel.set("date", date);
+        // viewModel.set("time", time);
+        viewModel.set("videoPath", path);
         duration = 0;
         viewModel.set("duration", duration);
         thumbnail = 0;
@@ -374,47 +374,6 @@ function _setShotSearch(editTypeOptions) {
     }, function (error) {
         console.error(JSON.stringify(error));
     });
-
-
-    // // set shot type
-    // shotTypeList = new dropdown.ValueList(shotTypeListArray);
-    // let shotType = page.getViewById("shotType");
-    // viewModel.set("shotTypeItems", shotTypeList);
-    // shotTypeIndex = 0;
-    // viewModel.set("shotTypeIndex", shotTypeIndex);
-
-    // // set rating type
-    // ratingTypeList = new dropdown.ValueList(ratingTypeListArray);
-    // let ratingType = page.getViewById("ratingType");
-    // viewModel.set("ratingTypeItems", ratingTypeList);
-    // ratingTypeIndex = 0;
-    // viewModel.set("ratingTypeIndex", ratingTypeIndex);
-
-    // // set date / time data
-    // dateTimeObj = editTypeOptions.datetime ? editTypeOptions.datetime.toDateString() : (new Date());
-    // date = dateTimeObj.toDateString();
-    // time = dateTimeObj.toLocaleTimeString("en-US");
-    // viewModel.set("date", date);
-    // viewModel.set("time", time);
-    // console.log("the date " + date);
-    // console.log("the time " + time);
-
-    // // set file path
-    // if (!editTypeOptions.filePath) {
-    //     return new Error("Recorded shot did not pass a file path.");
-    // } else {
-    //     path = editTypeOptions.filePath;
-    // }
-    // viewModel.set("videoPath", path);
-    // console.log("file path " + path);
-
-    // // set duration
-    // duration = 0;
-    // viewModel.set("duration", duration);
-
-    // // set thumbnail
-    // thumbnail = 0;
-    // viewModel.set("sliderValue", thumbnail);
 
 }
 
