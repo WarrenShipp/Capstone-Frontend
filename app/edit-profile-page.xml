@@ -61,7 +61,7 @@
 
             <!-- Coach Info -->
             <Label text="Coach Information" />
-            <Switch checked="{{ isCoach }}" />
+            <Switch checked="{{ isCoach }}" id="coach-switch"/>
             <StackLayout visibility="{{ isCoach ? 'visible' : 'collapsed' }}">
                 <Label text="Coaching Information" />
                 <DockLayout>
@@ -71,7 +71,7 @@
             </StackLayout>
 
             <!-- Change Password -->
-            <Label text="Change Password" />
+            <!-- <Label text="Change Password" />
             <DockLayout stretchLastChild="true">
                 <Label dock="left" text="Old Password:" />
                 <TextField dock="left" text="{{ oldPassword }}"
@@ -86,7 +86,7 @@
                 <Label dock="left" text="Confirm Password:" />
                 <TextField dock="left" text="{{ confirmPassword }}"
                        autocapitalizationType="none" secure="true" />
-            </DockLayout>
+            </DockLayout> -->
 
             <!-- Buttons -->
             <DockLayout>

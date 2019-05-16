@@ -115,6 +115,14 @@ function navigatingTo(args) {
         console.log(isPlayer);
     });
 
+    const coachSwitch = page.getViewById("coach-switch");
+    coachSwitch.on("checkedChange", (args) => {
+        console.log("checkedChange ", args.object.checked);
+        viewModel.set("isCoach", args.object.checked);
+        isCoach = args.object.checked;
+        console.log(isCoach);
+    });
+
 }
 exports.navigatingTo = navigatingTo;
 
@@ -264,21 +272,9 @@ function save(args) {
         }).then(function () { });
         return;
     }
-    if (oldPassword || newPassword || confirmPassword) {
-        let completed = 0;
-        completed += oldPassword ? 1 : 0;
-        completed += newPassword ? 1 : 0;
-        completed += confirmPassword ? 1 : 0;
-        if (completed < 3 || newPassword != confirmPassword) {
-            dialogs.alert({
-                title: "Bad password!",
-                message: "Password fields must either be filled out properly or left blank.",
-                okButtonText: "Okay"
-            }).then(function () { });
-            return;
-        }
-        // TODO check old password before sending. Not sure how.
-    }
+
+
+
     if (isPlayer && !saveBirthDate) {
         dialogs.alert({
             title: "Must have birthdate!",
@@ -301,51 +297,30 @@ function save(args) {
         allFields.push({ name: "profile_pic", filename: saveImgSrc, mimeType: "image/*" });
     }
 
-    // fixing purposes
-    allFields.push({ name: "first_name", value: saveFirstName });
-    allFields.push({ name: "last_name", value: saveLastName });
-    allFields.push({ name: "email", value: saveEmail });
-    allFields.push({ name:"player.phone_number", value: savePhone});
-
-    // do all player fields
-
-    // if (isPlayer) {
-    //     console.log("here");
-    //     var phone_number;
-    //     var batsman_type;
-    //     var bowler_type;
-    //     var birthdate;
-    //     var playerTemp = {};
-    //     if (savePhone != phone) {
-    //         playerTemp[phone_number] = savePhone;
-    //         //playerTemp.push({ name: "phone_number", value: savePhone });
-    //     }
-    //     if (saveBatsmanType != batsmanTypeIndex) {
-    //         playerTemp[batsman_type] = saveBatsmanType;
-    //         //playerTemp.push({ name: "batsman_type", value: saveBatsmanType });
-    //     }
-    //     if (saveBowlerType != bowlerTypeIndex) {
-    //         playerTemp[bowler_type] = saveBowlerType;
-    //         //playerTemp.push({ name: "bowler_type", value: saveBowlerType });
-    //     }
-    //     if (saveBirthDate) {
-    //         playerTemp[birthdate] = saveBirthDate;
-    //         //playerTemp.push({ name: "birthdate", value: saveBirthDate });
-    //     }
-    //     if (playerTemp.length > 0) {
-    //         var stringPlayer = JSON.stringify(playerTemp);
-    //         allFields.push({ name: "player", value: stringPlayer });
-    //     }
-    // }
+    // http request only accepts strings
+    var stringBatsman = String(saveBatsmanType);
+    var stringBowler = String(saveBowlerType);
+    var stringBirthdate = saveBirthDate.toISOString().split('T')[0];
+    if (isPlayer) {
+        console.log("here");
+        if (savePhone != phone) {
+            allFields.push({ name: "player.phone_number", value: savePhone });
+        }
+        if (saveBatsmanType != batsmanTypeIndex) {
+            allFields.push({ name: "player.batsman_type", value: stringBatsman });
+        }
+        if (saveBowlerType != bowlerTypeIndex) {
+            allFields.push({ name: "player.bowler_type", value: stringBowler });
+        }
+        if (saveBirthDate) {
+            allFields.push({ name: "player.birthdate", value: stringBirthdate });
+        }
+    }
 
     // do all coach fields
     if (isCoach) {
-        var coachTemp = [];
         if (saveYearsExperience != yearsExperience) {
-            coachTemp.push({ name: "years_experience", value: saveYearsExperience });
-        }
-        if (coachTemp.length > 0) {
-            allFields.push({ name: "coach", value: coachTemp });
+            allFields.push({ name: "coach.years_experience", value: saveYearsExperience });
         }
     }
 
@@ -365,12 +340,11 @@ function save(args) {
     var task = session.multipartUpload(allFields, request);
     //task.on("progress", progressHandler);
     task.on("error", errorHandler);
-    task.on("responded", respondedHandler);
+    //task.on("responded", respondedHandler);
     task.on("complete", completeHandler);
 
     // go back for now. Probably not the best.
     page.frame.goBack();
-
 }
 exports.save = save;
 
@@ -424,25 +398,26 @@ function bowlerTypeDropdownChanged(args) {
 }
 exports.bowlerTypeDropdownChanged = bowlerTypeDropdownChanged;
 
-/**
- * Updates editing properties when selecting your player status. Does not change
- * data in database; won't be uploaded.
- * @param {any} args
- */
-function checkedPlayer(args) {
-    isPlayer = viewModel.get("isPlayer");
+function passwordChange(args) {
+     //Password change to be implemented
+     if (oldPassword || newPassword || confirmPassword) {
+        let completed = 0;
+        completed += oldPassword ? 1 : 0;
+        completed += newPassword ? 1 : 0;
+        completed += confirmPassword ? 1 : 0;
+        if (completed < 3 || newPassword != confirmPassword) {
+            dialogs.alert({
+                title: "Bad password!",
+                message: "Password fields must either be filled out properly or left blank.",
+                okButtonText: "Okay"
+            }).then(function () { });
+            return;
+        }
+        // TODO check old password before sending. Not sure how.
+    }
 }
-exports.checkedPlayer = checkedPlayer;
+exports.passwordChange = passwordChange;
 
-/**
- * Updates editing properties when selecting your coach status. Does not change
- * data in database; won't be uploaded.
- * @param {any} args
- */
-function checkedCoach(args) {
-    isCoach = viewModel.get("isCoach");
-}
-exports.checkedCoach = checkedCoach;
 
 // event arguments:
 // task: Task
@@ -480,6 +455,8 @@ function respondedHandler(e) {
 function completeHandler(e) {
     alert("received " + e.responseCode + " code");
     var serverResponse = e.response;
+    
+
 }
 
 // event arguments:
