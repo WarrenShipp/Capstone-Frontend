@@ -98,23 +98,6 @@ function onLoaded(args) {
 };
 exports.onLoaded = onLoaded;
 
-// function cacheShots(){
-//     console.log("caching");
-//     var sendToken = appSettings.getString(global.tokenAccess);
-//     http.request({
-//         url: gotData.urlSearch,
-//         method: "GET",
-//         headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken }
-//     }).then(function (result) {
-//         console.log(JSON.stringify(result));
-//         var obj = JSON.stringify(result);
-//         obj = JSON.parse(obj);
-//         var test = obj.content.results;
-//     }, function (error) {
-//         console.error(JSON.stringify(error));
-//     });
-// }
-
 /**
  * Send search information entered to results page for data request depending on search Type
  */
@@ -124,7 +107,7 @@ exports.sendSearch = function () {
     // Club Search
     if (searchSubmitType == 0) {
         var clubSearchName = viewModel.get("clubName");
-        var clubSearchLeague = viewModel.get("leagueName"); // not implemented yet
+        // var clubSearchLeague = viewModel.get("leagueName"); // not implemented yet
         var urlSearch = global.serverUrl + "club/?" + "name=" + clubSearchName;
     }
     // Shot Search

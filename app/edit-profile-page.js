@@ -63,7 +63,7 @@ var isLoading = true;
  */
 function navigatingTo(args) {
     page = args.object;
-    
+
     isSelf = true;  // for now we can only edit outselves.
     var sendToken = appSettings.getString(global.tokenAccess);
 
@@ -73,6 +73,8 @@ function navigatingTo(args) {
     viewModel.set("batsmanTypeItems", batsmanTypeItems);
     viewModel.set("bowlerTypeItems", bowlerTypeItems);
     page.bindingContext = viewModel;
+
+
 
     // we can really only edit ourself. So we don't add other features in.
     if (isSelf) {
@@ -104,11 +106,19 @@ function navigatingTo(args) {
             okButtonText: "Okay"
         }).then(function () { });
     }
-    
+
+    const playerSwitch = page.getViewById("player-switch");
+    playerSwitch.on("checkedChange", (args) => {
+        console.log("checkedChange ", args.object.checked);
+        viewModel.set("isPlayer", args.object.checked);
+        isPlayer = args.object.checked;
+        console.log(isPlayer);
+    });
+
 }
 exports.navigatingTo = navigatingTo;
 
-exports.onDrawerButtonTap = function(args) {
+exports.onDrawerButtonTap = function (args) {
     const sideDrawer = app.getRootView();
     sideDrawer.showDrawer();
 }
@@ -295,27 +305,38 @@ function save(args) {
     allFields.push({ name: "first_name", value: saveFirstName });
     allFields.push({ name: "last_name", value: saveLastName });
     allFields.push({ name: "email", value: saveEmail });
+    allFields.push({ name:"player.phone_number", value: savePhone});
 
     // do all player fields
-    /*
-    if (isPlayer) {
-        var playerTemp = [];
-        if (savePhone != phone) {
-            playerTemp.push({ name: "phone_number", value: savePhone });
-        }
-        if (saveBatsmanType != batsmanTypeIndex) {
-            playerTemp.push({ name: "batsman_type", value: saveBatsmanType });
-        }
-        if (saveBowlerType != bowlerTypeIndex) {
-            playerTemp.push({ name: "bowler_type", value: saveBowlerType });
-        }
-        if (saveBirthDate) {
-            playerTemp.push({ name: "birthdate", value: saveBirthDate });
-        }
-        if (playerTemp.length > 0) {
-            allFields.push({name: "player", value: playerTemp})
-        }
-    }
+
+    // if (isPlayer) {
+    //     console.log("here");
+    //     var phone_number;
+    //     var batsman_type;
+    //     var bowler_type;
+    //     var birthdate;
+    //     var playerTemp = {};
+    //     if (savePhone != phone) {
+    //         playerTemp[phone_number] = savePhone;
+    //         //playerTemp.push({ name: "phone_number", value: savePhone });
+    //     }
+    //     if (saveBatsmanType != batsmanTypeIndex) {
+    //         playerTemp[batsman_type] = saveBatsmanType;
+    //         //playerTemp.push({ name: "batsman_type", value: saveBatsmanType });
+    //     }
+    //     if (saveBowlerType != bowlerTypeIndex) {
+    //         playerTemp[bowler_type] = saveBowlerType;
+    //         //playerTemp.push({ name: "bowler_type", value: saveBowlerType });
+    //     }
+    //     if (saveBirthDate) {
+    //         playerTemp[birthdate] = saveBirthDate;
+    //         //playerTemp.push({ name: "birthdate", value: saveBirthDate });
+    //     }
+    //     if (playerTemp.length > 0) {
+    //         var stringPlayer = JSON.stringify(playerTemp);
+    //         allFields.push({ name: "player", value: stringPlayer });
+    //     }
+    // }
 
     // do all coach fields
     if (isCoach) {
@@ -324,10 +345,10 @@ function save(args) {
             coachTemp.push({ name: "years_experience", value: saveYearsExperience });
         }
         if (coachTemp.length > 0) {
-            allFields.push({ name: "coach", value: coachTemp })
+            allFields.push({ name: "coach", value: coachTemp });
         }
     }
-    */
+
 
     // do upload
     let sendToken = appSettings.getString(global.tokenAccess);
@@ -344,7 +365,7 @@ function save(args) {
     var task = session.multipartUpload(allFields, request);
     //task.on("progress", progressHandler);
     task.on("error", errorHandler);
-    //task.on("responded", respondedHandler);
+    task.on("responded", respondedHandler);
     task.on("complete", completeHandler);
 
     // go back for now. Probably not the best.

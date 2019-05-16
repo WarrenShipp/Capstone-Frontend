@@ -32,7 +32,7 @@
 
             <!-- Player Info -->
             <Label text="Player Information" />
-            <Switch checked="{{ isPlayer }}" />
+            <Switch checked="{{ isPlayer }}" id="player-switch"/>
             <StackLayout visibility="{{ isPlayer ? 'visible' : 'collapsed' }}">
                 <DockLayout>
                     <Label dock="left" text="Date of Birth:" />

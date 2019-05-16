@@ -22,8 +22,8 @@
             <GridLayout columns="*,2*" rows="*,*,*" horizontalAlignment="left" verticalAlignment="top" height="auto" visibility="{{ showClub ? 'visible' : 'collapsed' }}">
                 <Label col="0" text="Name  "></Label>
                 <TextField text="{{ clubName }}" col="1"></TextField>
-                <Label col="0" row="1" text="League  "></Label>
-                <TextField text="{{ leagueName }}" col="1" row="1"></TextField>
+                <!-- <Label col="0" row="1" text="League  "></Label>
+                <TextField text="{{ leagueName }}" col="1" row="1"></TextField> -->
             </GridLayout>
 
             <!-- Shot Search Form -->
