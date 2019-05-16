@@ -166,7 +166,7 @@ function _makeProfilePage(user, isSelf) {
     canEdit         : boolean
     */
     name = user.first_name + " " + user.last_name;
-    imgSrc = user.imgSrc;
+    imgSrc = user.profile_pic;
     isPlayer = user.is_player;
     if (isSelf) {
         email = user.email;
@@ -228,7 +228,7 @@ exports.requestUser = function() {
         url: "https://cricket.kinross.co/join/",
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken },
-        content: JSON.stringify({ "club": "0d808588-e2cc-4141-8921-01e568e2c965",  "user": "a96b6156-5c16-4ff3-a546-1f5dd537b211", "join_type": "a"})
+        content: JSON.stringify({ "club": "0d808588-e2cc-4141-8921-01e568e2c965",  "user": userId})
     }).then(function(result) {
         console.log(JSON.stringify(result));
     }, function(error) {

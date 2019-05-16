@@ -219,7 +219,7 @@ function save(args) {
     var saveImgSrc = viewModel.get("imgSrc");
     var saveFirstName = viewModel.get("firstName");
     var saveLastName = viewModel.get("lastName");
-    // var saveEmail = viewModel.get("email");
+    var saveEmail = viewModel.get("email");
     var savePhone = viewModel.get("phone");
 
     // password
@@ -291,6 +291,11 @@ function save(args) {
         allFields.push({ name: "profile_pic", filename: saveImgSrc, mimeType: "image/*" });
     }
 
+    // fixing purposes
+    allFields.push({ name: "first_name", value: saveFirstName });
+    allFields.push({ name: "last_name", value: saveLastName });
+    allFields.push({ name: "email", value: saveEmail });
+
     // do all player fields
     /*
     if (isPlayer) {
@@ -327,19 +332,19 @@ function save(args) {
     // do upload
     let sendToken = appSettings.getString(global.tokenAccess);
     var request = {
-        url: global.serverUrl + "user/me/",
+        url: global.serverUrl + global.endpointUser + "me/",
         method: "PATCH",
         headers: {
-            "Content-Type": "multipart/form-data", "Authorization": sendToken
+            "Content-Type": "multipart/form-data", "Authorization": "Bearer " + sendToken
         },
-        description: "Updating "
+        description: "Updating"
     };
 
     console.log(allFields);
     var task = session.multipartUpload(allFields, request);
-    task.on("progress", progressHandler);
+    //task.on("progress", progressHandler);
     task.on("error", errorHandler);
-    task.on("responded", respondedHandler);
+    //task.on("responded", respondedHandler);
     task.on("complete", completeHandler);
 
     // go back for now. Probably not the best.
@@ -435,9 +440,7 @@ function errorHandler(e) {
     alert("received " + e.responseCode + " code.");
     var serverResponse = e.response;
     console.log(JSON.stringify(serverResponse));
-    console.log(e.error);
-    console.log(e.response);
-    console.log(e.task);
+    console.log(e.response.getBodyAsString());
 }
 
 
