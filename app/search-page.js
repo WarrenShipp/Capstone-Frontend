@@ -13,6 +13,7 @@ var dateEnd;
 var shot;
 var rating;
 var user;
+var playerId = ""
 
 const shotTypeListArray = [
     { display: "Straight Drive" },
@@ -44,6 +45,9 @@ const searchType = [
     "Shot",
     "User"
 ];
+
+// modal
+const modalViewModule = "modal-select-player";
 
 /**
  * Setting up form and dropdowns
@@ -99,6 +103,29 @@ function onLoaded(args) {
 exports.onLoaded = onLoaded;
 
 /**
+ * 
+ * @param {any} args
+ */
+ function openPlayerModal(args) {
+    console.log("Open");
+    const button = args.object;
+    const fullscreen = false;
+    const context = { type: "players" };
+    var callback = function (vals) {
+        console.log(vals);
+        if (!vals) {
+            // do nothing
+            return;
+        }
+        playerId = vals.id;
+        firstname = vals.user;
+        viewModel.set("playername", firstname);
+    }
+    button.showModal(modalViewModule, context, callback, fullscreen);
+}
+exports.openPlayerModal = openPlayerModal;
+
+/**
  * Send search information entered to results page for data request depending on search Type
  */
 exports.sendSearch = function () {
@@ -115,10 +142,10 @@ exports.sendSearch = function () {
         console.log("shot search");
         var clubName = viewModel.get("shotClub");
         var coachName = viewModel.get("shotCoach");
-        var playerName = viewModel.get("shotPlayer");
+        //var playerName = viewModel.get("shotPlayer");
         var date_before = dateStart;
         var date_after = dateEnd;
-        var urlSearch = global.serverUrl + "shot/?" + "club_name=" + clubName + "&coach_name=" + coachName + "&player_name=" + playerName
+        var urlSearch = global.serverUrl + "shot/?" + "club_name=" + clubName + "&coach_name=" + coachName + "&player=" + playerId;
         "&date_before=" + date_before + "&date_after=" + date_after + "&rating" + rating + "&type" + shot;
     }
     // User Search
