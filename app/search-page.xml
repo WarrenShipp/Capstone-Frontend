@@ -29,7 +29,7 @@
             <!-- Shot Search Form -->
             <GridLayout columns="*,*" rows="*,*,*,*,*,*,*" horizontalAlignment="left" verticalAlignment="top" height="auto" visibility="{{ showShot ? 'visible' : 'collapsed' }}">
                 <Label col="0" text="Player  "></Label>
-                <Button col="0" text="{{ playername }}" tap="openPlayerModal" horizontalAlignment="left" />
+                <Button col="1" text="{{ playername }}" tap="openPlayerModal" horizontalAlignment="left" />
 
                 <Label col="0" row="1" text="Type  "></Label>
                 <dd:DropDown row="1" col="1" id="dd" hint="Shot Type" items="{{ shotType }}" selectedIndex="{{ selectedIndex }}" selectedIndexChanged="shotDropChange" isEnabled="{{ isEnabled }}" />
@@ -57,7 +57,7 @@
                 <Label col="0" row="2" text="Type  "></Label>
                 <dd:DropDown row="2" col="1" id="userDrop" hint="User Type" items="{{ userType }}" selectedIndex="{{ selectedIndex2 }}" isEnabled="{{ isEnabled }}" />
             </GridLayout>
-
+    
             <Button class="btn btn-primary" horizontalAlignment="stretch" tap="sendSearch" text="Search" visibility="{{ showSubmit ? 'visible' : 'collapsed' }}"></Button>
 
         </StackLayout>
