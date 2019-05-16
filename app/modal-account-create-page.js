@@ -95,6 +95,7 @@ function onCreate(args) {
             args.object.closeModal();
         });
     }, function (error) {
+        viewModel.set("loginStatus", true);
         console.error(error);
         dialogs.alert({
             title: "Error",

@@ -434,6 +434,7 @@ function progressHandler(e) {
 // error: java.lang.Exception (Android) / NSError (iOS)
 // response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
 function errorHandler(e) {
+    viewModel.set("profileStatus", true);
     alert("received " + e.responseCode + " code.");
     var serverResponse = e.response;
     console.log(JSON.stringify(serverResponse));

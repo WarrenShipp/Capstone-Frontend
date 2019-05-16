@@ -42,7 +42,7 @@ function login(args) {
     const page = button.page;
 
     // TODO need to to clientside validation.
-    
+
     let email = viewModel.get("email");
     let password = viewModel.get("password");
     viewModel.set("requestStatus", false); // disable buttons whilst requesting
@@ -84,14 +84,15 @@ function login(args) {
             console.log("access = " + appSettings.getString(global.tokenAccess));
             console.log("refresh = " + appSettings.getString(global.tokenRefresh));
             console.log("lastRefresh = " + appSettings.getNumber(global.lastRefresh));
-            
+
             page.frame.navigate({
                 moduleName: "home-page",
                 clearHistory: true
             });
-        
+
         }
     }, function (error) {
+        viewModel.set("requestStatus", true);
         console.error(JSON.stringify(error));
         dialogs.alert({
             title: "Error!",
@@ -99,7 +100,7 @@ function login(args) {
             okButtonText: "Okay"
         });
     });
-
+    
 }
 exports.login = login;
 
@@ -112,6 +113,6 @@ function createAccount(args) {
     const page = button.page;
     const fullscreen = false;
 
-    button.showModal(modalViewModule, {}, () => {}, fullscreen);
+    button.showModal(modalViewModule, {}, () => { }, fullscreen);
 }
 exports.createAccount = createAccount;
