@@ -1,5 +1,6 @@
 ﻿var Sqlite = require("nativescript-sqlite");
 var dialogs = require("tns-core-modules/ui/dialogs");
+var appSettings = require("application-settings");
 const localSaveTimeout = 500;
 
 console.log("Loaded localsave");
@@ -21,13 +22,17 @@ class LocalSave {
         { name: "date", type: "DATETIME" },
         { name: "shottype", type: "INTEGER" },
         { name: "ratingtype", type: "INTEGER" },
-        { name: "duration", type: "INTEGER" }
+        { name: "duration", type: "INTEGER" },
+        { name: "playerid", type: "TEXT" },
+        { name: "coachid", type: "TEXT" },
+        { name: "clubid", type: "TEXT" }
     ];
 
     constructor() {
         console.log("Constructing LocalSave");
         this.ready = false;
         this.error = false;
+
         var _this = this;
         var _database = new Sqlite(LocalSave._dbname);
         _database.then(function (db) {
@@ -122,7 +127,8 @@ class LocalSave {
                 try {
                     callback(row);
                 } catch (err) {
-                    console.error(err);
+                    var errorObj = new Error(err);
+                    console.error(errorObj.message, errorObj.stack);
                     if (errorCallback) {
                         errorCallback(err);
                     }
@@ -134,7 +140,8 @@ class LocalSave {
                 }
             },
             function (err) {
-                console.error(err);
+                var errorObj = new Error(err);
+                console.error(errorObj.message, errorObj.stack);
                 dialogs.alert({
                     title: "Error on get query",
                     message: "Query: " + query + "\n" + err,

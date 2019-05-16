@@ -13,9 +13,14 @@
     <ScrollView>
         <StackLayout>
 
-	        <TextField id="playername" hint="Player Name"
-                       text="{{ playername }}"
-                       isEnabled="{{ !lockUserActions }}" />
+            <DockLayout stretchLastChild="true">
+                <Label dock="left" text="Player: "
+                       horizontalAlignment="left" />
+                <Button dock="left" text="{{ playername }}"
+                        isEnabled="{{ !lockUserActions && canFindUser }}"
+                        tap="openPlayerModal"
+                        horizontalAlignment="left" />
+            </DockLayout>
             <!--
             <TextField id="coachname" hint="Coach"
                        text="{{ coachname }}"

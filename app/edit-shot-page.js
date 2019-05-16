@@ -26,6 +26,7 @@ var canCancel = false;
 var canDiscard = false;
 var canSave = false;
 var canUpload = false;
+var canFindUser = false;
 var lockUserActions = false;
 
 var lockMutex = false;
@@ -37,8 +38,11 @@ var editType;
 
 // page vars
 var shotId;
+var playerId;
 var firstname;
+var coachId;
 var coachname;
+var clubId;
 var clubname;
 var path;
 var duration;
@@ -78,6 +82,9 @@ const ratingTypeListArray = [
     { display: "Played Late" },
     { display: "Played Early" }
 ];
+
+// modal
+const modalViewModule = "modal-select-player";
 
 /**
  * Handles Hamburger Menu
@@ -138,6 +145,7 @@ function onNavigatingTo(args) {
     // can upload?
     // TODO need to make sure you have permissions. This should be passed by the server.
     canUpload = appSet.getString(global.tokenAccess) ? true : false;
+    canFindUser = appSet.getString(global.tokenAccess) ? true : false;
 
 }
 exports.onNavigatingTo = onNavigatingTo;
@@ -189,6 +197,7 @@ function onLoad(args) {
     viewModel.set("canSave", canSave);
     viewModel.set("canUpload", canUpload);
     viewModel.set("canDiscard", canDiscard);
+    viewModel.set("canFindUser", canFindUser);
     _unlockFunctionality();     // always start with unlocked features
 
     // set viewmodel
@@ -219,6 +228,7 @@ function upload(args) {
     var uploadType;
     var uploadVideo;
     var videoDuration;
+    var thumbnailVal;
 
     // if editing an uploaded shot, we need a PATCH request.
     if (editType == EDIT_VIEW_SEARCH) {
@@ -227,7 +237,7 @@ function upload(args) {
     // if editing a local shot, we post
     else if (editType == EDIT_VIEW_LOCAL || editType == EDIT_RECORD) {
         uploadType = "POST";
-        toUpload["player"] = "6e1df8c5-dfa8-4e2c-8afd-d668088bd67f";
+        toUpload["player"] = playerId;
         // toUpload["club"] = "2182e986-3390-4b11-be8d-271a7751210f";
 
         // get data
@@ -239,10 +249,7 @@ function upload(args) {
         }
         var dateStr = dateTimeObj.toISOString();
         if (dateStr) {
-            // toUpload["date_recorded"] = dateStr;
-        }
-        if (thumbnail) {
-            // toUpload["thumbnail"] = thumbnail;
+            toUpload["date_recorded"] = dateStr;
         }
 
         // video data
@@ -254,6 +261,14 @@ function upload(args) {
             } else {
                 videoDuration = videoDuration.toString();
             }
+        }
+
+        // get thumbnail
+        if (viewModel.get("sliderValue")) {
+            thumbnailVal = viewModel.get("sliderValue");
+            thumbnailVal = thumbnailVal.toString();
+        } else {
+            thumbnailVal = "0";
         }
     }
 
@@ -292,7 +307,8 @@ function upload(args) {
             var params = [
                 { name: "shot", value: id },
                 { name: "file", filename: file, mimeType: "video/mp4" },
-                { name: "length", value: videoDuration }
+                { name: "length", value: videoDuration },
+                { name: "thumbnail_time", value: thumbnailVal }
             ];
 
             // multiupload
@@ -425,27 +441,22 @@ function _saveLocalEdit() {
 
     // get changed vars
     var columnList = [];
-    if (firstname != viewModel.get("playername")) {
-        columnList.push({ column: "playername", value: viewModel.get("playername") });
-    }
-    if (coachname != viewModel.get("coachname")) {
-        columnList.push({ column: "coachname", value: viewModel.get("coachname") });
-    }
-    if (clubname != viewModel.get("clubname")) {
-        columnList.push({ column: "clubname", value: viewModel.get("clubname") });
-    }
+    columnList.push({ column: "playername", value: firstname });
+    columnList.push({ column: "coachname", value: coachname });
+    columnList.push({ column: "clubname", value: clubname });
     if (path != viewModel.get("videoPath")) {
         columnList.push({ column: "path", value: viewModel.get("videoPath") });
     }
-    if (thumbnail != viewModel.get("thumbnail")) {
-        columnList.push({ column: "thumbnail", value: viewModel.get("thumbnail") });
-    }
+    columnList.push({ column: "thumbnail", value: thumbnail });
     if (shotTypeIndex != viewModel.get("shotTypeIndex")) {
         columnList.push({ column: "shottype", value: viewModel.get("shotTypeIndex") });
     }
     if (ratingTypeIndex != viewModel.get("ratingTypeIndex")) {
         columnList.push({ column: "ratingtype", value: viewModel.get("ratingTypeIndex") });
     }
+    columnList.push({ column: "playerid", value: playerId });
+    columnList.push({ column: "coachid", value: coachId });
+    columnList.push({ column: "clubid", value: clubId });
     var dateCheck = viewModel.get("date");
     var timeCheck = viewModel.get("time");
     var dateTimeCheck = dateCheck + " " + timeCheck;
@@ -503,13 +514,16 @@ function _saveLocalRecord() {
 
     // get all vars (don't worry if they've been changed).
     var columnList = [];
-    columnList.push({ column: "playername", value: viewModel.get("playername") });
-    columnList.push({ column: "coachname", value: viewModel.get("coachname") });
-    columnList.push({ column: "clubname", value: viewModel.get("clubname") });
-    columnList.push({ column: "path", value: viewModel.get("videoPath") });
-    columnList.push({ column: "thumbnail", value: viewModel.get("sliderValue") });
-    columnList.push({ column: "shottype", value: viewModel.get("shotTypeIndex") + 1 });
-    columnList.push({ column: "ratingtype", value: viewModel.get("ratingTypeIndex") + 1 });
+    columnList.push({ column: "playername", value: firstname });
+    columnList.push({ column: "coachname", value: coachname });
+    columnList.push({ column: "clubname", value: clubname });
+    columnList.push({ column: "path", value: path });
+    columnList.push({ column: "thumbnail", value: thumbnail });
+    columnList.push({ column: "shottype", value: viewModel.get("shotTypeIndex") });
+    columnList.push({ column: "ratingtype", value: viewModel.get("ratingTypeIndex") });
+    columnList.push({ column: "playerid", value: playerId });
+    columnList.push({ column: "coachid", value: coachId });
+    columnList.push({ column: "clubid", value: clubId });
     // columnList.push({ column: "duration", value: viewModel.get("duration") });
     var dateCheck = viewModel.get("date");
     var timeCheck = viewModel.get("time");
@@ -685,9 +699,10 @@ exports.ratingTypeDropdownChanged = ratingTypeDropdownChanged;
 /**
  * Sets a new thumbnail. Used to update the thumbnail video playback.
  */
-function setThumbnail() {
+function setThumbnail(args) {
     let slider = page.getViewById("thumbnailSlider");
-    thumbnail = slider.value;
+    // thumbnail = slider.value;
+    thumbnail = viewModel.get("sliderValue");
     console.log("Updating thumbnail to " + thumbnail);
     let thumbnailVideo = page.getViewById("thumbnailVideo");
     thumbnailVideo.seekToTime(thumbnail);
@@ -724,14 +739,17 @@ function _setShotRecord(editTypeOptions) {
 
     // player name
     firstname = null;
+    playerId = null;
     viewModel.set("playername", firstname);
 
     // coach name
     coachname = null;
+    coachId = null;
     viewModel.set("coachname", coachname);
 
     // player name
     clubname = null;
+    clubId = null;
     viewModel.set("clubname", clubname);
 
     // set shot type
@@ -801,14 +819,17 @@ function _setShotLocal(editTypeOptions) {
 
     // player name
     firstname = null;
+    playerId = null
     viewModel.set("playername", firstname);
 
     // coach name
     coachname = null;
+    coachId = null;
     viewModel.set("coachname", coachname);
 
     // player name
     clubname = null;
+    clubId = null;
     viewModel.set("clubname", clubname);
 
     // set shot type
@@ -849,16 +870,19 @@ function _setShotLocal(editTypeOptions) {
     db.queryGet(query, [shotId],
         function (row) {
             /*
-            { name: "id", type: "INTEGER PRIMARY KEY AUTOINCREMENT" },
-            { name: "path", type: "TEXT" },
-            { name: "playername", type: "TEXT" },
-            { name: "coachname", type: "TEXT" },
-            { name: "clubname", type: "TEXT" },
-            { name: "thumbnail", type: "INTEGER" },
-            { name: "date", type: "DATETIME" },
-            { name: "shottype", type: "INTEGER" },
-            { name: "ratingtype", type: "INTEGER" },
-            { name: "duration", type: "INTEGER" }
+            0: { name: "id", type: "INTEGER PRIMARY KEY AUTOINCREMENT" },
+            1: { name: "path", type: "TEXT" },
+            2: { name: "playername", type: "TEXT" },
+            3: { name: "coachname", type: "TEXT" },
+            4: { name: "clubname", type: "TEXT" },
+            5: { name: "thumbnail", type: "INTEGER" },
+            6: { name: "date", type: "DATETIME" },
+            7: { name: "shottype", type: "INTEGER" },
+            8: { name: "ratingtype", type: "INTEGER" },
+            9: { name: "duration", type: "INTEGER" },
+            10: { name: "playerid", type: "TEXT" },
+            11: { name: "coachid", type: "TEXT" },
+            12: { name: "clubid", type: "TEXT" }
             */
 
             // player name
@@ -869,9 +893,21 @@ function _setShotLocal(editTypeOptions) {
             coachname = row[3] ? row[3] : null;
             viewModel.set("coachname", coachname);
 
-            // player name
+            // club name
             clubname = row[4] ? row[4] : null;
             viewModel.set("clubname", clubname);
+
+            // player id
+            playerId = row[10] ? row[10] : null;
+            viewModel.set("playerId", playerId);
+
+            // coach id
+            coachId = row[11] ? row[11] : null;
+            viewModel.set("coachId", coachId);
+
+            // club id
+            clubId = row[12] ? row[12] : null;
+            viewModel.set("clubId", clubId);
 
             // set shot type
             shotTypeIndex = row[7] ? row[7] : 0;
@@ -993,3 +1029,26 @@ function _throwNoContextError() {
     console.error("Cannot edit a Shot without knowing the context.");
     return new Error("Cannot edit a Shot without knowing the context.");
 }
+
+/**
+ * 
+ * @param {any} args
+ */
+function openPlayerModal(args) {
+    console.log("Open");
+    const button = args.object;
+    const fullscreen = false;
+    const context = { type: "players" };
+    var callback = function (vals) {
+        console.log(vals);
+        if (!vals) {
+            // do nothing
+            return;
+        }
+        playerId = vals.id;
+        firstname = vals.user;
+        viewModel.set("playername", firstname);
+    }
+    button.showModal(modalViewModule, context, callback, fullscreen);
+}
+exports.openPlayerModal = openPlayerModal;

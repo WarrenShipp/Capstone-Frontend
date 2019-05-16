@@ -1,0 +1,25 @@
+<Page xmlns="http://www.nativescript.org/tns.xsd" shownModally="onShownModally">
+    <StackLayout id="listContainer">
+        <Label text="{{ 'Select ' + userType }}" />
+        <Label text="Loading..." visibility="{{ loading ? 'visible' : 'collapsed' }}" />
+        <Label text="You can't select any players. You need to be registered to a club."
+               textWrap="true" visibility="{{ noPlayers ? 'visible' : 'collapsed' }}" />
+        <ListView items="{{ itemList }}" itemTap="onItemTap" id="itemList">
+            <ListView.itemTemplate>
+                <StackLayout>
+                    <DockLayout stretchLastChild="true">
+                        <Image dock="left" stretch="aspectFill" width="100" height="100"
+                               src="{{ image ? image : '~/images/user.png' }}" />
+                        <StackLayout dock="left">
+                            <Label text="{{ user }}" />
+                            <Label text="{{ batsman_type_name + ' Batsman' }}"
+                                   visbility="{{ batsman_type_name && batsman_type_name != 'Unset' ? 'visible' : 'collapsed'}}" />
+                            <Label text="{{ bowler_type_name + ' Bowler' }}"
+                                   visbility="{{ bowler_type_name && bowler_type_name != 'Unset' ? 'visible' : 'collapsed'}}" />
+                        </StackLayout>
+                    </DockLayout>
+                </StackLayout>
+            </ListView.itemTemplate>
+        </ListView>
+    </StackLayout>
+</Page>
