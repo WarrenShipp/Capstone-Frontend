@@ -90,8 +90,8 @@
 
             <!-- Buttons -->
             <DockLayout>
-                <Button dock="right" text="Cancel" tap="cancel" />
-                <Button dock="right" text="Save" tap="save" />
+                <Button dock="right" text="Cancel" tap="cancel" isEnabled=" {{ profileStatus }} " />
+                <Button dock="right" text="Save" tap="save" isEnabled=" {{ profileStatus }} " />
             </DockLayout>
 
         </StackLayout>

@@ -45,7 +45,7 @@ function login(args) {
     
     let email = viewModel.get("email");
     let password = viewModel.get("password");
-
+    viewModel.set("requestStatus", false); // disable buttons whilst requesting
     // try to log in.
     http.request({
         url: global.serverUrl + global.endpointToken,
@@ -55,6 +55,7 @@ function login(args) {
     }).then(function (result) {
         // console.log("log in start");
         console.log(result);
+        viewModel.set("requestStatus", true);
         // console.log("print result");
         var obj = JSON.stringify(result);
         // console.log("stringify result");
@@ -83,6 +84,7 @@ function login(args) {
             console.log("access = " + appSettings.getString(global.tokenAccess));
             console.log("refresh = " + appSettings.getString(global.tokenRefresh));
             console.log("lastRefresh = " + appSettings.getNumber(global.lastRefresh));
+            
             page.frame.navigate({
                 moduleName: "home-page",
                 clearHistory: true

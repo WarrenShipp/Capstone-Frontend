@@ -245,6 +245,7 @@ function save(args) {
     var newPassword = viewModel.get("newPassword");
     var confirmPassword = viewModel.get("confirmPassword");
 
+    viewModel.set("profileStatus", false);
     // player info args
     let dropdownBatsman = page.getViewById("batsmanType");
     var saveBatsmanType = dropdownBatsman.selectedIndex;
@@ -344,7 +345,7 @@ function save(args) {
     task.on("complete", completeHandler);
 
     // go back for now. Probably not the best.
-    page.frame.goBack();
+    // page.frame.goBack();
 }
 exports.save = save;
 
@@ -455,7 +456,7 @@ function respondedHandler(e) {
 function completeHandler(e) {
     alert("received " + e.responseCode + " code");
     var serverResponse = e.response;
-    
+    viewModel.set("profileStatus", true);
 
 }
 

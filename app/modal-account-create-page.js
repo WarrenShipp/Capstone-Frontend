@@ -45,6 +45,7 @@ function onCreate(args) {
     email = viewModel.get("email");
     password = viewModel.get("password");
     passwordConfirm = viewModel.get("passwordConfirm");
+    viewModel.set("loginStatus", false);
     if (
         !firstName || !lastName || !email || !password || !passwordConfirm
     ) {
@@ -80,6 +81,7 @@ function onCreate(args) {
         content: JSON.stringify(content)
     }).then(function (result) {
         console.log(result);
+        viewModel.set("loginStatus", true);
         var obj = JSON.stringify(result);
         obj = JSON.parse(obj);
         // console.log(obj);

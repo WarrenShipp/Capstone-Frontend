@@ -23,8 +23,8 @@
 				<Label class="hr-light" />
 			</StackLayout>
 
-			<Button text="Sign In" tap="login"/>
-            <Button text="Create Account" tap="createAccount"/>
+			<Button text="Sign In" tap="login" isEnabled=" {{ requestStatus }} " />
+            <Button text="Create Account" tap="createAccount" isEnabled=" {{ requestStatus }} " />
 			
 		</StackLayout>
 </Page>

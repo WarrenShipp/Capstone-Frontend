@@ -16,8 +16,8 @@
                        autocapitalizationType="none" secure="true"
                        returnKeyType="done" />
             <GridLayout rows="*" cols="*,*">
-                <Button row="0" col="0" text="Cancel" tap="onCancel" />
-                <Button row="0" col="1" text="Create" tap="onCreate" />
+                <!-- <Button row="0" col="0" text="Cancel" tap="onCancel" /> -->
+                <Button row="0" col="1" text="Create" tap="onCreate" isEnabled=" {{ loginStatus }} " />
             </GridLayout>
         </StackLayout>
     </ScrollView>
