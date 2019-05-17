@@ -15,7 +15,6 @@
             <GridLayout columns="*,2*" rows="*,*" horizontalAlignment="left" verticalAlignment="top" class="searchForm">
                 <Label row="0" col="0" text="Type   "></Label>
                 <dd:DropDown id="typeToSearch" col="1" items="{{ searchTypes }}" selectedIndex="{{ typeIndex }}" opened="dropDownOpened" selectedIndexChanged="dropDownSelectedIndexChanged" />
-                <Label row="1" col="0" class="hr-light" />
             </GridLayout>
 
             <!-- Club Search Form -->

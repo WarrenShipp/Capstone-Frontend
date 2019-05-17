@@ -1,4 +1,4 @@
-// Requirements
+﻿// Requirements
 var frameModule = require("ui/frame");
 var observable = require("data/observable");
 var appSettings = require("application-settings");
@@ -159,7 +159,8 @@ exports.sendSearch = function () {
         moduleName: 'results-page',
         context: {
             urlSearch: urlSearch,
-            searchType: searchSubmitType
+            searchType: searchSubmitType,
+            searchTime: (new Date()).getTime()
         }
     }
     console.log("url is:" + urlSearch);

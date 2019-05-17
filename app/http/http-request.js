@@ -5,6 +5,7 @@ const dialogs = require("tns-core-modules/ui/dialogs");
 
 // use this to pass callback to _doCallback
 var lexicalCallback;
+var lexicalErrorCallback;
 
 /**
  * This class acts as a wrapper and error handler for all HTTP requests. It
@@ -65,15 +66,32 @@ class HTTPRequestWrapper {
     }
 
     /**
+     * Gives an error callback to the request.
+     *
+     * Callbacks receive no variables and are used to do necessary processing.
+     * @param {any} callback
+     */
+    setErrorCallback(callback) {
+        if (callback instanceof Function) {
+            this.errorCallback = callback;
+        } else {
+            throw new Error("setErrorCallback(callback) requires a Function parameter. Passed a " + typeof callback);
+        }
+    }
+
+    /**
      * Sends a request with the given information.
      * @param {any} callback Optional. Can be provided earlier using
               setCallback(). Will override the callback.
      */
-    send(callback = null) {
+    send(callback = null, errorCallback = null) {
 
         // set callbacks
         if (callback) {
             this.setCallback(callback);
+        }
+        if (errorCallback) {
+            this.setErrorCallback(errorCallback);
         }
 
         // set up request object.
@@ -107,6 +125,7 @@ class HTTPRequestWrapper {
 
         // run request
         lexicalCallback = this.callback ? this.callback : this._defaultCallback;
+        lexicalErrorCallback = this.errorCallback ? this.errorCallback : null;
         http.request(request).then(this._doResponse, this._doRejection);
 
     }
@@ -123,6 +142,7 @@ class HTTPRequestWrapper {
                 lexicalCallback(response);
             } catch (err) {
                 console.error("HTTP response error: " + err + "\n" + err.stack);
+                lexicalErrorCallback();
                 dialogs.alert({
                     title: err.message,
                     message: "Response to HTTP request could not be handled.",
@@ -133,6 +153,7 @@ class HTTPRequestWrapper {
             var err = new Error("Bad response code: " + response.statusCode);
             console.error(err + "\n" + err.stack);
             console.error(response.content.toString());
+            lexicalErrorCallback();
             dialogs.alert({
                 title: err.message,
                 message: "HTTP request could not be handled.",
@@ -143,6 +164,7 @@ class HTTPRequestWrapper {
 
     _doRejection(error) {
         console.error(error.message);
+        lexicalErrorCallback();
         dialogs.alert({
             title: "HTTP request failed",
             message: error.message,
