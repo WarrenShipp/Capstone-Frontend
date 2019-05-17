@@ -87,6 +87,7 @@ function login(args) {
             console.log("lastRefresh = " + appSettings.getNumber(global.lastRefresh));
             viewModel.set("email", "");
             viewModel.set("password", "");
+
             page.frame.navigate({
                 moduleName: "home-page",
                 clearHistory: true
@@ -102,7 +103,7 @@ function login(args) {
             okButtonText: "Okay"
         });
     });
-    
+
 }
 exports.login = login;
 

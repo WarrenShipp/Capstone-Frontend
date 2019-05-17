@@ -2,6 +2,7 @@
 const app = require("tns-core-modules/application");
 var observable = require("data/observable").Observable;
 const appSettings = require("application-settings");
+const HTTPRequestWrapper = require("../app/http/http-request.js");
 
 // check if logged in
 var loggedIn;
@@ -16,6 +17,33 @@ function onNavigatingTo(args) {
     viewModel.set("imageUri", "folder.png");
     loggedIn = appSettings.getString(global.tokenAccess) ? true : false;
     viewModel.set("loggedIn", loggedIn);
+    if (loggedIn) {
+        var request = new HTTPRequestWrapper(
+            global.serverUrl + global.endpointUser + "me/",
+            "GET",
+            HTTPRequestWrapper.defaultContentType,
+            appSettings.getString(global.tokenAccess)
+        );
+        request.send(function (result) {
+            console.log(result);
+            var obj = JSON.stringify(result);
+            obj = JSON.parse(obj);
+            appSettings.setBoolean("isCoach", obj.content.is_coach);
+            if (obj.content.is_coach) {
+                appSettings.setString("coachId", obj.content.coach.id);
+            }
+            appSettings.setBoolean("isPlayer", obj.content.is_player);
+            if (obj.content.is_player) {
+                appSettings.setString("playerId", obj.content.player.id);
+            }
+            console.log("Is Coach:" + appSettings.getBoolean("isCoach"));
+            console.log("Coach Id:" + appSettings.getString("coachId"));
+            console.log("Is Player:" + appSettings.getBoolean("isPlayer"));
+            console.log("Player Id:" + appSettings.getString("playerId"));
+
+        });
+    }
+
     page.bindingContext = viewModel;
 }
 exports.onNavigatingTo = onNavigatingTo;

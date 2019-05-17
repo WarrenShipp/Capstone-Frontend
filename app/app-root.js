@@ -207,7 +207,10 @@ function logout(args) {
             });
         });
     }
-
+    appSettings.remove("isCoach");
+    appSettings.remove("isPlayer");
+    appSettings.remove("coachId");
+    appSettings.remove("playerId");
     appSettings.remove(global.tokenAccess);
     appSettings.remove(global.tokenRefresh);
     appSettings.remove(global.lastRefresh);
