@@ -1,19 +1,51 @@
-<Page xmlns="http://www.nativescript.org/tns.xsd" navigatingTo="onNavigatingTo">
+<Page xmlns="http://www.nativescript.org/tns.xsd"
+      navigatingTo="onNavigatingTo"
+      xmlns:lv="nativescript-ui-listview">
     <ActionBar class="action-bar">
         <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
         <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
             tap="onDrawerButtonTap" ios.position="left">
         </ActionItem>
-        <Label class="action-bar-title" text="Results"></Label>
+        <Label class="action-bar-title" text="{{ 'Results: ' + searchType }}"></Label>
     </ActionBar>
-    <StackLayout>
-        <ActivityIndicator busy="{{ isLoading }}" visibility= "{{ isLoading ? 'visible' : 'collapse' }}" />
-        <StackLayout id="container">
-            <ScrollView>
-            
-                <!-- All results go here -->
-            </ScrollView>
-        </StackLayout>
-    </StackLayout>
+    
+    <lv:RadListView items="{{ itemList }}" itemTap="onItemTap" id="itemList" >
+                
+        <!-- List items -->
+        <lv:RadListView.itemTemplate>
+            <DockLayout stretchLastChild="true">
+                <Image dock="left" stretch="aspectFill" width="100" height="100"
+                        src="{{ image ? image : '~/images/picture-2.png' }}" />
+                <StackLayout dock="left">
+                    <Label text="{{ name }}" />
+                    <Label text="{{ shotTypeName ? shotTypeName : '' }}"
+                            visibility="{{ shotTypeName ? 'visible' : 'collapsed' }}" />
+                    <Label text="{{ ratingTypeName ? ratingTypeName : '' }}"
+                            visibility="{{ ratingTypeName ? 'visible' : 'collapsed' }}" />
+                </StackLayout>
+            </DockLayout>
+        </lv:RadListView.itemTemplate>
+                
+        <!-- Loading wheel -->
+        <lv:RadListView.headerItemTemplate>
+            <StackLayout>
+                <ActivityIndicator busy="{{ isLoading }}" visibility= "{{ isLoading ? 'visible' : 'collapse' }}" />
+            </StackLayout>
+        </lv:RadListView.headerItemTemplate>
+                
+        <!-- Messages and onDemand loading wheel -->
+        <lv:RadListView.footerItemTemplate>
+            <StackLayout>
+                <Button text="Load more results" tap="onLoadMoreData"
+                        visibility="{{ canLoadMore ? 'visible' : 'collapsed' }}"
+                        isEnabled="{{ canLoadMore }}" />
+                <Label text="All results loaded" visibility="{{ noMoreLoading ? 'visible' : 'collapsed' }}" />
+                <ActivityIndicator busy="{{ isLoadingMore }}" visibility= "{{ isLoadingMore ? 'visible' : 'collapse' }}" />
+                <Label text="No search results" visibility="{{ noResults ? 'visible' : 'collapsed' }}" />
+                <Label text="An error occured when getting search results!" visibility="{{ errorMessage ? 'visible' : 'collapsed' }}" />
+            </StackLayout>
+        </lv:RadListView.footerItemTemplate>
+                
+    </lv:RadListView>
 
 </Page>
