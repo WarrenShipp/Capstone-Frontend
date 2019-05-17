@@ -74,6 +74,7 @@ function login(args) {
                 message: message,
                 okButtonText: "Okay"
             }).then(function () { });
+            viewModel.set("password", "");
             return;
         } else {
 
@@ -84,7 +85,8 @@ function login(args) {
             console.log("access = " + appSettings.getString(global.tokenAccess));
             console.log("refresh = " + appSettings.getString(global.tokenRefresh));
             console.log("lastRefresh = " + appSettings.getNumber(global.lastRefresh));
-
+            viewModel.set("email", "");
+            viewModel.set("password", "");
             page.frame.navigate({
                 moduleName: "home-page",
                 clearHistory: true

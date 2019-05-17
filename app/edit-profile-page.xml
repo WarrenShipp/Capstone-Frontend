@@ -12,61 +12,61 @@
     </ActionBar>
 
     <ScrollView>
-        <StackLayout class="smallMargin">
+        <StackLayout class="smallMargin" >
 
             <!-- Profile Pic -->
             <Label text="Profile Picture" />
             <Image src="{{ imgSrc }}" stretch="aspectFill" />
-            <Button text="Change Image" tap="changeImage" />
+            <Button text="Change Image" tap="changeImage" isEnabled=" {{ profileStatus }} " />
 
             <!-- User info -->
             <Label text="User Information" />
             <DockLayout stretchLastChild="true">
                 <Label dock="left" text="First Name:" />
-                <TextField dock="left" text="{{ firstName }}" />
+                <TextField dock="left" text="{{ firstName }}" isEnabled=" {{ profileStatus }} " />
             </DockLayout>
             <DockLayout stretchLastChild="true">
                 <Label dock="left" text="First Name:" />
-                <TextField dock="left" text="{{ lastName }}" />
+                <TextField dock="left" text="{{ lastName }}" isEnabled=" {{ profileStatus }} " />
             </DockLayout>
 
             <!-- Player Info -->
             <Label text="Player Information" />
-            <Switch checked="{{ isPlayer }}" id="player-switch"/>
+            <Switch checked="{{ isPlayer }}" id="player-switch" isEnabled=" {{ profileStatus }} " />
             <StackLayout visibility="{{ isPlayer ? 'visible' : 'collapsed' }}">
                 <DockLayout>
                     <Label dock="left" text="Date of Birth:" />
-                    <DatePicker dock="left" id="birthDate" date="{{ birthDate }}" maxDate="{{ maxDate }}" />
+                    <DatePicker dock="left" id="birthDate" date="{{ birthDate }}" maxDate="{{ maxDate }}" isEnabled=" {{ profileStatus }} " />
                 </DockLayout>
                 <DockLayout>
                     <Label dock="left" text="Phone Number:" />
                     <TextField dock="left" text="{{ phone }}"
-                       autocapitalizationType="none" />
+                       autocapitalizationType="none" isEnabled=" {{ profileStatus }} "  />
                 </DockLayout>
                 <DockLayout stretchLastChild="true">
                     <Label dock="left" text="Batsman Type:" />
                     <dd:DropDown dock="left"  id="batsmanType" hint="Rating"
                                  items="{{ batsmanTypeList }}"
                                  selectedIndex="{{ batsmanTypeIndex }}"
-                                 selectedIndexChanged="batsmanTypeDropdownChanged" />
+                                 selectedIndexChanged="batsmanTypeDropdownChanged" isEnabled=" {{ profileStatus }} " />
                 </DockLayout>
                 <DockLayout stretchLastChild="true">
                     <Label dock="left" text="Bowler Type:" />
                     <dd:DropDown dock="left"  id="bowlerType" hint="Rating"
                                  items="{{ bowlerTypeList }}"
                                  selectedIndex="{{ bowlerTypeIndex }}"
-                                 selectedIndexChanged="bowlerTypeDropdownChanged" />
+                                 selectedIndexChanged="bowlerTypeDropdownChanged" isEnabled=" {{ profileStatus }} " />
                 </DockLayout>
             </StackLayout>
 
             <!-- Coach Info -->
             <Label text="Coach Information" />
-            <Switch checked="{{ isCoach }}" id="coach-switch"/>
+            <Switch checked="{{ isCoach }}" id="coach-switch" isEnabled=" {{ profileStatus }} " />
             <StackLayout visibility="{{ isCoach ? 'visible' : 'collapsed' }}">
                 <Label text="Coaching Information" />
                 <DockLayout>
                     <Label dock="left" text="Years Experience:" />
-                    <TextField dock="left" text="{{ yearsExperience }}" keyboardType="number" />
+                    <TextField dock="left" text="{{ yearsExperience }}" keyboardType="number" isEnabled=" {{ profileStatus }} " />
                 </DockLayout>
             </StackLayout>
 

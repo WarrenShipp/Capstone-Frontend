@@ -13,13 +13,13 @@
 			<StackLayout >
 				<TextField id="email" hint="Email" text="{{ email }}"
                            returnKeyType="next" keyboardType="email"
-                           AutocapitalizationType="none" />
+                           AutocapitalizationType="none" isEnabled=" {{ requestStatus }} " />
 				<Label class="hr-light" />
 			</StackLayout>
 
 			<StackLayout>
 				<TextField id="password" hint="Password" text="{{ password }}"
-                           secure="true" AutocapitalizationType="none"/>
+                           secure="true" AutocapitalizationType="none" isEnabled=" {{ requestStatus }} " />
 				<Label class="hr-light" />
 			</StackLayout>
 

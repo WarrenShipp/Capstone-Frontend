@@ -10,6 +10,7 @@ var dialogs = require("tns-core-modules/ui/dialogs");
 var imagepicker = require("nativescript-imagepicker");
 const DatePicker = require("tns-core-modules/ui/date-picker").DatePicker;
 const dropdown = require("nativescript-drop-down");
+var Toast = require("nativescript-toast");
 
 // consts
 const batsmanTypeItems = [
@@ -455,9 +456,12 @@ function respondedHandler(e) {
 // responseCode: number
 // response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
 function completeHandler(e) {
-    alert("received " + e.responseCode + " code");
-    var serverResponse = e.response;
+    // alert("received " + e.responseCode + " code");
+    // var serverResponse = e.response;
+    var toast = Toast.makeText("Profile Saved");
+    toast.show();
     viewModel.set("profileStatus", true);
+    page.frame.goBack();
 
 }
 

@@ -54,6 +54,7 @@ function onCreate(args) {
             message: "Please make sure all fields are filled out.",
             okButtonText: "Okay"
         }).then(function () { });
+        viewModel.set("loginStatus", true);
         return;
     }
 
@@ -64,6 +65,7 @@ function onCreate(args) {
             message: "Please make sure the confirmed password matches the password field.",
             okButtonText: "Okay"
         }).then(function () { });
+        viewModel.set("loginStatus", true);
         return;
     }
 

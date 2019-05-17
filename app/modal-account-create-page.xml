@@ -3,18 +3,18 @@
         <StackLayout>
             <Label text="Create Account" textAlignment="center" />
             <TextField text="{{ firstName }}" hint="First Name"
-                       returnKeyType="next" />
+                       returnKeyType="next" isEnabled=" {{ loginStatus }} "/>
             <TextField text="{{ lastName }}" hint="Last Name"
-                       returnKeyType="next" />
+                       returnKeyType="next" isEnabled=" {{ loginStatus }} "/>
             <TextField text="{{ email }}" hint="Email"
                        keyboardType="email" AutocapitalizationType="none"
-                       returnKeyType="next" />
+                       returnKeyType="next" isEnabled=" {{ loginStatus }} "/>
             <TextField text="{{ password }}" hint="Password"
                        autocapitalizationType="none" secure="true"
-                       returnKeyType="next" />
+                       returnKeyType="next" isEnabled=" {{ loginStatus }} "/>
             <TextField text="{{ passwordConfirm }}" hint="Confirm Password"
                        autocapitalizationType="none" secure="true"
-                       returnKeyType="done" />
+                       returnKeyType="done" isEnabled=" {{ loginStatus }} "/>
             <GridLayout rows="*" cols="*,*">
                 <!-- <Button row="0" col="0" text="Cancel" tap="onCancel" /> -->
                 <Button row="0" col="1" text="Create" tap="onCreate" isEnabled=" {{ loginStatus }} " />
