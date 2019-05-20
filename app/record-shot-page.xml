@@ -2,14 +2,25 @@
   xmlns="http://schemas.nativescript.org/tns.xsd"
   navigatingTo="navigatingTo"
   xmlns:recorder="nativescript-videorecorder/advanced"
-  loaded="loaded" page.actionBarHidden="true">
-    <StackLayout margin="20">
-        <StackLayout verticalAlignment="center">
-            <recorder:AdvancedVideoView height="90%" quality="highest"
-                                        cameraPosition="back" id="camera" />
+  loaded="loaded" page.actionBarHidden="true" hasActionBar="false">
+    <GridLayout rows="9*,*" col="*"
+        height="100%" width="100%" class="fix-absolute-layout">
+        <recorder:AdvancedVideoView quality="highest" cameraPosition="back"
+                                    row="0" col="0" rowSpan="2"
+                                    height="100%" width="100%"
+                                    id="camera" />
+        <StackLayout width="100%" orientation="horizontal"
+                     row="1" col="0"
+                     class="record-button-row" id="recordButtonRow">
+            <Button text="Cancel" tap="cancel"
+                    isEnabled="{{ !disabled }}"
+                    class="btn {{ disabled ? '' : 'btn-active' }}" />
             <Button text="{{ !recording ? 'Record' : 'Finish' }}"
                     tap="recordVideo"
-                    class="btn {{ disabled ? '' : 'btn-active' }}" />
+                    class="btn {{ disabled ? '' : 'btn-active' }}"
+                    isEnabled="{{ !disabled }}" />
+            <Label text="{{ timeRecorded }}"
+                    visibility="{{ recording ? 'visible' : 'collapsed' }}" />
         </StackLayout>
-    </StackLayout>
+    </GridLayout>
 </Page>

@@ -1,0 +1,21 @@
+﻿.record-button-row {
+    background-color: transparent;
+    z-index: 10;
+}
+
+.record-button-row > Label {
+    margin: 18px 20px;
+    top: 24px;
+    color: white;
+    position: relative;
+}
+
+.record-button-row > Button {
+    margin: 0px 8px;
+    background-color: white;
+    position: relative;
+}
+
+.fix-absolute-layout {
+    position: relative;
+}

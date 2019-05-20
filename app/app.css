@@ -43,10 +43,10 @@ Page {
   }
 
 .action-bar{
-    background-color: maroon;
+    background-color: red;
 }
 
 .smallMargin{
-    margin-left: 10;
-    margin-right: 10;
+    margin-left: 10px;
+    margin-right: 10px;
 }
