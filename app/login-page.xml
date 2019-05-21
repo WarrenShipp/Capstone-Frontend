@@ -1,4 +1,5 @@
-<Page loaded="pageLoaded" xmlns="http://www.nativescript.org/tns.xsd">
+<Page loaded="pageLoaded" xmlns="http://www.nativescript.org/tns.xsd"
+      navigatingFrom="onNavigatingFrom">
 <ActionBar class="action-bar">
         <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
         <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
@@ -13,18 +14,18 @@
 			<StackLayout >
 				<TextField id="email" hint="Email" text="{{ email }}"
                            returnKeyType="next" keyboardType="email"
-                           AutocapitalizationType="none" isEnabled=" {{ requestStatus }} " />
+                           AutocapitalizationType="none" isEnabled="{{ !requestStatus }}" />
 				<Label class="hr-light" />
 			</StackLayout>
 
 			<StackLayout>
 				<TextField id="password" hint="Password" text="{{ password }}"
-                           secure="true" AutocapitalizationType="none" isEnabled=" {{ requestStatus }} " />
+                           secure="true" AutocapitalizationType="none" isEnabled="{{ !requestStatus }}" />
 				<Label class="hr-light" />
 			</StackLayout>
 
-			<Button text="Sign In" tap="login" isEnabled=" {{ requestStatus }} " />
-            <Button text="Create Account" tap="createAccount" isEnabled=" {{ requestStatus }} " />
+			<Button text="Sign In" tap="login" isEnabled="{{ !requestStatus }}" />
+            <Button text="Create Account" tap="createAccount" isEnabled="{{ !requestStatus }}" />
 			
 		</StackLayout>
 </Page>

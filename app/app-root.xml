@@ -1,4 +1,5 @@
-<nsDrawer:RadSideDrawer xmlns:nsDrawer="nativescript-ui-sidedrawer" loaded="onLoaded">
+<nsDrawer:RadSideDrawer xmlns:nsDrawer="nativescript-ui-sidedrawer"
+                        loaded="onLoaded" drawerOpening="onDrawerOpen">
     <nsDrawer:RadSideDrawer.drawerContent>
         <StackLayout backgroundColor="gray">
             <Button class="btn btn-primary sidedrawer-list-item-text" text="Home"

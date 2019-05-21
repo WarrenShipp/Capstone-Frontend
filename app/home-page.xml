@@ -1,4 +1,4 @@
-<Page class="page" navigatingTo="onNavigatingTo" loading="onLoading">
+<Page class="page" navigatingTo="onNavigatingTo" loaded="onLoading">
     <ActionBar class="action-bar">
         <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
         <ActionItem icon="res://navigation/menu" android:visibility="collapsed"

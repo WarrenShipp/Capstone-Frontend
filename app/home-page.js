@@ -3,6 +3,7 @@ const app = require("tns-core-modules/application");
 var observable = require("data/observable").Observable;
 const appSettings = require("application-settings");
 const HTTPRequestWrapper = require("../app/http/http-request.js");
+var viewModel = new observable();
 
 // check if logged in
 var loggedIn;
@@ -12,8 +13,8 @@ var loggedIn;
  * @param {any} args
  */
 function onNavigatingTo(args) {
-    var viewModel = new observable();
     page = args.object;
+    /*
     viewModel.set("imageUri", "folder.png");
     loggedIn = appSettings.getString(global.tokenAccess) ? true : false;
     viewModel.set("loggedIn", loggedIn);
@@ -43,7 +44,7 @@ function onNavigatingTo(args) {
 
         });
     }
-
+    */
     page.bindingContext = viewModel;
 }
 exports.onNavigatingTo = onNavigatingTo;
@@ -54,7 +55,9 @@ exports.onNavigatingTo = onNavigatingTo;
  */
 function onLoading(args) {
     loggedIn = appSettings.getString(global.tokenAccess) ? true : false;
+    viewModel.set("loggedIn", loggedIn);
 }
+exports.onLoading = onLoading;
 
 /**
  * Navigates to search page when button is pressed. Only applicable when logged

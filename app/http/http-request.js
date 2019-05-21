@@ -7,6 +7,9 @@ const dialogs = require("tns-core-modules/ui/dialogs");
 var lexicalCallback;
 var lexicalErrorCallback;
 
+var lexicalCallbacks = [];
+var lexicalErrorCallbacks = [];
+
 /**
  * This class acts as a wrapper and error handler for all HTTP requests. It
  * allows users to add a callback to a response, as well as callbacks for when
@@ -142,34 +145,43 @@ class HTTPRequestWrapper {
                 lexicalCallback(response);
             } catch (err) {
                 console.error("HTTP response error: " + err + "\n" + err.stack);
-                lexicalErrorCallback();
-                dialogs.alert({
-                    title: err.message,
-                    message: "Response to HTTP request could not be handled.",
-                    okButtonText: "Okay"
-                }).then(function () { });
+                console.error(response.content.toString());
+                if (lexicalErrorCallback) {
+                    lexicalErrorCallback(err);
+                } else {
+                    dialogs.alert({
+                        title: "Response to HTTP request could not be handled.",
+                        message: err.message,
+                        okButtonText: "Okay"
+                    }).then(function () { });
+                }
             }
         } else {
             var err = new Error("Bad response code: " + response.statusCode);
-            console.error(err + "\n" + err.stack);
-            console.error(response.content.toString());
-            lexicalErrorCallback();
-            dialogs.alert({
-                title: err.message,
-                message: "HTTP request could not be handled.",
-                okButtonText: "Okay"
-            }).then(function () { });
+            console.error(err.message + "\n" + err.stack);
+            if (lexicalErrorCallback) {
+                lexicalErrorCallback(err);
+            } else {
+                dialogs.alert({
+                    title: "HTTP request could not be handled.",
+                    message: err.message,
+                    okButtonText: "Okay"
+                }).then(function () { });
+            }
         }
     }
 
-    _doRejection(error) {
-        console.error(error.message);
-        lexicalErrorCallback();
-        dialogs.alert({
-            title: "HTTP request failed",
-            message: error.message,
-            okButtonText: "Okay"
-        }).then(function () { });
+    _doRejection(err) {
+        console.error(err.message);
+        if (lexicalCallbackError) {
+            lexicalErrorCallback(err);
+        } else {
+            dialogs.alert({
+                title: "HTTP request failed",
+                message: err.message,
+                okButtonText: "Okay"
+            }).then(function () { });
+        }
     }
 
     /**

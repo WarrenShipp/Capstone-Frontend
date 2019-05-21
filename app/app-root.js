@@ -3,6 +3,7 @@ const app = require("tns-core-modules/application");
 const appSettings = require("application-settings");
 var observable = require("data/observable");
 var http = require("http");
+var HTTPRequestWrapper = require("../app/http/http-request.js");
 
 let viewModel;
 const DEBUG = true;
@@ -22,6 +23,16 @@ function onLoaded(args) {
 exports.onLoaded = onLoaded;
 
 /**
+ * Since there's no way to change the content of the sidedrawer directly after
+ * logging in, force it to reset every time it opens.
+ * @param {any} args
+ */
+function onDrawerOpen(args) {
+    resetPage();
+}
+exports.onDrawerOpen = onDrawerOpen;
+
+/**
  * Changes sidedrawer. Allows it to update its fields.
  * 
  */
@@ -32,6 +43,7 @@ function resetPage() {
         viewModel.set("loggedIn", false);
     }
 }
+exports.resetPage = resetPage;
 
 /**
  * Sidedrawer navigates to home page.
@@ -239,6 +251,54 @@ function refresh(args) {
 
 function _doRefresh(tokenRefresh) {
     // do request
+    var request = new HTTPRequestWrapper(
+        global.serverUrl + global.endpointToken + "refresh/",
+        "POST",
+        "application/json"
+    );
+    request.setContent({ "refresh": tokenRefresh });
+    request.send(
+        function (result) {
+            // console.log("Refreshing");
+            // console.log(result);
+            var obj = JSON.stringify(result)
+            obj = JSON.parse(obj);
+            var tokenAccess = obj.content.access;
+
+            // could not get token / login with credentials.
+            if (!tokenAccess || obj.content.detail) {
+                console.log("Refresh Error: " + obj.content.detail);
+                let message = obj.content.detail ? obj.content.detail : "Could not log refresh authorization token.";
+                message += "\n You have been logged out."
+                dialogs.alert({
+                    title: "Refresh Error!",
+                    message: message,
+                    okButtonText: "Okay"
+                }).then(function () { });
+                appSettings.remove(global.tokenRefresh);
+                logout(args);
+                return;
+            }
+
+            // update access token and reset timer
+            appSettings.setString(global.tokenAccess, tokenAccess);
+            appSettings.setNumber(global.lastRefresh, (new Date()).getTime());
+            console.log("Refreshed with token: " + tokenAccess);
+        },
+        function () {
+            let message = "Could not log refresh authorization token.";
+            message += "\n You have been logged out."
+            dialogs.alert({
+                title: "Refresh Error!",
+                message: message + "\n You have been logged out.",
+                okButtonText: "Okay"
+            });
+            appSettings.remove(global.tokenRefresh);
+            logout(args);
+        }
+    );
+
+    /*
     http.request({
         url: global.serverUrl + global.endpointToken + "refresh/",
         method: "POST",
@@ -261,6 +321,7 @@ function _doRefresh(tokenRefresh) {
                 message: message,
                 okButtonText: "Okay"
             }).then(function () { });
+            appSettings.remove(global.tokenRefresh);
             logout(args);
             return;
         }
@@ -277,8 +338,10 @@ function _doRefresh(tokenRefresh) {
             message: JSON.stringify(error) + "\n You have been logged out.",
             okButtonText: "Okay"
         });
+        appSettings.remove(global.tokenRefresh);
         logout(args);
     });
+    */
 }
 
 /**
