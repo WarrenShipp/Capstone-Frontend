@@ -1,6 +1,6 @@
 <Page
-        loaded="onLoad" xmlns:df="nativescript-pro-ui/dataform"
-        xmlns="http://schemas.nativescript.org/tns.xsd" xmlns:dd="nativescript-drop-down"
+        loaded="onLoad"
+        xmlns="http://schemas.nativescript.org/tns.xsd"
         xmlns:VideoPlayer="nativescript-videoplayer"
         navigatingTo="onNavigatingTo">
     <ActionBar class="action-bar">
@@ -10,8 +10,14 @@
         </ActionItem>
         <Label class="action-bar-title" text="{{ pageName ? pageName : '...' }}"></Label>
     </ActionBar>
+    
     <ScrollView>
         <StackLayout>
+
+            <ActivityIndicator
+                class="screen-cover-load-wheel"
+                busy="{{ isLoading }}"
+                visibility="{{ isLoading ? 'visible' : 'collapse' }}" />
 
             <GridLayout columns="*,*" rows="*,*,*"
                         horizontalAlignment="left" verticalAlignment="top">
@@ -25,9 +31,20 @@
                 -->
             </GridLayout>
 
-            <VideoPlayer:Video id="nativeVideoPlayer"
-                    controls="true" loop="true" autoplay="false" height="300"
+            <GridLayout class="video-background" height="300">
+                <!-- video element -->
+                <VideoPlayer:Video
+                    id="nativeVideoPlayer"
+                    controls="true" loop="true" autoplay="false"
+                    height="300" class="shot-video"
                     src="{{ videoPath }}" />
+                <!-- loading element -->
+                <Label class="center-element" text="Getting video"
+                       visibility="{{ videoLoading && !hasVideo ? 'visible' : 'collapsed' }}" />
+                <!-- error element -->
+                <Label class="center-element" text="Error getting video!"
+                       visibility="{{ !videoLoading && !hasVideo ? 'visible' : 'collapsed' }}" />
+            </GridLayout>
 
             <GridLayout columns="*,2*" rows="*,*,*,*,*"
                         horizontalAlignment="left" verticalAlignment="top">
@@ -41,10 +58,10 @@
                 -->
 
                 <Label text="Shot Type:" row="2" col="0" />
-                <Label row="2" col="1" text="{{ shotTypeName ? shotTypeName : 'Not set' }}" />
+                <Label row="2" col="1" text="{{ shotTypeName ? shotTypeName : 'Unset' }}" />
 
                 <Label row="3" col="0" text="Rating:" />
-                <Label row="3" col="1" text="{{ ratingTypeName ? ratingTypeName : 'Not set' }}" />
+                <Label row="3" col="1" text="{{ ratingTypeName ? ratingTypeName : 'Unset' }}" />
 
                 <Label row="4" col="0" text="Duration:" />
                 <Label row="4" col="1" text="{{ duration }}" />
@@ -55,7 +72,7 @@
                         text="Cancel" tap="cancel" />
                 <Button col="1" class="smallbtn"
                         visibility="{{ canEdit ? 'visible' : 'collapsed' }}"
-                        isEnabled="{{ canEdit ? 'true' : 'false' }}"
+                        isEnabled="{{ (canEdit && !isLoading && !lockUserAction) ? 'true' : 'false' }}"
                         text="Edit" tap="edit" />
             </GridLayout>
         </StackLayout>

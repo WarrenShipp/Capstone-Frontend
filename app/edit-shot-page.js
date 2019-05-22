@@ -35,6 +35,7 @@ var lockMutex = false;
 var sourcePage;
 var editTypeOptions;
 var editType;
+var fromNav;
 
 // page vars
 var shotId;
@@ -55,6 +56,11 @@ var shotTypeName;
 var ratingTypeName;
 var thumbnail;
 var pageName;
+
+// ui vars
+var isLoading;
+var videoLoading;
+var hasVideo;
 
 // helpers
 var player;     // the big video player.
@@ -147,6 +153,9 @@ function onNavigatingTo(args) {
     canUpload = appSet.getString(global.tokenAccess) ? true : false;
     canFindUser = appSet.getString(global.tokenAccess) ? true : false;
 
+    // confirm that we came from nav, and that the app hasn't been resumed
+    fromNav = true;
+
 }
 exports.onNavigatingTo = onNavigatingTo;
 
@@ -184,6 +193,10 @@ function onLoad(args) {
         viewModel.set("sliderMax", duration);
         setThumbnail();
         console.log("duration: " + duration);
+        hasVideo = true;
+        viewModel.set("hasVideo", hasVideo);
+        videoLoading = false;
+        viewModel.set("videoLoading", videoLoading);
     });
 
     // set slider
@@ -199,6 +212,14 @@ function onLoad(args) {
     viewModel.set("canDiscard", canDiscard);
     viewModel.set("canFindUser", canFindUser);
     _unlockFunctionality();     // always start with unlocked features
+
+    // set loading params
+    isLoading = true;
+    viewModel.set("isLoading", isLoading);
+    videoLoading = true;
+    viewModel.set("videoLoading", videoLoading);
+    hasVideo = false;
+    viewModel.set("hasVideo", hasVideo);
 
     // set viewmodel
     page.bindingContext = viewModel;
@@ -718,6 +739,11 @@ function _getShot(editType, editTypeOptions) {
     if (!editType) {
         return _throwNoContextError();
     }
+    else if (!fromNav) {
+        // don't get any data; it's already there!
+        isLoading = false;
+        viewModel.set("isLoading", isLoading);
+    }
     else if (editType == EDIT_RECORD) {
         _setShotRecord(editTypeOptions);
     }
@@ -727,6 +753,9 @@ function _getShot(editType, editTypeOptions) {
     else if (editType == EDIT_VIEW_SEARCH) {
         _setShotSearch(editTypeOptions);
     }
+
+    // remove nav check to prevent loading icon error
+    fromNav = false;
 }
 
 /**
@@ -792,6 +821,10 @@ function _setShotRecord(editTypeOptions) {
     thumbnail = 0;
     viewModel.set("sliderValue", thumbnail);
 
+    // loading completed
+    isLoading = false;
+    viewModel.set("isLoading", isLoading);
+
 }
 
 /**
@@ -806,6 +839,11 @@ function _setShotLocal(editTypeOptions) {
     // shot id
     shotId = editTypeOptions.id;
     if (!shotId) {
+        isLoading = false;
+        viewModel.set("isLoading", isLoading);
+        videoLoading = false;
+        viewModel.set("videoLoading", videoLoading);
+        shotId = null;
         console.error("No shot ID has been set. Cannot load local shot.");
         dialogs.alert({
             title: "No ID set",
@@ -936,12 +974,27 @@ function _setShotLocal(editTypeOptions) {
             thumbnail = row[5] ? row[5] : 0;
             viewModel.set("sliderValue", thumbnail);
 
+            // loading complete
+            isLoading = false;
+            viewModel.set("isLoading", isLoading);
+
             // unlock once completed
             _unlockFunctionality();
         },
         function (err) {
-            // go back since the page failed!
-            frameModule.topmost().goBack();
+            // stop loading icon
+            isLoading = false;
+            viewModel.set("isLoading", isLoading);
+            videoLoading = false;
+            viewModel.set("videoLoading", videoLoading);
+            shotId = null;
+            dialogs.alert({
+                title: "Error getting Shot",
+                message: err.message,
+                okButtonText: "Okay"
+            }).then(function () {
+                frameModule.topmost().goBack();
+            });
         });
 
 }
@@ -956,6 +1009,11 @@ function _setShotSearch(editTypeOptions) {
     // shot id
     shotId = editTypeOptions.id;
     if (!shotId) {
+        isLoading = false;
+        viewModel.set("isLoading", isLoading);
+        videoLoading = false;
+        viewModel.set("videoLoading", videoLoading);
+        shotId = null;
         console.error("No shot ID has been set. Cannot load local shot.");
         dialogs.alert({
             title: "No ID set",
@@ -1052,3 +1110,12 @@ function openPlayerModal(args) {
     button.showModal(modalViewModule, context, callback, fullscreen);
 }
 exports.openPlayerModal = openPlayerModal;
+
+/**
+ * Goes back.
+ * @param {any} args
+ */
+function cancel(args) {
+    frameModule.topmost().goBack();
+}
+exports.cancel = cancel;

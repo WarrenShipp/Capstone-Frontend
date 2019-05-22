@@ -13,6 +13,9 @@ var LocalSave = require("../app/localsave/localsave.js");
 var db = new LocalSave();
 const appSettings = require("application-settings");
 var http = require("http");
+const ShotTypes = require("../app/helpers/type-list").ShotTypes;
+const RatingTypes = require("../app/helpers/type-list").RatingTypes;
+const HTTPRequestWrapper = require("../app/http/http-request.js");
 
 // Edit Types
 const EDIT_RECORD = "record_shot";
@@ -28,6 +31,7 @@ var canEdit = false;
 var sourcePage;
 var type;
 var editType;
+var fromNav;
 
 // page vars
 var shotId;
@@ -43,32 +47,14 @@ var shotTypeName;
 var ratingTypeName;
 var pageName;
 
+// ui vars
+var isLoading;
+var noReset;
+var videoLoading;
+var hasVideo;
+
 // helpers
 var player;     // the big video player.
-var shotTypeList;
-var ratingTypeList;
-const shotTypeListArray = [
-    { display: "Not Set" },
-    { display: "Straight Drive" },
-    { display: "Cover Drive" },
-    { display: "Square Cut" },
-    { display: "Late Cut" },
-    { display: "Leg Glance" },
-    { display: "Hook" },
-    { display: "Pull" },
-    { display: "Drive through square leg" },
-    { display: "On drive" },
-    { display: "Off Drive" }
-];
-const ratingTypeListArray = [
-    { display: "Not Set" },
-    { display: "Perfect" },
-    { display: "Good" },
-    { display: "Off Balanced" },
-    { display: "Off Position" },
-    { display: "Played Late" },
-    { display: "Played Early" }
-];
 
 /**
  * Handles Hamburger Menu
@@ -100,6 +86,9 @@ function onNavigatingTo(args) {
      * The extra parameters. We place them here rather than directly in the
      * navigationContext to keep things neat.
      */
+    if (shotId && shotId == page.navigationContext.id) {
+        noReset = true;
+    }
     shotId = page.navigationContext.id;
 
     console.log("sourcePage: " + sourcePage);
@@ -118,6 +107,9 @@ function onNavigatingTo(args) {
             editType = EDIT_VIEW_SEARCH;
             break;
     }
+
+    // confirm that we came from nav, and that the app hasn't been resumed
+    fromNav = true;
 
 }
 exports.onNavigatingTo = onNavigatingTo;
@@ -139,9 +131,9 @@ function onLoad(args) {
     }
     viewModel.set("pageName", pageName);
 
-    // set duration and slider max
+    // set duration
     player = page.getViewById("nativeVideoPlayer");
-    player.on(VideoPlayer.Video.playbackReadyEvent, args => {
+    player.on(VideoPlayer.Video.playbackReadyEvent, vals => {
         console.log("Ready to play video");
         duration = player.getDuration();
         // need to "kickstart" player, otherwise video won't show.
@@ -154,10 +146,22 @@ function onLoad(args) {
         let durSeconds = duration / 1000;
         viewModel.set("duration", durSeconds);
         console.log("duration: " + duration);
+        hasVideo = true;
+        viewModel.set("hasVideo", hasVideo);
+        videoLoading = false;
+        viewModel.set("videoLoading", videoLoading);
     });
 
     // set edit button params
     viewModel.set("canEdit", canEdit);
+
+    // set params
+    isLoading = true;
+    viewModel.set("isLoading", isLoading);
+    videoLoading = true;
+    viewModel.set("videoLoading", videoLoading);
+    hasVideo = false;
+    viewModel.set("hasVideo", hasVideo);
 
     // set viewmodel
     page.bindingContext = viewModel;
@@ -200,9 +204,18 @@ function edit(args) {
 }
 exports.edit = edit;
 
+/**
+ * Gets shot info and displays it.
+ */
 function _getShot() {
     if (!type) {
         return _throwNoContextError();
+    }
+    else if (noReset || !fromNav) {
+        // don't get any data; it's already there!
+        noReset = false;
+        isLoading = false;
+        viewModel.set("isLoading", isLoading);
     }
     else if (type == VIEW_LOCAL) {
         _setShotLocal();
@@ -210,15 +223,25 @@ function _getShot() {
     else if (type == VIEW_ONLINE) {
         _setShotSearch();
     }
+
+    // remove nav check to prevent loading icon error
+    fromNav = false;
 }
 
+/**
+ * Sets shot using local data.
+ */
 function _setShotLocal() {
     console.log("local");
     // shot id
     if (!shotId) {
+        isLoading = false;
+        viewModel.set("isLoading", isLoading);
+        videoLoading = false;
+        viewModel.set("videoLoading", videoLoading);
         console.error("No shot ID has been set. Cannot load local shot.");
         dialogs.alert({
-            title: "No ID set",
+            title: "Error getting Shot",
             message: "The Shot doesn't have an ID. It can't be loaded.",
             okButtonText: "Okay"
         }).then(function () {
@@ -226,6 +249,201 @@ function _setShotLocal() {
         });
         return;
     }
+
+    // reset
+    _resetPage();
+
+    // get item
+    var query = "SELECT * FROM " + LocalSave._tableName + " WHERE id=?";
+    console.log(query);
+    db.queryGet(
+        query,
+        [shotId],
+        function (row) {
+            /*
+            { name: "id", type: "INTEGER PRIMARY KEY AUTOINCREMENT" },
+            { name: "path", type: "TEXT" },
+            { name: "playername", type: "TEXT" },
+            { name: "coachname", type: "TEXT" },
+            { name: "clubname", type: "TEXT" },
+            { name: "thumbnail", type: "INTEGER" },
+            { name: "date", type: "DATETIME" },
+            { name: "shottype", type: "INTEGER" },
+            { name: "ratingtype", type: "INTEGER" },
+            { name: "duration", type: "INTEGER" }
+            */
+            console.log(row);
+
+            // player name
+            firstname = row[2] ? row[2] : null;
+            viewModel.set("playername", firstname);
+
+            // coach name
+            coachname = row[3] ? row[3] : null;
+            viewModel.set("coachname", coachname);
+
+            // player name
+            clubname = row[4] ? row[4] : null;
+            viewModel.set("clubname", clubname);
+
+            // set shot type
+            var shotTypeIndex = row[7] ? row[7] : 0;
+            if (shotTypeIndex != 0) {
+                shotTypeName = ShotTypes.getNameFromValue(shotTypeIndex);
+            }
+            console.log("shottype = " + shotTypeIndex + " " + row[7]);
+            viewModel.set("shotTypeName", shotTypeName);
+
+            // set rating type
+            var ratingTypeIndex = row[8] ? row[8] : 0;
+            if (ratingTypeIndex != 0) {
+                ratingTypeName = RatingTypes.getNameFromValue(ratingTypeIndex);
+            }
+            console.log("ratingtype = " + ratingTypeIndex + " " + row[8]);
+            viewModel.set("ratingTypeName", ratingTypeName);
+
+            // set date / time data
+            dateTimeObj = row[6] ? (new Date(row[6])) : (new Date());
+            date = dateTimeObj.toDateString();
+            time = dateTimeObj.toLocaleTimeString("en-US");
+            viewModel.set("date", date);
+            viewModel.set("time", time);
+
+            // set file path
+            path = row[1] ? row[1] : null;
+            viewModel.set("videoPath", path);
+
+            // set duration
+            duration = row[9] ? row[9] : 0;
+            viewModel.set("duration", duration);
+
+            // stop loading icon
+            isLoading = false;
+            viewModel.set("isLoading", isLoading);
+        },
+        function (error) {
+            // stop loading icon
+            isLoading = false;
+            viewModel.set("isLoading", isLoading);
+            videoLoading = false;
+            viewModel.set("videoLoading", videoLoading);
+            shotId = null;
+            dialogs.alert({
+                title: "Error getting Shot",
+                message: error.message,
+                okButtonText: "Okay"
+            }).then(function () {
+                frameModule.topmost().goBack();
+            });
+        }
+    );
+
+}
+
+/**
+ * Sets Shot using data from server. Needs to perform a HTML query to get data.
+ * @param {any} editTypeOptions
+ */
+function _setShotSearch(editTypeOptions) {
+
+    // check if the shot has been set
+    if (!shotId) {
+        isLoading = false;
+        viewModel.set("isLoading", isLoading);
+        videoLoading = false;
+        viewModel.set("videoLoading", videoLoading);
+        shotId = null;
+        console.error("No shot ID has been set. Cannot download shot.");
+        dialogs.alert({
+            title: "Error getting Shot",
+            message: "The Shot doesn't have an ID. It can't be loaded.",
+            okButtonText: "Okay"
+        }).then(function () {
+            frameModule.topmost().goBack();
+        });
+        return;
+    }
+
+    // reset
+    _resetPage();
+
+    console.log("online");
+    var sendToken = appSettings.getString(global.tokenAccess);
+    var shotUrl = global.serverUrl + global.endpointShot + shotId;
+
+    // do request
+    var request = new HTTPRequestWrapper(
+        shotUrl,
+        "GET",
+        "application/json",
+        sendToken
+    );
+    request.send(
+        function (result) {
+            // console.log(JSON.stringify(result));
+            var obj = JSON.stringify(result);
+            obj = JSON.parse(obj);
+            var info = obj.content;
+
+            // set values
+            playername = info.player_name ? info.player_name : null;
+            coachname = info.coach_name ? info.coach_name : null;
+            clubname = info.club_name ? info.club_name : null;
+            type = info.type ? info.type : null;
+            rating = info.rating ? info.rating : null;
+            dateTimeObj = info.date_recorded;
+            //date = dateTimeObj.toDateString();                // not used
+            //time = dateTimeObj.toLocaleTimeString("en-US");   // not used
+            path = info.video_set ? info.video_set[0].file : null;
+            duration = 0;
+            thumbnail = 0;
+
+            // set page
+            viewModel.set("playername", playername);
+            viewModel.set("coachname", coachname);
+            viewModel.set("clubname", clubname);
+            viewModel.set("shotTypeName", ShotTypes.getNameFromValue(type));
+            viewModel.set("ratingTypeName", RatingTypes.getNameFromValue(rating));
+            // viewModel.set("date", date);
+            // viewModel.set("time", time);
+            viewModel.set("videoPath", path);
+            viewModel.set("duration", duration);
+
+            // stop loading icon
+            isLoading = false;
+            viewModel.set("isLoading", isLoading);
+        },
+        function (error) {
+            // stop loading icon
+            isLoading = false;
+            viewModel.set("isLoading", isLoading);
+            videoLoading = false;
+            viewModel.set("videoLoading", videoLoading);
+            shotId = null;
+            dialogs.alert({
+                title: "Error getting Shot",
+                message: error.message,
+                okButtonText: "Okay"
+            }).then(function () {
+                frameModule.topmost().goBack();
+            });
+        }
+    );
+
+}
+
+function _throwNoContextError() {
+    console.error("Cannot view a Shot without knowing the context.");
+    return new Error("Cannot view a Shot without knowing the context.");
+}
+
+/**
+ * Resets all page vars.
+ */
+function _resetPage() {
+
+    // set loading status
+    isLoading = true;
 
     // player name
     firstname = null;
@@ -261,123 +479,4 @@ function _setShotLocal() {
     // set duration
     duration = 0;
     viewModel.set("duration", duration);
-
-    // get item
-    var query = "SELECT * FROM " + LocalSave._tableName + " WHERE id=?";
-    console.log(query);
-    db.queryGet(query, [shotId], function (row) {
-        /*
-        { name: "id", type: "INTEGER PRIMARY KEY AUTOINCREMENT" },
-        { name: "path", type: "TEXT" },
-        { name: "playername", type: "TEXT" },
-        { name: "coachname", type: "TEXT" },
-        { name: "clubname", type: "TEXT" },
-        { name: "thumbnail", type: "INTEGER" },
-        { name: "date", type: "DATETIME" },
-        { name: "shottype", type: "INTEGER" },
-        { name: "ratingtype", type: "INTEGER" },
-        { name: "duration", type: "INTEGER" }
-        */
-        console.log(row);
-
-        // player name
-        firstname = row[2] ? row[2] : null;
-        viewModel.set("playername", firstname);
-
-        // coach name
-        coachname = row[3] ? row[3] : null;
-        viewModel.set("coachname", coachname);
-
-        // player name
-        clubname = row[4] ? row[4] : null;
-        viewModel.set("clubname", clubname);
-
-        // set shot type
-        var shotTypeIndex = row[7] ? row[7] : 0;
-        if (shotTypeIndex != 0) {
-            shotTypeName = shotTypeListArray[shotTypeIndex].display;
-        }
-        console.log("shottype = " + shotTypeIndex + " " + row[7]);
-        viewModel.set("shotTypeName", shotTypeName);
-
-        // set rating type
-        var ratingTypeIndex = row[8] ? row[8] : 0;
-        if (ratingTypeIndex != 0) {
-            ratingTypeName = ratingTypeListArray[ratingTypeIndex].display;
-        }
-        console.log("ratingtype = " + ratingTypeIndex + " " + row[8]);
-        viewModel.set("ratingTypeName", ratingTypeName);
-
-        // set date / time data
-        dateTimeObj = row[6] ? (new Date(row[6])) : (new Date());
-        date = dateTimeObj.toDateString();
-        time = dateTimeObj.toLocaleTimeString("en-US");
-        viewModel.set("date", date);
-        viewModel.set("time", time);
-
-        // set file path
-        path = row[1] ? row[1] : null;
-        viewModel.set("videoPath", path);
-
-        // set duration
-        duration = row[9] ? row[9] : 0;
-        viewModel.set("duration", duration);
-    });
-
-}
-
-function _setShotSearch(editTypeOptions) {
-    var playername;
-    var coachname;
-    var clubname;
-    var date;
-    var time;
-
-    // no shot id. Added by DBs
-    console.log("online get");
-    console.log(shotId);
-    var sendToken = appSettings.getString(global.tokenAccess);
-    var shotUrl = global.serverUrl + global.endpointShot + shotId;
-    http.request({
-        url: shotUrl,
-        method: "GET",
-        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken }
-    }).then(function (result) {
-        console.log(JSON.stringify(result));
-        var obj = JSON.stringify(result);
-        obj = JSON.parse(obj);
-        var info = obj.content;
-        playername = info.player_name ? info.player_name : null;
-        coachname = info.coach_name ? info.coach_name : null;
-        clubname = info.club_name ? info.club_name : null;
-        type = info.type ? info.type : null;
-        rating = info.rating ? info.rating : null; 
-        dateTimeObj = info.date_recorded;
-        console.log(dateTimeObj);
-        //date = dateTimeObj.toDateString();                // not used
-        //time = dateTimeObj.toLocaleTimeString("en-US");   // not used
-        path = info.video_set ? info.video_set[0].file : null;
-        console.log(playername);
-        viewModel.set("playername", playername);
-        viewModel.set("coachname", coachname);
-        viewModel.set("clubname", clubname);
-        viewModel.set("shotTypeName", shotTypeListArray[type].display);
-        viewModel.set("ratingTypeName", ratingTypeListArray[rating].display);
-        // viewModel.set("date", date);
-        // viewModel.set("time", time);
-        viewModel.set("videoPath", path);
-        duration = 0;
-        viewModel.set("duration", duration);
-        thumbnail = 0;
-        viewModel.set("sliderValue", thumbnail);
-
-    }, function (error) {
-        console.error(JSON.stringify(error));
-    });
-
-}
-
-function _throwNoContextError() {
-    console.error("Cannot view a Shot without knowing the context.");
-    return new Error("Cannot view a Shot without knowing the context.");
 }

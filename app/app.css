@@ -50,3 +50,14 @@ Page {
     margin-left: 10px;
     margin-right: 10px;
 }
+
+.center-element {
+    vertical-align: middle;
+    margin: 0px auto;
+    color: white;
+    text-align: center;
+}
+
+.video-background {
+    background-color: rgb(0, 0, 0);
+}

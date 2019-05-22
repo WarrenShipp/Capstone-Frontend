@@ -13,6 +13,11 @@
     <ScrollView>
         <StackLayout>
 
+            <ActivityIndicator
+                class="screen-cover-load-wheel"
+                busy="{{ isLoading }}"
+                visibility="{{ isLoading ? 'visible' : 'collapse' }}" />
+
             <DockLayout stretchLastChild="true">
                 <Label dock="left" text="Player: "
                        horizontalAlignment="left" />
@@ -30,9 +35,20 @@
                        isEnabled="{{ !lockUserActions }}" />
             -->
 
-            <VideoPlayer:Video id="nativeVideoPlayer"
-                    controls="true" loop="true" autoplay="false" height="300"
+            <GridLayout class="video-background" height="300">
+                <!-- video element -->
+                <VideoPlayer:Video
+                    id="nativeVideoPlayer"
+                    controls="true" loop="true" autoplay="false"
+                    height="300" class="shot-video"
                     src="{{ videoPath }}" />
+                <!-- loading element -->
+                <Label class="center-element" text="Getting video"
+                       visibility="{{ videoLoading && !hasVideo ? 'visible' : 'collapsed' }}" />
+                <!-- error element -->
+                <Label class="center-element" text="Error getting video!"
+                       visibility="{{ !videoLoading && !hasVideo ? 'visible' : 'collapsed' }}" />
+            </GridLayout>
 
             <Label text="Set Thumbnail" row="0" col="0" />
             <GridLayout columns="*,*" rows="*">
@@ -88,7 +104,7 @@
                         isEnabled="{{ (canSave && !lockUserActions) }}"
                         text="Save" tap="saveLocally" />
                 <Button col="3" class="smallbtn"
-                        isEnabled="{{ (canUpload && !luckUserActions) }}"
+                        isEnabled="{{ (canUpload && !lockUserActions) }}"
                         text="Upload" tap="upload" />
             </GridLayout>
         </StackLayout>
