@@ -14,10 +14,10 @@
     <ScrollView>
         <StackLayout class="smallMargin">
 
-            <!-- ActivityIndicator
+            <ActivityIndicator
                 class="screen-cover-load-wheel"
                 busy="{{ isLoading }}"
-                visibility="{{ isLoading ? 'visible' : 'collapse' }}" /-->
+                visibility="{{ isLoading ? 'visible' : 'collapse' }}" />
 
             <!-- Profile Pic -->
             <Label text="Profile Picture" />
@@ -109,9 +109,6 @@
             </DockLayout> -->
 
             <!-- place here to tell user that something is happening -->
-            <!-- ActivityIndicator
-                busy="{{ isUploading }}"
-                visibility="{{ isUploading ? 'visible' : 'collapse' }}" /-->
             
             <!-- Buttons -->
             <DockLayout stretchLastChild="false">
@@ -119,6 +116,9 @@
                         isEnabled="{{ !isUploading && !isLoading }}" />
                 <Button dock="right" text="Cancel" tap="cancel"
                         isEnabled="{{ !isUploading }}" />
+                <ActivityIndicator
+                    dock="right" busy="{{ isUploading }}"
+                    visibility="{{ isUploading ? 'visible' : 'collapse' }}" />
             </DockLayout>
 
         </StackLayout>
