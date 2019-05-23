@@ -4,6 +4,7 @@ var http = require("http");
 var bghttp = require("nativescript-background-http");
 var session = bghttp.session("file-upload");
 var observable = require("data/observable");
+var frameModule = require("ui/frame");
 var viewModel = new observable.Observable();
 const appSettings = require("application-settings");
 var dialogs = require("tns-core-modules/ui/dialogs");
@@ -11,22 +12,13 @@ var imagepicker = require("nativescript-imagepicker");
 const DatePicker = require("tns-core-modules/ui/date-picker").DatePicker;
 const dropdown = require("nativescript-drop-down");
 var Toast = require("nativescript-toast");
+const BatsmanTypes = require("../app/helpers/type-list").BatsmanTypes;
+const BowlerTypes = require("../app/helpers/type-list").BowlerTypes;
+const HTTPRequestWrapper = require("../app/http/http-request");
 
 // consts
-const batsmanTypeItems = [
-    { display: "Right Hand Batsman" },
-    { display: "Left Hand Batsman" }
-];
-const bowlerTypeItems = [
-    { display: "Right Hand Spin" },
-    { display: "Right Hand Off Spin" },
-    { display: "Right Hand Pace" },
-    { display: "Right Hand Chinaman" },
-    { display: "Left Hand Spin" },
-    { display: "Left Hand Off Spin" },
-    { display: "Left Hand Pace" },
-    { display: "Left Hand Chinaman" }
-];
+const batsmanTypeItems = BatsmanTypes.makeDropdownList();
+const bowlerTypeItems = BowlerTypes.makeDropdownList();
 
 // profile
 var userId;
@@ -56,7 +48,7 @@ var isCoach;
 var yearsExperience;
 
 // loading
-var isLoading = true;
+var isLoading;
 
 /**
  * Sets up page. Gets data to display to the page.
@@ -75,15 +67,23 @@ function navigatingTo(args) {
     viewModel.set("bowlerTypeItems", bowlerTypeItems);
     page.bindingContext = viewModel;
 
+    // load
+    isLoading = true;
+    viewModel.set("isLoading", isLoading);
 
+    // reset
+    _resetPage();
 
-    // we can really only edit ourself. So we don't add other features in.
+    // we can only edit ourself. So we don't add other features in.
     if (isSelf) {
-        http.request({
-            url: global.serverUrl + global.endpointUser + "me/",
-            method: "GET",
-            headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken }
-        }).then(function (result) {
+        var request = new HTTPRequestWrapper(
+            global.serverUrl + global.endpointUser + "me/",
+            "GET",
+            "application/json",
+            sendToken
+        );
+        request.send(
+            function (result) {
             // console.log(result);
             var obj = JSON.stringify(result);
             obj = JSON.parse(obj);
@@ -97,15 +97,30 @@ function navigatingTo(args) {
             // go through vars and add to profile page
             _makeProfilePage(obj.content, isSelf);
 
-        }, function (error) {
-            console.error(error);
-        });
+            },
+            function (error) {
+                isLoading = false;
+                viewModel.set("isLoading", isLoading);
+                dialogs.alert({
+                    title: "Error getting profile data!",
+                    message: error.message,
+                    okButtonText: "Okay"
+                }).then(
+                    function () {
+                        frameModule.topmost().goBack();
+                    });
+                return;
+            }
+        );
     } else {
         dialogs.alert({
-            title: "Couldn't find user!",
-            message: "A user ID wasn't provided.",
+            title: "Can't edit a different user",
+            message: "You can only edit your own profile.",
             okButtonText: "Okay"
-        }).then(function () { });
+        }).then(
+            function () {
+                frameModule.topmost().goBack();
+            });
     }
 
     const playerSwitch = page.getViewById("player-switch");
@@ -132,6 +147,11 @@ exports.onDrawerButtonTap = function (args) {
     sideDrawer.showDrawer();
 }
 
+/**
+ * Puts all the user's data onto the page.
+ * @param {any} user
+ * @param {any} isSelf
+ */
 function _makeProfilePage(user, isSelf) {
     /*
     name            : String
@@ -152,7 +172,7 @@ function _makeProfilePage(user, isSelf) {
 
     firstName = user.first_name
     lastName = user.last_name;
-    imgSrc = user.imgSrc;
+    imgSrc = user.profile_pic;
     imgSrcOriginal = imgSrc;
     isPlayer = user.is_player;
     if (isSelf) {
@@ -213,19 +233,16 @@ function _makeProfilePage(user, isSelf) {
     isLoading = false;
     viewModel.set("isLoading", isLoading);
 
-    console.log("Done");
+    console.log("Profile editing ready.");
 
 }
 
+/**
+ * Goes back.
+ * @param {any} args
+ */
 function cancel(args) {
-    if (isSelf) {
-        page.frame.goBack();
-    } else {
-        dialogs.alert({
-            title: "Can't edit someone else's profile!",
-            okButtonText: "Okay"
-        }).then(function () { });
-    }
+    page.frame.goBack();
 }
 exports.cancel = cancel;
 
@@ -246,7 +263,8 @@ function save(args) {
     var newPassword = viewModel.get("newPassword");
     var confirmPassword = viewModel.get("confirmPassword");
 
-    viewModel.set("profileStatus", false);
+    isUploading = true;
+    viewModel.set("isUploading", isUploading);
     // player info args
     let dropdownBatsman = page.getViewById("batsmanType");
     var saveBatsmanType = dropdownBatsman.selectedIndex;
@@ -267,6 +285,8 @@ function save(args) {
     // FILE: { name: "logo", filename: file, mimeType: "image/*" }
 
     // checks
+
+    // check 
     if (!saveFirstName || !saveLastName) {
         dialogs.alert({
             title: "Name fields can't be blank!",
@@ -275,8 +295,8 @@ function save(args) {
         return;
     }
 
-
-
+    // check if birth date is set. This generally should be set, but if it
+    // isn't then we need to tell the user.
     if (isPlayer && !saveBirthDate) {
         dialogs.alert({
             title: "Must have birthdate!",
@@ -303,8 +323,8 @@ function save(args) {
     var stringBatsman = String(saveBatsmanType);
     var stringBowler = String(saveBowlerType);
     var stringBirthdate = saveBirthDate.toISOString().split('T')[0];
+    allFields.push({ name: "is_player", value: isPlayer.toString() });
     if (isPlayer) {
-        console.log("here");
         if (savePhone != phone) {
             allFields.push({ name: "player.phone_number", value: savePhone });
         }
@@ -320,12 +340,12 @@ function save(args) {
     }
 
     // do all coach fields
+    allFields.push({ name: "is_coach", value: isCoach.toString() });
     if (isCoach) {
         if (saveYearsExperience != yearsExperience) {
             allFields.push({ name: "coach.years_experience", value: saveYearsExperience });
         }
     }
-
 
     // do upload
     let sendToken = appSettings.getString(global.tokenAccess);
@@ -338,7 +358,6 @@ function save(args) {
         description: "Updating"
     };
 
-    console.log(allFields);
     var task = session.multipartUpload(allFields, request);
     //task.on("progress", progressHandler);
     task.on("error", errorHandler);
@@ -366,12 +385,7 @@ function changeImage() {
                 imgSrc = selection[0].android.toString();
                 viewModel.set("imgSrc", imgSrc);
             } else {
-                console.error("No image could be found.");
-                dialogs.alert({
-                    title: "Error getting images",
-                    message: "No image could be found.",
-                    okButtonText: "Okay"
-                }).then(function () { });
+                console.log("No image could be found.");
             }
         }).catch(function (e) {
             console.error(e);
@@ -383,22 +397,6 @@ function changeImage() {
         });
 }
 exports.changeImage = changeImage;
-
-function batsmanTypeDropdownChanged(args) {
-    let dropdownBatsman = page.getViewById("batsmanType");
-    let shotTypeIndex = dropdownBatsman.selectedIndex;
-    let shotTypeName = batsmanTypeItems[dropdownBatsman.selectedIndex].display;
-    console.log(shotTypeIndex + " " + shotTypeName);
-}
-exports.batsmanTypeDropdownChanged = batsmanTypeDropdownChanged;
-
-function bowlerTypeDropdownChanged(args) {
-    let dropdownRating = page.getViewById("bowlerType");
-    let ratingTypeIndex = dropdownRating.selectedIndex;
-    let ratingTypeName = bowlerTypeItems[dropdownRating.selectedIndex].display;
-    console.log(ratingTypeIndex + " " + ratingTypeName);
-}
-exports.bowlerTypeDropdownChanged = bowlerTypeDropdownChanged;
 
 function passwordChange(args) {
      //Password change to be implemented
@@ -426,7 +424,7 @@ exports.passwordChange = passwordChange;
 // currentBytes: number
 // totalBytes: number
 function progressHandler(e) {
-    alert("uploaded " + e.currentBytes + " / " + e.totalBytes);
+    console.log("uploaded " + e.currentBytes + " / " + e.totalBytes);
 }
 
 // event arguments:
@@ -435,11 +433,17 @@ function progressHandler(e) {
 // error: java.lang.Exception (Android) / NSError (iOS)
 // response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
 function errorHandler(e) {
-    viewModel.set("profileStatus", true);
-    alert("received " + e.responseCode + " code.");
+    isUploading = false;
+    viewModel.set("isUploading", isUploading);
+    console.error("received " + e.responseCode + " code.");
+    dialogs.alert({
+        title: "Error uploading profile data.",
+        message: "Error code: " + e.responseCode,
+        okButtonText: "Okay"
+    }).then(function () { });
     var serverResponse = e.response;
-    console.log(JSON.stringify(serverResponse));
-    console.log(e.response.getBodyAsString());
+    // console.log(JSON.stringify(serverResponse));
+    // console.log(e.response.getBodyAsString());
 }
 
 
@@ -448,7 +452,7 @@ function errorHandler(e) {
 // responseCode: number
 // data: string
 function respondedHandler(e) {
-    alert("responded received " + e.responseCode + " code. Server sent: " + e.data);
+    console.log("responded received " + e.responseCode + " code. Server sent: " + e.data);
 }
 
 // event arguments:
@@ -460,7 +464,8 @@ function completeHandler(e) {
     // var serverResponse = e.response;
     var toast = Toast.makeText("Profile Saved");
     toast.show();
-    viewModel.set("profileStatus", true);
+    isUploading = false;
+    viewModel.set("isUploading", isUploading);
     page.frame.goBack();
 
 }
@@ -468,5 +473,51 @@ function completeHandler(e) {
 // event arguments:
 // task: Task
 function cancelledHandler(e) {
-    alert("upload cancelled");
+    console.log("upload cancelled");
+}
+
+/**
+ * Block back functionality while uploading.
+ * @param {any} args
+ */
+function backEvent(args) {
+    if (isUploading) {
+        args.cancel = true;
+    }
+}
+exports.backEvent = backEvent;
+
+/**
+ * Sets all values to default. Waits for response from server.
+ */
+function _resetPage() {
+
+    // set all vars
+    imgSrc = null;
+    firstName = null;
+    lastName = null;
+    email = null;
+    phone = null;
+    isPlayer = false;
+    batsmanTypeIndex = 0;
+    bowlerTypeIndex = 0;
+    birthDate = Date.now();
+    maxDate = Date.now();
+    isCoach = false;
+    yearsExperience = 0;
+
+    // set all
+    viewModel.set("imgSrc", imgSrc);
+    viewModel.set("firstName", firstName);
+    viewModel.set("lastName", lastName);
+    viewModel.set("email", email);
+    viewModel.set("phone", phone);
+    viewModel.set("isPlayer", isPlayer);
+    viewModel.set("batsmanTypeIndex", batsmanTypeIndex);
+    viewModel.set("bowlerTypeIndex", bowlerTypeIndex);
+    // viewModel.set("birthDate", birthDate);
+    // viewModel.set("maxDate", maxDate);
+    viewModel.set("isCoach", isCoach);
+    viewModel.set("yearsExperience", yearsExperience);
+
 }

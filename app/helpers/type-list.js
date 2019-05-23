@@ -36,6 +36,13 @@ class BatsmanTypes {
     static getFullList() {
         return BatsmanTypes._types;
     }
+    static makeDropdownList() {
+        var newlist = [];
+        for (var i in BatsmanTypes._types) {
+            newlist.push({ display: BatsmanTypes._types[i].display_name });
+        }
+        return newlist;
+    }
 }
 module.exports.BatsmanTypes = BatsmanTypes;
 
@@ -100,6 +107,13 @@ class BowlerTypes {
     }
     static getFullList() {
         return BowlerTypes._types;
+    }
+    static makeDropdownList() {
+        var newlist = [];
+        for (var i in BowlerTypes._types) {
+            newlist.push({ display: BowlerTypes._types[i].display_name });
+        }
+        return newlist;
     }
 }
 module.exports.BowlerTypes = BowlerTypes;
@@ -178,6 +192,13 @@ class ShotTypes {
     static getFullList() {
         return ShotTypes._types;
     }
+    static makeDropdownList() {
+        var newlist = [];
+        for (var i in ShotTypes._types) {
+            newlist.push({ display: ShotTypes._types[i].display_name });
+        }
+        return newlist;
+    }
 }
 module.exports.ShotTypes = ShotTypes;
 
@@ -230,6 +251,13 @@ class RatingTypes {
     }
     static getFullList() {
         return RatingTypes._types;
+    }
+    static makeDropdownList() {
+        var newlist = [];
+        for (var i in RatingTypes._types) {
+            newlist.push({ display: RatingTypes._types[i].display_name });
+        }
+        return newlist;
     }
 }
 module.exports.RatingTypes = RatingTypes;

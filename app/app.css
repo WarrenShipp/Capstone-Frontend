@@ -61,3 +61,23 @@ Page {
 .video-background {
     background-color: rgb(0, 0, 0);
 }
+
+.center-vertical {
+    vertical-align: middle;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.profile-picture-small {
+    width: 300px;
+    height: 300px;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.profile-picture-large {
+    width: 600px;
+    height: 600px;
+    vertical-align: middle;
+    text-align: center;
+}

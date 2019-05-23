@@ -5,25 +5,15 @@ var bghttp = require("nativescript-background-http");
 var session = bghttp.session("file-upload");
 var observable = require("data/observable");
 var viewModel = new observable.Observable();
+var frameModule = require("ui/frame");
 const appSettings = require("application-settings");
 var dialogs = require("tns-core-modules/ui/dialogs");
+const BatsmanTypes = require("../app/helpers/type-list").BatsmanTypes;
+const BowlerTypes = require("../app/helpers/type-list").BowlerTypes;
+var HTTPRequestWrapper = require("../app/http/http-request.js");
 
 // consts
 const profileUrl = "user/";
-const batsmanTypes = [
-    "Right Hand Batsman",
-    "Left Hand Batsman"
-];
-const bowlerTypes = [
-    "Right Hand Spin",
-    "Right Hand Off Spin",
-    "Right Hand Pace",
-    "Right Hand Chinaman",
-    "Left Hand Spin",
-    "Left Hand Off Spin",
-    "Left Hand Pace",
-    "Left Hand Chinaman"
-];
 
 // profile
 var userId;
@@ -52,6 +42,9 @@ var birthDate;
 var isCoach;
 var yearsExperience;
 
+// page vars
+var isLoading;
+
 /**
  * Sets up page. Shows the appropriate profile.
  * @param {any} args
@@ -71,37 +64,115 @@ function navigatingTo(args) {
     // set self-profile-related stuff
     if (isSelf) {
         pageTitle = "My Profile";
-        viewModel.set("isSelf", false); // displays buttons only available when another user
     } else {
         pageTitle = "User Profile";
     }
     viewModel.set("profileTitle", pageTitle);
     viewModel.set("canEdit", isSelf);
+
+    // set loading wheel
+    isLoading = true;
+    viewModel.set("isLoading", isLoading);
+
+    // bind
     page.bindingContext = viewModel;
 
+    // get my profile
     if (isSelf) {
-        http.request({
-            url: global.serverUrl + global.endpointUser + "me/",
-            method: "GET",
-            headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken }
-        }).then(function (result) {
-            console.log(result);
-            var obj = JSON.stringify(result);
-            obj = JSON.parse(obj);
+        var request = new HTTPRequestWrapper(
+            global.serverUrl + global.endpointUser + "me/",
+            "GET",
+            "application/json",
+            sendToken
+        );
+        request.send(
+            function (result) {
+                var obj = JSON.stringify(result);
+                obj = JSON.parse(obj);
 
-            // user didn't get from database.
-            if (!obj.content || !obj.content.id) {
-                console.log("Could not find myself.");
+                // user didn't get from database.
+                if (!obj.content || !obj.content.id) {
+                    console.error("Could not find myself.");
+                    isLoading = false;
+                    viewModel.set("isLoading", isLoading);
+                    dialogs.alert({
+                        title: "Couldn't find myself!",
+                        message: "",
+                        okButtonText: "Okay"
+                    }).then(
+                        function () {
+                            frameModule.topmost().goBack();
+                        });
+                    return;
+                }
+
+                // go through vars and add to profile page
+                _makeProfilePage(obj.content, isSelf);
+            },
+            function (error) {
+                isLoading = false;
+                viewModel.set("isLoading", isLoading);
+                dialogs.alert({
+                    title: "Couldn't find myself!",
+                    message: error.message,
+                    okButtonText: "Okay"
+                }).then(
+                    function () {
+                        frameModule.topmost().goBack();
+                    });
                 return;
             }
+        );
+    }
+    // get other profile
+    else if (userId) {
 
-            // go through vars and add to profile page
-            _makeProfilePage(obj.content, isSelf);
+        var request = new HTTPRequestWrapper(
+            global.serverUrl + global.endpointUser + userId,
+            "GET",
+            "application/json",
+            sendToken
+        );
+        request.send(
+            function (result) {
+                var obj = JSON.stringify(result);
+                obj = JSON.parse(obj);
 
-        }, function (error) {
-            console.error(JSON.stringify(error));
-        });
-    } else if (userId) {
+                // user didn't get from database.
+                if (!obj.content || !obj.content.id) {
+                    console.error("Could not find a user.");
+                    isLoading = false;
+                    viewModel.set("isLoading", isLoading);
+                    dialogs.alert({
+                        title: "Couldn't find a user!",
+                        message: "",
+                        okButtonText: "Okay"
+                    }).then(
+                        function () {
+                            frameModule.topmost().goBack();
+                        });
+                    return;
+                }
+
+                // go through vars and add to profile page
+                _makeProfilePage(obj.content, isSelf);
+            },
+            function (error) {
+                isLoading = false;
+                viewModel.set("isLoading", isLoading);
+                dialogs.alert({
+                    title: "Couldn't find a user!",
+                    message: error.message,
+                    okButtonText: "Okay"
+                }).then(
+                    function () {
+                        frameModule.topmost().goBack();
+                    });
+                return;
+            }
+        );
+
+        /*
         http.request({
             url: global.serverUrl + global.endpointUser + userId,
             method: "GET",
@@ -123,12 +194,18 @@ function navigatingTo(args) {
         }, function (error) {
             console.error(JSON.stringify(error));
         });
+        */
     } else {
+        isLoading = false;
+        viewModel.set("isLoading", isLoading);
         dialogs.alert({
             title: "Couldn't find user!",
             message: "A user ID wasn't provided.",
             okButtonText: "Okay"
-        }).then(function () { });
+        }).then(
+            function () {
+                frameModule.topmost().goBack();
+            });
     }
     
 }
@@ -176,8 +253,8 @@ function _makeProfilePage(user, isSelf) {
     }
     inClub = false; // TODO make club display work
     if (isPlayer && user.player) {
-        batsmanType = batsmanTypes[user.player.batsman_type];
-        bowlerType = bowlerTypes[user.player.bowler_type];
+        batsmanType = BatsmanTypes.getNameFromValue(user.player.batsman_type);
+        bowlerType = BowlerTypes.getNameFromValue(user.player.bowler_type);
         birthDate = user.player.birthdate;
     }
     isCoach = user.is_coach;
@@ -199,6 +276,10 @@ function _makeProfilePage(user, isSelf) {
     viewModel.set("isCoach", isCoach);
     viewModel.set("yearsExperience", yearsExperience);
     viewModel.set("canEdit", canEdit);
+
+    // stop loading
+    isLoading = false;
+    viewModel.set("isLoading", isLoading);
 }
 
 /**

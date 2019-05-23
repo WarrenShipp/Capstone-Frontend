@@ -11,46 +11,55 @@
 
     <ScrollView>
         <StackLayout class="smallMargin">
-
+            
+            <ActivityIndicator
+                class="screen-cover-load-wheel"
+                busy="{{ isLoading }}"
+                visibility="{{ isLoading ? 'visible' : 'collapse' }}" />
+            
             <!-- User info -->
-            <GridLayout columns="*,*" rows="*,*,*">
-                <Image col="0" row="0" rowspan="3" src="{{ imgSrc }}" />
-                <Label col="1" row="0" text="{{ name }}" />
-                <DockLayout col="1" row="1" stretchLastChild="true"
-                            visibility="{{ email ? 'visible' : 'collapsed' }}">
-                    <Label dock="left" text="Email:" />
-                    <Label dock="left" text="{{ email }}" />
-                </DockLayout>
-                <DockLayout col="1" row="2" stretchLastChild="true"
-                            visibility="{{ phone ? 'visible' : 'collapsed' }}">
-                    <Label dock="left" text="Phone:" />
-                    <Label dock="left" text="{{ phone }}" />
-                </DockLayout>
+            <GridLayout columns="*,2*" rows="*" height="100">
+                <Image col="0" row="0" width="100" class="profile-picture-small"
+                       src="{{ imgSrc ? imgSrc : '~/images/picture-2.png' }}" />
+                <Label col="1" row="0" text="{{ name }}" textWrap="true"
+                       class="center-vertical" />
             </GridLayout>
+            <DockLayout col="1" row="1" stretchLastChild="true"
+                        visibility="{{ email ? 'visible' : 'collapsed' }}">
+                <Label dock="left" text="Email:" />
+                <Label dock="right" text="{{ email }}" />
+            </DockLayout>
+            <DockLayout col="1" row="2" stretchLastChild="true"
+                        visibility="{{ phone ? 'visible' : 'collapsed' }}">
+                <Label dock="left" text="Phone:" />
+                <Label dock="right" text="{{ phone }}" />
+            </DockLayout>
 
             <!-- Registered Clubs -->
+            <!--
             <Label text="Registered Clubs" />
             <Label text="This user is not registered to any clubs."
                    visibility="{{ inClub ? 'collapsed' : 'visible' }}" />
             <StackLayout id="clubContainer"
                          visibility="{{ inClub ? 'visible' : 'collapsed' }}">
-                <!-- ViewList goes here -->
+                <!- ViewList goes here ->
             </StackLayout>
+            -->
 
             <!-- Player Info -->
             <StackLayout visibility="{{ isPlayer ? 'visible' : 'collapsed' }}">
                 <Label text="Player Information" />
-                <DockLayout>
+                <DockLayout stretchLastChild="true">
                     <Label dock="left" text="Date of Birth:" />
-                    <Label dock="left" text="{{ birthDate }}" />
+                    <Label dock="right" text="{{ birthDate }}" />
                 </DockLayout>
                 <DockLayout stretchLastChild="true">
                     <Label dock="left" text="Batsman Type:" />
-                    <Label dock="left" text="{{ batsmanType }}" />
+                    <Label dock="right" text="{{ batsmanType }}" />
                 </DockLayout>
                 <DockLayout stretchLastChild="true">
                     <Label dock="left" text="Bowler Type:" />
-                    <Label dock="left" text="{{ bowlerType }}" />
+                    <Label dock="right" text="{{ bowlerType }}" />
                 </DockLayout>
             </StackLayout>
 
@@ -59,14 +68,18 @@
                 <Label text="Coaching Information" />
                 <DockLayout>
                     <Label dock="left" text="Years Experience:" />
-                    <Label dock="left" text="{{ yearsExperience }}" />
+                    <Label dock="right" text="{{ yearsExperience }}" />
                 </DockLayout>
             </StackLayout>
 
             <!-- Actions -->
-            <Label text="Actions" />
+            <!-- Label text="Actions" / -->
             <!-- Nothing for now -->
-            <Button class="btn btn-primary" horizontalAlignment="stretch" tap="requestUser" text="Request" visibility="{{ isSelf ? 'visible' : 'collapsed' }}"></Button>
+            <!-- Button class="btn btn-primary"
+                    horizontalAlignment="stretch"
+                    tap="requestUser"
+                    text="Request"
+                    visibility="{{ isSelf ? 'visible' : 'collapsed' }}" / -->
             
             <!-- Buttons -->
             <DockLayout visibility="{{ canEdit ? 'visible' : 'collapsed' }}">
