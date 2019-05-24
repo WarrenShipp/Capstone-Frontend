@@ -8,7 +8,7 @@
     </ActionBar>
 
     <GridLayout columns="*,*" rows="3*,*,3*,*" margin="10">
-        <Image col="0" row="0" src="~/images/film.png" width="150" height="150"
+        <Image col="0" row="0" src="~/images/recordshot.png" width="150" height="150"
                stretch="aspectFill" tap="navigateToRecord" />
         <Label class="browselabel" text="Record" col="0" row="1"
                tap="navigateToRecord"/>
@@ -22,7 +22,7 @@
         <Label class="browselabel" text="Search" col="0" row="3"
                tap="navigateToSearch"
                visibility="{{ loggedIn ? 'visible' : 'collapsed' }}" />
-        <Image col="1" row="2" src="~/images/user.png" width="150" height="150"
+        <Image col="1" row="2" src="~/images/profile.png" width="150" height="150"
                stretch="aspectFill" tap="navigateToProfile"
                visibility="{{ loggedIn ? 'visible' : 'collapsed' }}" />
         <Label class="browselabel" text="My Profile" col="1" row="3"
