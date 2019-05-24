@@ -127,9 +127,57 @@ class HTTPRequestWrapper {
         console.log(request);
 
         // run request
-        lexicalCallback = this.callback ? this.callback : this._defaultCallback;
-        lexicalErrorCallback = this.errorCallback ? this.errorCallback : null;
-        http.request(request).then(this._doResponse, this._doRejection);
+        var lexicalCallback = this.callback ? this.callback : this._defaultCallback;
+        var lexicalErrorCallback = this.errorCallback ? this.errorCallback : null;
+        http.request(request).then(
+            // do reponse
+            function (response) {
+                if (HTTPRequestWrapper.goodResponses.some(obj => obj.statusCode == response.statusCode)) {
+
+                    // do callback
+                    try {
+                        lexicalCallback(response);
+                    } catch (err) {
+                        console.error("HTTP response error: " + err + "\n" + err.stack);
+                        console.error(response.content.toString());
+                        if (lexicalErrorCallback) {
+                            lexicalErrorCallback(err);
+                        } else {
+                            dialogs.alert({
+                                title: "Response to HTTP request could not be handled.",
+                                message: err.message,
+                                okButtonText: "Okay"
+                            }).then(function () { });
+                        }
+                    }
+                } else {
+                    var err = new Error("Bad response code: " + response.statusCode);
+                    console.error(err.message + "\n" + err.stack);
+                    if (lexicalErrorCallback) {
+                        lexicalErrorCallback(err);
+                    } else {
+                        dialogs.alert({
+                            title: "HTTP request could not be handled.",
+                            message: err.message,
+                            okButtonText: "Okay"
+                        }).then(function () { });
+                    }
+                }
+            },
+            // do error
+            function (err) {
+                console.error(err.message);
+                if (lexicalCallbackError) {
+                    lexicalErrorCallback(err);
+                } else {
+                    dialogs.alert({
+                        title: "HTTP request failed",
+                        message: err.message,
+                        okButtonText: "Okay"
+                    }).then(function () { });
+                }
+            }
+        );
 
     }
 

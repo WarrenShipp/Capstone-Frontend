@@ -1,25 +1,69 @@
-<Page xmlns="http://www.nativescript.org/tns.xsd" shownModally="onShownModally">
-    <StackLayout id="listContainer">
-        <Label text="{{ 'Select ' + userType }}" />
-        <Label text="Loading..." visibility="{{ loading ? 'visible' : 'collapsed' }}" />
-        <Label text="You can't select any players. You need to be registered to a club."
-               textWrap="true" visibility="{{ noPlayers ? 'visible' : 'collapsed' }}" />
-        <ListView items="{{ itemList }}" itemTap="onItemTap" id="itemList">
-            <ListView.itemTemplate>
-                <StackLayout>
-                    <DockLayout stretchLastChild="true">
-                        <Image dock="left" stretch="aspectFill" width="100" height="100"
-                               src="{{ image ? image : '~/images/user.png' }}" />
-                        <StackLayout dock="left">
-                            <Label text="{{ user }}" />
-                            <Label text="{{ batsman_type_name + ' Batsman' }}"
-                                   visbility="{{ batsman_type_name && batsman_type_name != 'Unset' ? 'visible' : 'collapsed'}}" />
-                            <Label text="{{ bowler_type_name + ' Bowler' }}"
-                                   visbility="{{ bowler_type_name && bowler_type_name != 'Unset' ? 'visible' : 'collapsed'}}" />
-                        </StackLayout>
-                    </DockLayout>
+<Page xmlns="http://www.nativescript.org/tns.xsd"
+      shownModally="onShownModally"
+      xmlns:lv="nativescript-ui-listview">
+        
+    <!-- Get list of players -->
+    <lv:RadListView items="{{ itemList }}" itemTap="onItemTap" id="itemList">
+            
+        <!-- main items-->
+        <lv:RadListView.itemTemplate>
+            <DockLayout stretchLastChild="true" class="player-modal-item">
+                <Image dock="left" stretch="aspectFill" class="profile-picture-small"
+                        src="{{ image ? image : '~/images/user.png' }}" />
+                <StackLayout dock="left">
+                    <Label text="{{ user }}" />
+                    <Label text="{{ batsman_type_name + ' Batsman' }}"
+                            visbility="{{ batsman_type_name && batsman_type_name != 'Unset' ? 'visible' : 'collapsed'}}" />
+                    <Label text="{{ bowler_type_name + ' Bowler' }}"
+                            visbility="{{ bowler_type_name && bowler_type_name != 'Unset' ? 'visible' : 'collapsed'}}" />
                 </StackLayout>
-            </ListView.itemTemplate>
-        </ListView>
-    </StackLayout>
+            </DockLayout>
+        </lv:RadListView.itemTemplate>
+        
+        <!-- Header: title, my profile, and loading wheel -->
+        <lv:RadListView.headerItemTemplate>
+            <StackLayout>
+
+                <Label text="{{ 'Select ' + userType }}" />
+
+                <!-- not logged in message! -->
+                <Label text="Cannot select any players. You are not logged in!"
+                        textWrap="true" dock="left"
+                        visibility="{{ !loggedIn ? 'visible' : 'collapsed' }}" />
+
+                <!-- display yourself -->
+                <DockLayout stretchLastChild="true" class="self-top"
+                            visibility="{{ loggedIn ? 'visible' : 'collapsed' }}"
+                            tap="setMyself">
+                    <Image dock="left" stretch="aspectFill" class="profile-picture-small"
+                            src="{{ playerImg ? playerImg : '~/images/user.png' }}" />
+                    <Label text="Cannot select yourself. You are not a player!"
+                            textWrap="true" dock="left"
+                            visibility="{{ !isPlayer ? 'visible' : 'collapsed' }}" />
+                    <StackLayout dock="left"
+                                    visibility="{{ isPlayer ? 'visible' : 'collapsed' }}">
+                        <Label text="Myself" class="center-vertical" />
+                    </StackLayout>
+                </DockLayout>
+
+                <!-- place indicator after this since the player is always loaded -->
+                <ActivityIndicator
+                        class="screen-cover-load-wheel"
+                        busy="{{ loading }}"
+                        visibility="{{ loading ? 'visible' : 'collapse' }}" />
+
+            </StackLayout>
+        </lv:RadListView.headerItemTemplate>
+
+        <!-- footer: no other players loaded -->
+        <lv:RadListView.footerItemTemplate>
+            <StackLayout>
+                <!-- if there are no players, show a message -->
+                <Label text="No players were found!"
+                       visibility="{{ loggedIn && noPlayers && !loading ? 'visible' : 'collapsed' }}"/>
+            </StackLayout>
+        </lv:RadListView.footerItemTemplate>
+            
+    </lv:RadListView>
+        
 </Page>
