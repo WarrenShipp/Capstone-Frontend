@@ -81,3 +81,9 @@ Page {
     vertical-align: middle;
     text-align: center;
 }
+
+.button-container > Button {
+    background-color: transparent;
+    margin: 0;
+    padding: 0;
+}
