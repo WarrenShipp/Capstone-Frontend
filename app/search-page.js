@@ -302,12 +302,41 @@ function _setSearchType(index) {
         showUser = true;
         showSubmit = true;
     }
-
+    
     viewModel.set("showClub", showClub);
     viewModel.set("showShot", showShot);
     viewModel.set("showUser", showUser);
     viewModel.set("showSubmit", showSubmit);
     searchType = index;
+}
+
+/**
+ * Get end date selected and close calendar
+ */
+function onEndSelected(args) {
+    console.log("end date: " + args.date);
+    viewModel.set("showdateEnd", false);
+    var offset = args.date.getTimezoneOffset(); 
+    console.log(offset);
+    yourDate = new Date(args.date.getTime() - (offset*60*1000)); 
+    console.log(args.date.getTime());
+    console.log(yourDate);
+    console.log(yourDate.toISOString());
+    yourDate = yourDate.toISOString().split('T')[0];
+    viewModel.set("dateEnd", yourDate);
+}
+
+function onStartSelected(args) {
+    console.log("start date: " + args.date);
+    viewModel.set("showdateStart", false);
+    var offset = args.date.getTimezoneOffset();
+    console.log(offset);
+    yourDate = new Date(args.date.getTime() - (offset * 60 * 1000));
+    console.log(args.date.getTime());
+    console.log(yourDate);
+    console.log(yourDate.toISOString());
+    yourDate = yourDate.toISOString().split('T')[0];
+    viewModel.set("dateStart", yourDate);
 }
 
 /**

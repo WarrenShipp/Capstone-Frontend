@@ -10,7 +10,6 @@
         <Label class="action-bar-title" text="Search"></Label>
     </ActionBar>
 
-    <ScrollView>
         <StackLayout >
             <GridLayout columns="*,2*" rows="*,*"
                         horizontalAlignment="left" verticalAlignment="top"
@@ -115,5 +114,4 @@
                     visibility="{{ showSubmit ? 'visible' : 'collapsed' }}" />
 
         </StackLayout>
-    </ScrollView>
 </Page>
