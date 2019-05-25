@@ -15,7 +15,7 @@ var date_after = "";
 var shot="";
 var rating="";
 var user;
-var playerId = ""
+var playerId = "";
 
 const shotTypeListArray = [
     { display: "Straight Drive" },
@@ -55,6 +55,13 @@ const modalViewModule = "modal-select-player";
  * Setting up form and dropdowns
  */
 function onLoaded(args) {
+    date_before = "";
+    date_after = "";
+    shot="";
+    rating="";
+    user;
+    playerId = "";
+
     console.log("search page opened");
     var page = args.object;
     viewModel = new observable.Observable();
