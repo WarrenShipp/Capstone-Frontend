@@ -4,103 +4,99 @@ var observable = require("data/observable");
 var appSettings = require("application-settings");
 var app = require("tns-core-modules/application");
 var dropdown = require("nativescript-drop-down");
-
-// Variables
-var viewModel;
-var searchSubmitType;
-var dateStart;
-var dateEnd;
-var shot;
-var rating;
-var user;
-var playerId = ""
-
-const shotTypeListArray = [
-    { display: "Straight Drive" },
-    { display: "Cover Drive" },
-    { display: "Square Cut" },
-    { display: "Late Cut" },
-    { display: "Leg Glance" },
-    { display: "Hook" },
-    { display: "Pull" },
-    { display: "Drive through square leg" },
-    { display: "On drive" },
-    { display: "Off Drive" }
-];
-const ratingTypeListArray = [
-    { display: "Perfect" },
-    { display: "Good" },
-    { display: "Off Balanced" },
-    { display: "Off Position" },
-    { display: "Played Late" },
-    { display: "Played Early" }
-];
-const userTypeListArray = [
-    { display: "Admin" },
-    { display: "Coach" },
-    { display: "Player" }
-];
-const searchType = [
-    "Club",
-    "Shot",
-    "User"
-];
+var viewModel = new observable.Observable();
+const ShotTypes = require("../app/helpers/type-list").ShotTypes;
+const RatingTypes = require("../app/helpers/type-list").RatingTypes;
 
 // modal
 const modalViewModule = "modal-select-player";
 
+// search types
+const SEARCH_CLUB = 0;
+const SEARCH_SHOT = 1;
+const SEARCH_USER = 2;
+
+// ### form vars
+
+// basic
+var searchType;
+var searchTypeList;
+var showShot;
+var showClub;
+var showUser;
+var showSubmit;
+
+// club
+var clubName;
+
+// shot
+var playerId;
+var playerName;
+var shotTypeList;
+var shotTypeIndex;
+var ratingTypeList;
+var ratingTypeIndex;
+var shotCoach;          // not impl
+var shotClub;           // not impl
+var dateStart;
+var dateEnd;
+
+// user
+var userName;
+var userClub;
+var userTypeList;
+var userTypeIndex;
+
+// control
+var isEnabled;
+
+// ### end form vars
+
+// lists for dropdowns
+const shotTypeListDisplay = ShotTypes.makeDropdownList();
+const ratingTypeListDisplay = RatingTypes.makeDropdownList();
+const userTypeListDisplay = [
+    { display: "Admin" },
+    { display: "Coach" },
+    { display: "Player" }
+];
+const searchTypeListDisplay = [
+    { display: "Club" },
+    { display: "Shot" },
+    { display: "User" }
+];
+
 /**
  * Setting up form and dropdowns
  */
-function onLoaded(args) {
-    console.log("search page opened");
-    var page = args.object;
-    viewModel = new observable.Observable();
+function onNavigatingTo(args) {
+    page = args.object;
 
-    // Adding arrays to dropdown
-    shotType = new dropdown.ValueList(shotTypeListArray);
-    ratingType = new dropdown.ValueList(ratingTypeListArray);
-    userType = new dropdown.ValueList(userTypeListArray);
+    // get search type
+    searchType == -1; // default
+    if (args.context && args.context.searchType) {
+        if (typeof args.context.searchType === 'string') {
+            searchType = searchTypeListDisplay.findIndex(
+                value => (value.display === args.context.searchType)
+            );
+        }
+    }
+    viewModel.set("searchType", searchType);
 
-    // Initialise textfields club form
-    viewModel.set("clubName", "");
-    viewModel.set("leagueName", "");
+    // reset all page vars to initialise page
+    _resetPage();
 
-    // Initialise textfields shot form
-    viewModel.set("shotClub", "");
-    viewModel.set("shotCoach", "");
-    viewModel.set("shotPlayer", "");
+    // set page based upon searchType
+    _setSearchType(searchType);
 
-    // Initialise textfields user form
-    viewModel.set("userName", "");
-    viewModel.set("userClub", "");
-
-    // Hide All Forms and Elements Before Selection of Search Type
-    viewModel.set("showClub", false);
-    viewModel.set("showShot", false);
-    viewModel.set("showUser", false);
-    viewModel.set("showdateStart", false);
-    viewModel.set("showdateEnd", false);
-    viewModel.set("dateStart", null);
-    viewModel.set("dateEnd", null);
-    viewModel.set("showSubmit", false);
-
-    // Initialise dropdown menus with array values
-    viewModel.set("shotType", shotType);
-    viewModel.set("ratingType", ratingType);
-    viewModel.set("userType", userType);
-    viewModel.set("searchTypes", searchType);
-
-    // Blank default search type
-    viewModel.set("typeIndex", null);
-
-    // cacheShots();
+    // add relevant vars
+    _setPage(args.navigationContext);
 
     //set viewmodel
     page.bindingContext = viewModel;
 
 };
-exports.onLoaded = onLoaded;
+exports.onNavigatingTo = onNavigatingTo;
 
 /**
  * 
@@ -128,44 +124,100 @@ exports.openPlayerModal = openPlayerModal;
 /**
  * Send search information entered to results page for data request depending on search Type
  */
-exports.sendSearch = function () {
-    var sendToken = appSettings.getString("token");
-    console.log(sendToken);
+function sendSearch() {
+
+    var urlSearch;
+
     // Club Search
-    if (searchSubmitType == 0) {
+    if (searchType == 0) {
         var clubSearchName = viewModel.get("clubName");
-        // var clubSearchLeague = viewModel.get("leagueName"); // not implemented yet
-        var urlSearch = global.serverUrl + "club/?" + "name=" + clubSearchName;
+        urlSearch = global.serverUrl + global.endpointClub;
+
+        // go through vars and append to search
+        urlSearch = _appendVar("name", clubSearchName, urlSearch);
     }
+
     // Shot Search
-    else if (searchSubmitType == 1) {
-        console.log("shot search");
-        var clubName = viewModel.get("shotClub");
-        var coachName = viewModel.get("shotCoach");
-        //var playerName = viewModel.get("shotPlayer");
+    else if (searchType == 1) {
         var date_before = dateStart;
         var date_after = dateEnd;
-        var urlSearch = global.serverUrl + "shot/?" + "club_name=" + clubName + "&coach_name=" + coachName + "&player=" + playerId;
-        "&date_before=" + date_before + "&date_after=" + date_after + "&rating" + rating + "&type" + shot;
+        urlSearch = global.serverUrl + global.endpointShot;
+        /*
+            "club_name=" + clubName + "&coach_name=" + coachName + "&player=" + playerId;
+            "&date_before=" + date_before + "&date_after=" + date_after + "&rating" + rating + "&type" + shot;
+        */
+
+        // go through vars and append to search
+        console.log(urlSearch);
+        urlSearch = _appendVar("player", playerId, urlSearch);
+        console.log(urlSearch);
+        urlSearch = _appendVar("rating", viewModel.get("ratingTypeIndex"), urlSearch, 1);
+        console.log(urlSearch);
+        urlSearch = _appendVar("type", viewModel.get("shotTypeIndex"), urlSearch, 1);
+        console.log(urlSearch);
     }
+
     // User Search
-    else if (searchSubmitType == 2) {
+    else if (searchType == 2) {
         var userName = viewModel.get("userName");
         var userClub = viewModel.get("userClub"); // filtering by club name broken on backend
-        var urlSearch = global.serverUrl + "user/?" + "name=" + userName;
+        urlSearch = global.serverUrl + global.endpointUser; /* + "name=" + userName; */
+
+        // go through vars and append to search
+        urlSearch = _appendVar("name", userName, urlSearch);
     }
+    console.log(urlSearch);
+
     // Passing through the search type and search url to use to the results page
     var navigationOptions = {
         moduleName: 'results-page',
         context: {
             urlSearch: urlSearch,
-            searchType: searchSubmitType,
+            searchType: searchType,
             searchTime: (new Date()).getTime()
         }
     }
-    console.log("url is:" + urlSearch);
     frameModule.topmost().navigate(navigationOptions);
 
+}
+exports.sendSearch = sendSearch;
+
+/**
+ * Appends a variable to the search url
+ * @param {any} varName
+ * @param {any} varVal
+ * @param {any} appendTo
+ * @param {any} minVal
+ * @param {any} maxVal
+ */
+function _appendVar(varName, varVal, appendTo, minVal = null, maxVal = null) {
+
+    var preAppend = appendTo.endsWith("/") ? "?" : "&";
+    if (varVal) {
+        // check within min bounds
+        if (
+            minVal &&
+            typeof varVal === "number" &&
+            typeof minVal === "number" &&
+            varVal < minVal
+        ) {
+            return appendTo;
+        }
+        // check within max bounds
+        if (
+            maxVal &&
+            typeof varVal === "number" &&
+            typeof maxVal === "number" &&
+            varVal > maxVal
+        ) {
+            return appendTo;
+        }
+
+        // add value
+        appendTo = appendTo.concat(preAppend, varName, "=", varVal);
+    }
+    
+    return appendTo;
 }
 
 /**
@@ -178,96 +230,90 @@ function onDrawerButtonTap(args) {
 exports.onDrawerButtonTap = onDrawerButtonTap;
 
 /**
- * Get index of shot type to search for
+ * Resets all vars on the page.
  */
-function shotDropChange(args) {
-    shot = viewModel.get("shotType").getDisplay(args.newIndex);
-    console.log(shot);
-}
-exports.shotDropChange = shotDropChange;
+function _resetPage() {
 
-/**
- * Get index of rating type to search for
- */
-function shotRatingChange(args) {
-    rating = viewModel.get("ratingType").getDisplay(args.newIndex);
-    console.log(rating);
-}
-exports.shotRatingChange = shotRatingChange;
+    // basics
+    searchTypeList = new dropdown.ValueList(searchTypeListDisplay);
+    searchTypeIndex = null;
+    viewModel.set("searchTypeList", searchTypeList);
+    viewModel.set("searchTypeIndex", searchTypeIndex);
 
-/**
- * Get index of user type to search for
- */
-function userChange(args) {
-    user = viewModel.get("userType").getDisplay(args.newIndex);
-    console.log(user);
-}
-exports.userChange = userChange;
+    // club
+    clubName = null;
+    viewModel.set("clubName", clubName);
 
-/**
- * Show Start Date Calendar for user selection
- */
-function showDateStart(args) {
-    viewModel.set("showdateStart", true);
-}
-exports.showDateStart = showDateStart;
+    // shot
+    playerId = null;
+    playerName = null;
+    shotTypeList = new dropdown.ValueList(shotTypeListDisplay);
+    shotTypeIndex = null;
+    ratingTypeList = new dropdown.ValueList(ratingTypeListDisplay);
+    ratingTypeIndex = null;
+    shotCoach = null;
+    shotClub = null;
+    dateStart = null;
+    dateEnd = null;
+    viewModel.set("playerName", playerName);
+    viewModel.set("shotTypeList", shotTypeList);
+    viewModel.set("shotTypeIndex", shotTypeIndex);
+    viewModel.set("ratingTypeList", ratingTypeList);
+    viewModel.set("ratingTypeIndex", ratingTypeIndex);
+    viewModel.set("shotCoach", shotCoach);
+    viewModel.set("shotClub", shotClub);
+    viewModel.set("dateStart", dateStart);
+    viewModel.set("dateEnd", dateEnd);
 
-/**
- * Show End Date Calendar for user selection
- */
-function showDateEnd(args) {
-    viewModel.set("showdateEnd", true);
-}
-exports.showDateEnd = showDateEnd;
-
-/**
- * Get start date selected and close calendar
- */
-function onStartSelected(args) {
-    console.log("start date: " + args.date);
-    dateStart = args.date;
-    viewModel.set("showdateStart", false);
-    viewModel.set("dateStart", args.date.toString());
+    // user
+    userName = null;
+    userClub = null;
+    userTypeList = new dropdown.ValueList(userTypeListDisplay);
+    userTypeIndex = null;
+    viewModel.set("userName", userName);
+    viewModel.set("userClub", userClub);
+    viewModel.set("userTypeList", userTypeList);
+    viewModel.set("userTypeIndex", userTypeIndex);
 
 }
-exports.onStartSelected = onStartSelected;
 
-/**
- * Get end date selected and close calendar
- */
-function onEndSelected(args) {
-    console.log("end date: " + args.date);
-    dateEnd = args.date;
-    viewModel.set("showdateEnd", false);
-    viewModel.set("dateEnd", args.date.toString());
+function searchTypeChanged(args) {
+    _setSearchType(viewModel.get("searchTypeIndex"));
 }
-exports.onEndSelected = onEndSelected;
+exports.searchTypeChanged = searchTypeChanged;
 
 /**
- * Change form depending on type of search chosen: Club, Shot or User search
+ * Sets the search type to the given index.
+ * @param {any} index
  */
-function dropDownSelectedIndexChanged(args) {
-    console.log("dropDownSelectedIndexChanged");
-    console.log(args.newIndex);
-    viewModel.set("showSubmit", true);
-    searchSubmitType = args.newIndex;
-    if (searchSubmitType == 0) {
-        console.log("club search");
-        viewModel.set("showClub", true);
-        viewModel.set("showShot", false);
-        viewModel.set("showUser", false);
+function _setSearchType(index) {
+    showClub = false;
+    showShot = false;
+    showUser = false;
+    showSubmit = false;
+
+    if (index == SEARCH_CLUB) {
+        showClub = true;
+        showSubmit = true;
+    } else if (index == SEARCH_SHOT) {
+        showShot = true;
+        showSubmit = true;
+    } else if (index == SEARCH_USER) {
+        showUser = true;
+        showSubmit = true;
     }
-    else if (searchSubmitType == 1) {
-        console.log("shot search");
-        viewModel.set("showShot", true);
-        viewModel.set("showClub", false);
-        viewModel.set("showUser", false);
-    }
-    else if (searchSubmitType == 2) {
-        console.log("user search");
-        viewModel.set("showUser", true);
-        viewModel.set("showClub", false);
-        viewModel.set("showShot", false);
-    }
-};
-exports.dropDownSelectedIndexChanged = dropDownSelectedIndexChanged;
+
+    viewModel.set("showClub", showClub);
+    viewModel.set("showShot", showShot);
+    viewModel.set("showUser", showUser);
+    viewModel.set("showSubmit", showSubmit);
+    searchType = index;
+}
+
+/**
+ * Sets the initial page values based upon the varibales given in the context.
+ * @param {any} context
+ */
+function _setPage(context) {
+    // TODO
+}

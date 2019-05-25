@@ -193,7 +193,7 @@ class ShotTypes {
         return ShotTypes._types;
     }
     static makeDropdownList() {
-        var newlist = [];
+        var newlist = [{ display: "Not Set" }];
         for (var i in ShotTypes._types) {
             newlist.push({ display: ShotTypes._types[i].display_name });
         }
@@ -253,7 +253,7 @@ class RatingTypes {
         return RatingTypes._types;
     }
     static makeDropdownList() {
-        var newlist = [];
+        var newlist = [{ display: "Not Set" }];
         for (var i in RatingTypes._types) {
             newlist.push({ display: RatingTypes._types[i].display_name });
         }
