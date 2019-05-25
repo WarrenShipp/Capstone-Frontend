@@ -10,8 +10,8 @@ var viewModel;
 var searchSubmitType;
 var dateStart;
 var dateEnd;
-var shot;
-var rating;
+var shot="";
+var rating="";
 var user;
 var playerId = ""
 
@@ -143,10 +143,10 @@ exports.sendSearch = function () {
         var clubName = viewModel.get("shotClub");
         var coachName = viewModel.get("shotCoach");
         //var playerName = viewModel.get("shotPlayer");
-        var date_before = dateStart;
-        var date_after = dateEnd;
-        var urlSearch = global.serverUrl + "shot/?" + "club_name=" + clubName + "&coach_name=" + coachName + "&player=" + playerId;
-        "&date_before=" + date_before + "&date_after=" + date_after + "&rating" + rating + "&type" + shot;
+        var date_before = viewModel.get("dateEnd");
+        var date_after = viewModel.get("dateStart");
+        var urlSearch = global.serverUrl + "shot/?" + "club_name=" + clubName + "&coach_name=" + coachName + "&player=" + playerId +
+        "&date_before=" + date_before + "&date_after=" + date_after + "&rating=" + rating + "&type=" + shot;
     }
     // User Search
     else if (searchSubmitType == 2) {
@@ -225,9 +225,15 @@ exports.showDateEnd = showDateEnd;
  */
 function onStartSelected(args) {
     console.log("start date: " + args.date);
-    dateStart = args.date;
     viewModel.set("showdateStart", false);
-    viewModel.set("dateStart", args.date.toString());
+    var offset = args.date.getTimezoneOffset(); 
+    console.log(offset);
+    yourDate = new Date(args.date.getTime() - (offset*60*1000)); 
+    console.log(args.date.getTime());
+    console.log(yourDate);
+    console.log(yourDate.toISOString());
+    yourDate = yourDate.toISOString().split('T')[0];
+    viewModel.set("dateStart", yourDate);
 
 }
 exports.onStartSelected = onStartSelected;
@@ -237,9 +243,15 @@ exports.onStartSelected = onStartSelected;
  */
 function onEndSelected(args) {
     console.log("end date: " + args.date);
-    dateEnd = args.date;
     viewModel.set("showdateEnd", false);
-    viewModel.set("dateEnd", args.date.toString());
+    var offset = args.date.getTimezoneOffset(); 
+    console.log(offset);
+    yourDate = new Date(args.date.getTime() - (offset*60*1000)); 
+    console.log(args.date.getTime());
+    console.log(yourDate);
+    console.log(yourDate.toISOString());
+    yourDate = yourDate.toISOString().split('T')[0];
+    viewModel.set("dateEnd", yourDate);
 }
 exports.onEndSelected = onEndSelected;
 

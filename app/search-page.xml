@@ -10,7 +10,6 @@
         <Label class="action-bar-title" text="Search"></Label>
     </ActionBar>
 
-    <ScrollView>
         <StackLayout >
             <GridLayout columns="*,2*" rows="*,*" horizontalAlignment="left" verticalAlignment="top" class="searchForm">
                 <Label row="0" col="0" text="Type   "></Label>
@@ -28,7 +27,7 @@
             <!-- Shot Search Form -->
             <GridLayout columns="*,*" rows="*,*,*,*,*,*,*" horizontalAlignment="left" verticalAlignment="top" height="auto" visibility="{{ showShot ? 'visible' : 'collapsed' }}">
                 <Label col="0" text="Player  "></Label>
-                <Button col="1" text="{{ playername }}" tap="openPlayerModal" horizontalAlignment="left" />
+                <Button col="1" row="0" text="{{ playername }}" tap="openPlayerModal" horizontalAlignment="left" />
 
                 <Label col="0" row="1" text="Type  "></Label>
                 <dd:DropDown row="1" col="1" id="dd" hint="Shot Type" items="{{ shotType }}" selectedIndex="{{ selectedIndex }}" selectedIndexChanged="shotDropChange" isEnabled="{{ isEnabled }}" />
@@ -42,9 +41,9 @@
                 <TextField text="{{ dateStart }}" col="1" row="5" tap="showDateStart" visibility="{{ showdateStart ? 'collapsed' : 'visible' }}"></TextField>
                 <Label col="0" row="6" text= "End Date"></Label>
                 <TextField text="{{ dateEnd }}" col="1" row="6" tap="showDateEnd" visibility="{{ showdateEnd ? 'collapsed' : 'visible' }}"></TextField>
-                <calendar:RadCalendar id="calendarStart" visibility="{{ showdateStart ? 'visible' : 'collapsed' }}" eventSource="{{ calendarEvents }}" col="0" row="0" colSpan="2" rowSpan="7" eventsViewMode="Inline" selectionMode="Single" viewMode="Month" transitionMode="Stack" locale="en-US" dateSelected="onStartSelected" dateDeselected="onDateDeselected" navigatedToDate="onNavigatedToDate" navigatingToDateStarted="onNavigatingToDateStarted" viewModeChanged="onViewModeChanged" />
+                <calendar:RadCalendar id="calendarStart" visibility="{{ showdateStart ? 'visible' : 'collapsed' }}" col="0" row="0" colSpan="2" rowSpan="7" eventsViewMode="Inline" selectionMode="Single" viewMode="MonthNames" transitionMode="Slide" locale="en-US" dateSelected="onStartSelected" dateDeselected="onDateDeselected" navigatedToDate="onNavigatedToDate" navigatingToDateStarted="onNavigatingToDateStarted" viewModeChanged="onViewModeChanged" />
 
-                <calendar:RadCalendar id="calendarEnd" visibility="{{ showdateEnd ? 'visible' : 'collapsed' }}" eventSource="{{ calendarEvents }}" col="0" row="0" colSpan="2" rowSpan="7" eventsViewMode="Inline" selectionMode="Single" viewMode="Month" transitionMode="Stack" locale="en-US" dateSelected="onEndSelected" dateDeselected="onDateDeselected" navigatedToDate="onNavigatedToDate" navigatingToDateStarted="onNavigatingToDateStarted" viewModeChanged="onViewModeChanged" />
+                <calendar:RadCalendar id="calendarEnd" visibility="{{ showdateEnd ? 'visible' : 'collapsed' }}" eventSource="{{ calendarEvents }}" col="0" row="0" colSpan="2" rowSpan="7" eventsViewMode="Inline" selectionMode="Single" viewMode="MonthNames" transitionMode="Slide" locale="en-US" dateSelected="onEndSelected" dateDeselected="onDateDeselected" navigatedToDate="onNavigatedToDate" navigatingToDateStarted="onNavigatingToDateStarted" viewModeChanged="onViewModeChanged" />
             </GridLayout>
 
             <!-- User Search Form -->
@@ -60,5 +59,4 @@
             <Button class="btn btn-primary" horizontalAlignment="stretch" tap="sendSearch" text="Search" visibility="{{ showSubmit ? 'visible' : 'collapsed' }}"></Button>
 
         </StackLayout>
-    </ScrollView>
 </Page>
