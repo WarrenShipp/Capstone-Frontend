@@ -1,0 +1,26 @@
+<Page xmlns="http://www.nativescript.org/tns.xsd"
+      shownModally="onShownModally"
+      xmlns:calendar="nativescript-ui-calendar">
+
+    <GridLayout rows="auto,*,auto">
+        <Label row="0" text="{{ 'Choose ' + typeName + ' date' }}" />
+        
+        <!-- calendar -->
+        <calendar:RadCalendar row="1" id="calendar"
+                              eventSource="{{ calendarEvents }}"
+                              eventsViewMode="Inline"
+                              selectionMode="Single"
+                              viewMode="Month"
+                              transitionMode="Stack"
+                              locale="en-US"
+                              cellTap="onDateSelected"
+                              maxDate="{{ maxDate }}"
+                              minDate="{{ minDate }}"
+                              selectedDate="{{ currentDate }}" />
+
+        <!-- buttons -->
+        <Button row="2" text="Deselect" tap="deselect" />
+
+    </GridLayout>
+
+</Page>

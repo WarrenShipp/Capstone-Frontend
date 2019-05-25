@@ -9,7 +9,8 @@ const ShotTypes = require("../app/helpers/type-list").ShotTypes;
 const RatingTypes = require("../app/helpers/type-list").RatingTypes;
 
 // modal
-const modalViewModule = "modal-select-player";
+const modalPlayerSelectModule = "modal-select-player";
+const modalCalendarModule = "modal-calendar";
 
 // search types
 const SEARCH_CLUB = 0;
@@ -39,7 +40,9 @@ var ratingTypeIndex;
 var shotCoach;          // not impl
 var shotClub;           // not impl
 var dateStart;
+var dateStartName;
 var dateEnd;
+var dateEndName;
 
 // user
 var userName;
@@ -72,8 +75,16 @@ const searchTypeListDisplay = [
 function onNavigatingTo(args) {
     page = args.object;
 
+    //set viewmodel
+    page.bindingContext = viewModel;
+
+    // if coming back, don't reset the page
+    if (args.isBackNavigation) {
+        return;
+    }
+
     // get search type
-    searchType == -1; // default
+    searchType = -1; // default
     if (args.context && args.context.searchType) {
         if (typeof args.context.searchType === 'string') {
             searchType = searchTypeListDisplay.findIndex(
@@ -92,9 +103,7 @@ function onNavigatingTo(args) {
     // add relevant vars
     _setPage(args.navigationContext);
 
-    //set viewmodel
-    page.bindingContext = viewModel;
-
+    console.log("search nav");
 };
 exports.onNavigatingTo = onNavigatingTo;
 
@@ -117,7 +126,7 @@ exports.onNavigatingTo = onNavigatingTo;
         firstname = vals.user;
         viewModel.set("playername", firstname);
     }
-    button.showModal(modalViewModule, context, callback, fullscreen);
+    button.showModal(modalPlayerSelectModule, context, callback, fullscreen);
 }
 exports.openPlayerModal = openPlayerModal;
 
@@ -142,26 +151,20 @@ function sendSearch() {
         var date_before = dateStart;
         var date_after = dateEnd;
         urlSearch = global.serverUrl + global.endpointShot;
-        /*
-            "club_name=" + clubName + "&coach_name=" + coachName + "&player=" + playerId;
-            "&date_before=" + date_before + "&date_after=" + date_after + "&rating" + rating + "&type" + shot;
-        */
 
         // go through vars and append to search
-        console.log(urlSearch);
         urlSearch = _appendVar("player", playerId, urlSearch);
-        console.log(urlSearch);
         urlSearch = _appendVar("rating", viewModel.get("ratingTypeIndex"), urlSearch, 1);
-        console.log(urlSearch);
         urlSearch = _appendVar("type", viewModel.get("shotTypeIndex"), urlSearch, 1);
-        console.log(urlSearch);
+        urlSearch = _appendVar("date_after", dateStartName, urlSearch);
+        urlSearch = _appendVar("date_before", dateEndName, urlSearch);
     }
 
     // User Search
     else if (searchType == 2) {
         var userName = viewModel.get("userName");
         var userClub = viewModel.get("userClub"); // filtering by club name broken on backend
-        urlSearch = global.serverUrl + global.endpointUser; /* + "name=" + userName; */
+        urlSearch = global.serverUrl + global.endpointUser;
 
         // go through vars and append to search
         urlSearch = _appendVar("name", userName, urlSearch);
@@ -237,8 +240,12 @@ function _resetPage() {
     // basics
     searchTypeList = new dropdown.ValueList(searchTypeListDisplay);
     searchTypeIndex = null;
+    showCalendarStart = false;
+    showCalendarEnd = false;
     viewModel.set("searchTypeList", searchTypeList);
     viewModel.set("searchTypeIndex", searchTypeIndex);
+    viewModel.set("showCalendarStart", showCalendarStart);
+    viewModel.set("showCalendarEnd", showCalendarEnd);
 
     // club
     clubName = null;
@@ -254,7 +261,9 @@ function _resetPage() {
     shotCoach = null;
     shotClub = null;
     dateStart = null;
+    dateStartName = null;
     dateEnd = null;
+    dateEndName = null;
     viewModel.set("playerName", playerName);
     viewModel.set("shotTypeList", shotTypeList);
     viewModel.set("shotTypeIndex", shotTypeIndex);
@@ -262,8 +271,8 @@ function _resetPage() {
     viewModel.set("ratingTypeIndex", ratingTypeIndex);
     viewModel.set("shotCoach", shotCoach);
     viewModel.set("shotClub", shotClub);
-    viewModel.set("dateStart", dateStart);
-    viewModel.set("dateEnd", dateEnd);
+    viewModel.set("dateStartName", dateStart);
+    viewModel.set("dateEndName", dateEnd);
 
     // user
     userName = null;
@@ -311,33 +320,82 @@ function _setSearchType(index) {
 }
 
 /**
- * Get end date selected and close calendar
+ * Shows the start calendar.
+ * @param {any} args
  */
-function onEndSelected(args) {
-    console.log("end date: " + args.date);
-    viewModel.set("showdateEnd", false);
-    var offset = args.date.getTimezoneOffset(); 
-    console.log(offset);
-    yourDate = new Date(args.date.getTime() - (offset*60*1000)); 
-    console.log(args.date.getTime());
-    console.log(yourDate);
-    console.log(yourDate.toISOString());
-    yourDate = yourDate.toISOString().split('T')[0];
-    viewModel.set("dateEnd", yourDate);
-}
+function showDateStart(args) {
+    console.log("Open");
+    const button = args.object;
+    const fullscreen = false;
 
-function onStartSelected(args) {
-    console.log("start date: " + args.date);
-    viewModel.set("showdateStart", false);
-    var offset = args.date.getTimezoneOffset();
-    console.log(offset);
-    yourDate = new Date(args.date.getTime() - (offset * 60 * 1000));
-    console.log(args.date.getTime());
-    console.log(yourDate);
-    console.log(yourDate.toISOString());
-    yourDate = yourDate.toISOString().split('T')[0];
-    viewModel.set("dateStart", yourDate);
+    // determine date params
+    const context = {
+        type: "start",
+        typeName: "Start"
+    };
+    if (dateStart) {
+        context.currentDate = dateStart;
+    }
+    if (dateEnd) {
+        context.maxDate = dateEnd;
+    }
+
+    var callback = function (vals) {
+        console.log(vals);
+        if (!vals) {
+            // do nothing
+            return;
+        }
+        dateStart = vals.date;
+        if (dateStart) {
+            dateStartName = dateStart.toISOString().split('T')[0];
+        } else {
+            dateStartName = null;
+        }
+        viewModel.set("dateStartName", dateStartName);
+    }
+    button.showModal(modalCalendarModule, context, callback, fullscreen);
 }
+exports.showDateStart = showDateStart;
+
+/**
+ * Shows the end calendar.
+ * @param {any} args
+ */
+function showDateEnd(args) {
+    console.log("Open");
+    const button = args.object;
+    const fullscreen = false;
+
+    // determine date params
+    const context = {
+        type: "end",
+        typeName: "End"
+    };
+    if (dateEnd) {
+        context.currentDate = dateEnd;
+    }
+    if (dateStart) {
+        context.minDate = dateStart;
+    }
+
+    var callback = function (vals) {
+        console.log(vals);
+        if (!vals) {
+            // do nothing
+            return;
+        }
+        dateEnd = vals.date;
+        if (dateEnd) {
+            dateEndName = dateEnd.toISOString().split('T')[0];
+        } else {
+            dateEndName = null;
+        }
+        viewModel.set("dateEndName", dateEndName);
+    }
+    button.showModal(modalCalendarModule, context, callback, fullscreen);
+}
+exports.showDateEnd = showDateEnd;
 
 /**
  * Sets the initial page values based upon the varibales given in the context.

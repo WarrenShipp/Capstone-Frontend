@@ -59,35 +59,13 @@
                 <TextField col="1" row="4" text="{{ shotClub }}" / -->
                 
                 <Label col="0" row="5" text= "Start Date" />
-                <Button text="{{ dateStart ? dateStart : '' }}" col="1" row="5"
+                <Button text="{{ dateStartName ? dateStartName : '' }}" col="1" row="5"
                         tap="showDateStart"
                         visibility="{{ showCalendarStart ? 'collapsed' : 'visible' }}" />
                 <Label col="0" row="6" text= "End Date" />
-                <Button text="{{ dateEnd ? dateEnd : '' }}" col="1" row="6"
+                <Button text="{{ dateEndName ? dateEndName : '' }}" col="1" row="6"
                         tap="showDateEnd"
                         visibility="{{ showCalendarEnd ? 'collapsed' : 'visible' }}" />
-                <calendar:RadCalendar id="calendarStart"
-                                      visibility="{{ showCalendarStart ? 'visible' : 'collapsed' }}"
-                                      eventSource="{{ calendarEvents }}"
-                                      col="0" row="0" colSpan="2" rowSpan="7"
-                                      eventsViewMode="Inline"
-                                      selectionMode="Single"
-                                      viewMode="Month"
-                                      transitionMode="Stack"
-                                      locale="en-US"
-                                      dateSelected="onStartDateSelected"
-                                      dateDeselected="onStartDateDeselected" />
-                <calendar:RadCalendar id="calendarEnd"
-                                      visibility="{{ showCalendarEnd ? 'visible' : 'collapsed' }}"
-                                      eventSource="{{ calendarEvents }}"
-                                      col="0" row="0" colSpan="2" rowSpan="7"
-                                      eventsViewMode="Inline"
-                                      selectionMode="Single"
-                                      viewMode="Month"
-                                      transitionMode="Stack"
-                                      locale="en-US"
-                                      dateSelected="onEndDateSelected"
-                                      dateDeselected="onEndDateDeselected" />
             
             </GridLayout>
 
