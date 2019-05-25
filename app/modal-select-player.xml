@@ -26,6 +26,14 @@
 
                 <Label text="{{ 'Select ' + userType }}" />
 
+                <!-- display remove button -->
+                <DockLayout stretchLastChild="true" class="cancel-top"
+                            tap="setNobody">
+                    <Image dock="left" stretch="aspectFill" class="profile-picture-small"
+                            src="{{ '~/images/error.png' }}" />
+                    <Label text="None" class="center-vertical" />
+                </DockLayout>
+
                 <!-- not logged in message! -->
                 <Label text="Cannot select any players. You are not logged in!"
                         textWrap="true" dock="left"
@@ -33,17 +41,11 @@
 
                 <!-- display yourself -->
                 <DockLayout stretchLastChild="true" class="self-top"
-                            visibility="{{ loggedIn ? 'visible' : 'collapsed' }}"
+                            visibility="{{ loggedIn && isPlayer ? 'visible' : 'collapsed' }}"
                             tap="setMyself">
                     <Image dock="left" stretch="aspectFill" class="profile-picture-small"
                             src="{{ playerImg ? playerImg : '~/images/user.png' }}" />
-                    <Label text="Cannot select yourself. You are not a player!"
-                            textWrap="true" dock="left"
-                            visibility="{{ !isPlayer ? 'visible' : 'collapsed' }}" />
-                    <StackLayout dock="left"
-                                    visibility="{{ isPlayer ? 'visible' : 'collapsed' }}">
-                        <Label text="Myself" class="center-vertical" />
-                    </StackLayout>
+                    <Label text="Myself" class="center-vertical" />
                 </DockLayout>
 
                 <!-- place indicator after this since the player is always loaded -->
@@ -61,6 +63,9 @@
                 <!-- if there are no players, show a message -->
                 <Label text="No players were found!"
                        visibility="{{ loggedIn && noPlayers && !loading ? 'visible' : 'collapsed' }}"/>
+                <Label text="Note: You need to be a player to select yourself."
+                       textWrap="true"
+                       visibility="{{ loggedIn && noPlayers && !isPlayer && !loading ? 'visible' : 'collapsed' }}" />
             </StackLayout>
         </lv:RadListView.footerItemTemplate>
             

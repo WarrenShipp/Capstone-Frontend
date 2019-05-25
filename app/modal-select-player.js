@@ -215,10 +215,14 @@ function _getPlayers() {
             }
 
             // data found. Show there are players
+            var thisPlayer = appSettings.getString("playerId");
             var allItems = [];
             for (var row in rows) {
                 var player = rows[row].player;     // 13 should be player vars
-                if (!player || !rows[row].is_player) {
+                // continue if this user is not a player, or if their player
+                // id is the same as the logged in player's
+                if (!player || !rows[row].is_player || 
+                    (thisPlayer && rows[row].player.id == thisPlayer)) {
                     continue;
                 }
                 var item = {};
@@ -232,7 +236,7 @@ function _getPlayers() {
                 allItems.push(item);
             }
             itemList.push(allItems);
-            noPlayers = false;
+            noPlayers = (itemList.length == 0);
             viewModel.set("noPlayers", noPlayers);
 
             // do load finish
@@ -327,3 +331,17 @@ function setMyself(args) {
     args.object.closeModal(context);
 }
 exports.setMyself = setMyself;
+
+/**
+ * Closes modal after selecting nobody as a user.
+ * @param {any} args
+ */
+function setNobody(args) {
+    console.log("close");
+    var context = {
+        id: null,
+        user: null
+    };
+    args.object.closeModal(context);
+}
+exports.setNobody = setNobody;
