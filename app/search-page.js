@@ -8,8 +8,10 @@ var dropdown = require("nativescript-drop-down");
 // Variables
 var viewModel;
 var searchSubmitType;
-var dateStart;
-var dateEnd;
+var dateStart="";
+var dateEnd="";
+var date_before = "";
+var date_after = "";
 var shot="";
 var rating="";
 var user;
@@ -81,8 +83,8 @@ function onLoaded(args) {
     viewModel.set("showUser", false);
     viewModel.set("showdateStart", false);
     viewModel.set("showdateEnd", false);
-    viewModel.set("dateStart", null);
-    viewModel.set("dateEnd", null);
+    viewModel.set("dateStart", "");
+    viewModel.set("dateEnd", "");
     viewModel.set("showSubmit", false);
 
     // Initialise dropdown menus with array values
@@ -143,8 +145,8 @@ exports.sendSearch = function () {
         var clubName = viewModel.get("shotClub");
         var coachName = viewModel.get("shotCoach");
         //var playerName = viewModel.get("shotPlayer");
-        var date_before = viewModel.get("dateEnd");
-        var date_after = viewModel.get("dateStart");
+        date_before = viewModel.get("dateEnd");
+        date_after = viewModel.get("dateStart");
         var urlSearch = global.serverUrl + "shot/?" + "club_name=" + clubName + "&coach_name=" + coachName + "&player=" + playerId +
         "&date_before=" + date_before + "&date_after=" + date_after + "&rating=" + rating + "&type=" + shot;
     }
