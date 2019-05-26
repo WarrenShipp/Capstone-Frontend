@@ -1,0 +1,19 @@
+<Page xmlns="http://www.nativescript.org/tns.xsd"
+      shownModally="onShownModally"
+      xmlns:calendar="nativescript-ui-calendar">
+
+    <GridLayout rows="auto,*,auto">
+        <Label row="0" text="Choose Birth Date" />
+        
+        <!-- calendar -->
+    <DatePicker row="1" dock="left" id="birthDate"
+                                date="{{ birthDate }}"
+                                maxDate="{{ maxDate }}"/>
+
+        <!-- buttons -->
+        <Button row="2" text="Save" tap="deselect" />
+        <Button row="3" text="Deselect" tap="deselect" />
+
+    </GridLayout>
+
+</Page>

@@ -49,6 +49,7 @@ var yearsExperience;
 
 // loading
 var isLoading;
+var isUploading;
 
 /**
  * Sets up page. Gets data to display to the page.
@@ -84,18 +85,18 @@ function navigatingTo(args) {
         );
         request.send(
             function (result) {
-            // console.log(result);
-            var obj = JSON.stringify(result);
-            obj = JSON.parse(obj);
+                // console.log(result);
+                var obj = JSON.stringify(result);
+                obj = JSON.parse(obj);
 
-            // user didn't get from database.
-            if (!obj.content || !obj.content.id) {
-                console.error("Could not find myself.");
-                return;
-            }
+                // user didn't get from database.
+                if (!obj.content || !obj.content.id) {
+                    console.error("Could not find myself.");
+                    return;
+                }
 
-            // go through vars and add to profile page
-            _makeProfilePage(obj.content, isSelf);
+                // go through vars and add to profile page
+                _makeProfilePage(obj.content, isSelf);
 
             },
             function (error) {
@@ -274,35 +275,67 @@ function save(args) {
     console.log("From ID: " + saveBowlerType + "; From VM: " + viewModel.get("bowlerTypeIndex"));
     let datePicker = page.getViewById("birthDate");
     console.log(datePicker);
-    var saveBirthDate = new Date(datePicker.year, datePicker.month, datePicker.day);
+    console.log("date picker: " + datePicker.year);
+    console.log("date picker: " + datePicker.month);
+    console.log("date picker: " + datePicker.day);
+
+    var saveBirthDate = new Date(datePicker.year, datePicker.month-1, datePicker.day);
 
     // coach info args
     var saveYearsExperience = viewModel.get("yearsExperience");
 
     // add all valid fields to this object
     var allFields = [];
+
+    var validationString = "";
     // FIELD: { name: "name", value: clubName }
+    
     // FILE: { name: "logo", filename: file, mimeType: "image/*" }
 
     // checks
+    var today = new Date();
+    console.log(today);
+    console.log(today.getDate());
+    console.log(today.getMonth());
+    console.log(today.getFullYear());
+    console.log(saveBirthDate);
 
-    // check 
-    if (!saveFirstName || !saveLastName) {
-        dialogs.alert({
-            title: "Name fields can't be blank!",
-            okButtonText: "Okay"
-        }).then(function () { });
-        return;
+    var offset = saveBirthDate.getTimezoneOffset(); 
+    console.log(offset);
+    saveBirthDate = new Date(saveBirthDate.getTime() - (offset*60*1000));
+    today = new Date(today.getTime() - (offset*60*1000));
+    // //phone validation is not working properly at the moment, regex check needs to match the backend
+    // var regex = new RegExp("^(?:\\+?(61))? ?(?:\\((?=.*\\)))?(0?[2-57-8])\\)? ?(\\d\\d(?:[- ](?=\\d{3})|(?!\\d\\d[- ]?\\d[- ]))\\d\\d[- ]?\\d[- ]?\\d{3})$");
+    // if (!savePhone.match(regex)){
+    //     console.log("didn't match" + savePhone);
+    //     validationString = validationString + "Valid Australian Phone Number \n";
+    // }
+
+    // 
+    if (!saveFirstName) {
+        validationString = validationString + "First Name \n";
+    }
+
+    if (!saveLastName) {
+        validationString = validationString + "Last Name \n";
     }
 
     // check if birth date is set. This generally should be set, but if it
     // isn't then we need to tell the user.
     if (isPlayer && !saveBirthDate) {
+        if (saveBirthDate > today){
+            validationString = validationString + "Valid Birthdate \n";
+        }   
+    }
+
+    if (validationString != "") {
         dialogs.alert({
-            title: "Must have birthdate!",
-            message: "Players must have a birthdate",
+            title: "Profile Update Error - Invalid Details",
+            message: "The following fields are required to update profile: \n" + validationString,
             okButtonText: "Okay"
-        }).then(function () { });
+        });
+        isUploading = false;
+        viewModel.set("isUploading", isUploading);
         return;
     }
 
@@ -399,8 +432,8 @@ function changeImage() {
 exports.changeImage = changeImage;
 
 function passwordChange(args) {
-     //Password change to be implemented
-     if (oldPassword || newPassword || confirmPassword) {
+    //Password change to be implemented
+    if (oldPassword || newPassword || confirmPassword) {
         let completed = 0;
         completed += oldPassword ? 1 : 0;
         completed += newPassword ? 1 : 0;

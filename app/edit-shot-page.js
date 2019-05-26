@@ -250,6 +250,34 @@ function upload(args) {
     var uploadVideo;
     var videoDuration;
     var thumbnailVal;
+    var validationString = "";
+    // validate details for upload
+
+    if (playerId == null) {
+        console.log("no player id");
+        validationString = validationString + "Player \n";
+    }
+
+    if (viewModel.get("shotTypeIndex") < 1 || viewModel.get("shotTypeIndex") > 10) {
+        console.log("invalid shot type");
+        validationString = validationString + "Shot Type \n";
+
+    }
+
+    if (viewModel.get("ratingTypeIndex") < 1 || viewModel.get("ratingTypeIndex") > 6) {
+        console.log("invalid rating type");
+        validationString = validationString + "Rating Type \n";
+    }
+
+    if (validationString != "") {
+        dialogs.alert({
+            title: "Upload Error - Invalid Details",
+            message: "The following fields are required to upload shot: \n" + validationString,
+            okButtonText: "Okay"
+        });
+        return;
+    }
+    console.log("Valid Data");
 
     // if editing an uploaded shot, we need a PATCH request.
     if (editType == EDIT_VIEW_SEARCH) {
@@ -444,7 +472,7 @@ function saveLocally(args) {
 
     // lock functionality while saving
     _lockFunctionality();
-    
+
     // shot is already locally saved. Update.
     if (editType == EDIT_VIEW_LOCAL) {
         _saveLocalEdit();
@@ -657,7 +685,7 @@ function discard(args) {
             function (err) {
                 _unlockFunctionality();
             });
-        
+
     }
     // if the shot is new, there is nothing saved locally.
     else {
@@ -851,7 +879,7 @@ function _setShotLocal(editTypeOptions) {
             okButtonText: "Okay"
         }).then(function () {
             frameModule.topmost().goBack();
-            });
+        });
         return;
     }
 
