@@ -73,13 +73,16 @@
                 <Label text="Date:" row="1" col="0" />
                 <Label id="time" text="{{ time }}" row="1" col="1" />
                 -->
-                
-                <Label text="Shot Type:" row="2" col="0" />
-                <dd:DropDown row="2" col="1"  id="shotType" hint="Shot Type"
-                             items="{{ shotTypeItems }}"
-                             selectedIndex="{{ shotTypeIndex }}"
-                             selectedIndexChanged="shotTypeDropdownChanged"
-                       isEnabled="{{ !lockUserActions }}" />
+
+                <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                    <Label text="Shot Type:" class="pair-label text-label" />
+                    <dd:DropDown id="shotType" hint="Shot Type"
+                                 items="{{ shotTypeItems }}"
+                                 selectedIndex="{{ shotTypeIndex }}"
+                                 selectedIndexChanged="shotTypeDropdownChanged"
+                                 isEnabled="{{ !lockUserActions }}"
+                                 class="pair-value input-dropdown" />
+                </FlexboxLayout>
                 
                 <Label row="3" col="0" text="Rating:" />
                 <dd:DropDown row="3" col="1"  id="ratingType" hint="Rating"

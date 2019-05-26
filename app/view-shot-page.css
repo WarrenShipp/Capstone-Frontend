@@ -6,9 +6,3 @@
     position: fixed;
     background-color: rgba(255, 255, 255, 0.50);
 }
-
-.screen-cover-load-wheel {
-    width: 100px;
-    height: 100px;
-    margin: auto auto;
-}
