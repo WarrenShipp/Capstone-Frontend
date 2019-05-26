@@ -22,6 +22,7 @@ components that have the btn class name.
 
 Label, TextField, Button {
     color: rgb(28, 28, 28);
+    text-transform: none;
 }
 
 .page {
@@ -71,6 +72,7 @@ Label, TextField, Button {
 
 .video {
     width: 100%;
+    horizontal-align: center;
 }
 
 .profile-picture-tiny {
@@ -117,10 +119,12 @@ Label, TextField, Button {
     border-width: 2;
     border-radius: 5;
     background-color: white;
+    margin: 5;
 }
 
 .button:disabled {
-    background-color: lightgrey;
+    background-color: rgb(180, 180, 180);
+    border-color: rgb(160, 160, 160);
 }
 
 .button-primary {
@@ -130,11 +134,13 @@ Label, TextField, Button {
     border-color: red;
     border-width: 2;
     border-radius: 5;
-    background-color: salmon;
+    background-color: white;
+    margin: 5;
 }
 
 .button-primary:disabled {
-    background-color: lightgrey;
+    background-color: rgb(180, 180, 180);
+    border-color: rgb(160, 160, 160);
 }
 
 .button-clear {
@@ -170,11 +176,17 @@ Label, TextField, Button {
 .pair-label {
     padding: 0;
     width: auto;
+    margin-right: 10;
 }
 
 .pair-value {
     padding: 0;
     width: 100%;
+}
+
+.pair-value-small {
+    width: 300;
+    horizontal-align: right;
 }
 
 .input {
@@ -183,9 +195,11 @@ Label, TextField, Button {
 
 .input-open-modal {
     background-color: transparent;
-    border-bottom-color: rgb(180, 180, 180);
-    border-bottom-width: 1;
+    border-color: rgb(180, 180, 180);
+    border-width: 1;
     padding: 5;
+    text-align: left;
+    vertical-align: text-bottom;
 }
 
 .input-text {

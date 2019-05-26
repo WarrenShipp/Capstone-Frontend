@@ -18,29 +18,12 @@
                 busy="{{ isLoading }}"
                 visibility="{{ isLoading ? 'visible' : 'collapse' }}" />
 
-            <DockLayout stretchLastChild="true">
-                <Label dock="left" text="Player: "
-                       horizontalAlignment="left" />
-                <Button dock="left" text="{{ playername }}"
-                        isEnabled="{{ !lockUserActions && canFindUser }}"
-                        tap="openPlayerModal"
-                        horizontalAlignment="left" />
-            </DockLayout>
-            <!--
-            <TextField id="coachname" hint="Coach"
-                       text="{{ coachname }}"
-                       isEnabled="{{ !lockUserActions }}" />
-            <TextField id="clubname" hint="Club"
-                       text="{{ clubname }}"
-                       isEnabled="{{ !lockUserActions }}" />
-            -->
-
             <GridLayout class="video-background" height="300">
                 <!-- video element -->
                 <VideoPlayer:Video
                     id="nativeVideoPlayer"
                     controls="true" loop="true" autoplay="false"
-                    height="300" class="shot-video"
+                    height="300" class="video"
                     src="{{ videoPath }}" />
                 <!-- loading element -->
                 <Label class="center-element" text="Getting video"
@@ -50,29 +33,48 @@
                        visibility="{{ !videoLoading && !hasVideo ? 'visible' : 'collapsed' }}" />
             </GridLayout>
 
-            <Label text="Set Thumbnail" row="0" col="0" />
-            <GridLayout columns="*,*" rows="*">
-                <VideoPlayer:Video id="thumbnailVideo" row="0" col="0"
-                    controls="false" loop="false" autoplay="false" height="100"
-                    src="{{ videoPath }}" muted="true" />
-                <Slider row="0" col="1" value="{{ sliderValue }}"
-                        minValue="0" maxValue="{{ sliderMax }}"
-                        valueChange="setThumbnail" id="thumbnailSlider"
-                        isEnabled="{{ !lockUserActions }}" />
-            </GridLayout>
-            
-            <GridLayout columns="*,2*" rows="*,*,*,*,*"
-                        horizontalAlignment="left" verticalAlignment="top">
-                
+            <StackLayout class="page">
+                <Label text="Set Thumbnail" class="text-header" />
+                <DockLayout stretchLastChild="true">
+                    <VideoPlayer:Video id="thumbnailVideo"
+                                       controls="false" loop="false"
+                                       autoplay="false" muted="true"
+                                       src="{{ videoPath }}"
+                                       class="picture-small"
+                                       stretch="aspectFill" />
+                    <Slider value="{{ sliderValue }}"
+                            minValue="0" maxValue="{{ sliderMax }}"
+                            valueChange="setThumbnail" id="thumbnailSlider"
+                            isEnabled="{{ !lockUserActions }}"
+                            class="center-vertical" />
+                </DockLayout>
+
+                <Label text="Set Data" class="text-header" />
+                <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                    <Label text="Player:" class="pair-label text-label" />
+                    <Button text="{{ playername }}"
+                            isEnabled="{{ !lockUserActions && canFindUser }}"
+                            tap="openPlayerModal"
+                            class="pair-value-small input-open-modal text-info" />
+                </FlexboxLayout>
                 <!--
-                <Label text="Date:" row="0" col="0" />
-                <Label id="date" text="{{ date }}" row="0" col="1" />
-                -->
-                
+            <TextField id="coachname" hint="Coach"
+                       text="{{ coachname }}"
+                       isEnabled="{{ !lockUserActions }}" />
+            <TextField id="clubname" hint="Club"
+                       text="{{ clubname }}"
+                       isEnabled="{{ !lockUserActions }}" />
+            -->
+
                 <!--
-                <Label text="Date:" row="1" col="0" />
-                <Label id="time" text="{{ time }}" row="1" col="1" />
-                -->
+            <Label text="Date:" row="0" col="0" />
+            <Label id="date" text="{{ date }}" row="0" col="1" />
+            -->
+
+                <!--
+            <Label text="Date:" row="1" col="0" />
+            <Label id="time" text="{{ time }}" row="1" col="1" />
+            -->
 
                 <FlexboxLayout flexWrap="wrap" class="pair-wrap">
                     <Label text="Shot Type:" class="pair-label text-label" />
@@ -81,35 +83,43 @@
                                  selectedIndex="{{ shotTypeIndex }}"
                                  selectedIndexChanged="shotTypeDropdownChanged"
                                  isEnabled="{{ !lockUserActions }}"
-                                 class="pair-value input-dropdown" />
+                                 class="pair-value-small text-info" />
                 </FlexboxLayout>
-                
-                <Label row="3" col="0" text="Rating:" />
-                <dd:DropDown row="3" col="1"  id="ratingType" hint="Rating"
-                             items="{{ ratingTypeItems }}"
-                             selectedIndex="{{ ratingTypeIndex }}"
-                             selectedIndexChanged="ratingTypeDropdownChanged"
-                             isEnabled="{{ !lockUserActions }}" />
-                
-                <Label row="4" col="0" text="Duration:" />
-                <Label row="4" col="1" text="{{ duration }}" />
-            </GridLayout>
 
-            <GridLayout columns="*,*,*,*" rows="*,*">
-                <Button col="0" class="smallbtn"
-                        visibility="{{ canCancel ? 'visible' : 'collapsed' }}"
-                        isEnabled="{{ (canCancel && !lockUserActions) }}"
-                        text="Cancel" tap="cancel" />
-                <Button col="1" class="smallbtn" text="Discard" tap="discard"
-                        isEnabled="{{ (canDiscard && !lockUserActions) }}" />
-                <Button col="2" class="smallbtn"
-                        visibility="{{ canSave ? 'visible' : 'collapsed' }}"
-                        isEnabled="{{ (canSave && !lockUserActions) }}"
-                        text="Save" tap="saveLocally" />
-                <Button col="3" class="smallbtn"
-                        isEnabled="{{ (canUpload && !lockUserActions) }}"
-                        text="Upload" tap="upload" />
-            </GridLayout>
+                <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                    <Label text="Rating:" class="pair-label text-label" />
+                    <dd:DropDown id="ratingType" hint="Rating"
+                                 items="{{ ratingTypeItems }}"
+                                 selectedIndex="{{ ratingTypeIndex }}"
+                                 selectedIndexChanged="ratingTypeDropdownChanged"
+                                 isEnabled="{{ !lockUserActions }}"
+                                 class="pair-value-small text-info" />
+                </FlexboxLayout>
+
+                <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                    <Label text="Duration:" class="pair-label text-label" />
+                    <Label text="{{ duration + 's' }}"
+                           class="pair-value-small text-info" />
+                </FlexboxLayout>
+
+                <FlexboxLayout flexWrap="wrap" flexDirection="row-reverse">
+                    <Button class="button-primary"
+                            isEnabled="{{ (canUpload && !lockUserActions) }}"
+                            text="Upload" tap="upload" />
+                    <Button class="button"
+                            visibility="{{ canSave ? 'visible' : 'collapsed' }}"
+                            isEnabled="{{ (canSave && !lockUserActions) }}"
+                            text="Save" tap="saveLocally" />
+                    <Button class="button"
+                            text="Discard" tap="discard"
+                            isEnabled="{{ (canDiscard && !lockUserActions) }}" />
+                    <Button class="button"
+                            visibility="{{ canCancel ? 'visible' : 'collapsed' }}"
+                            isEnabled="{{ (canCancel && !lockUserActions) }}"
+                            text="Cancel" tap="cancel" />
+                </FlexboxLayout>
+            </StackLayout>
+            
         </StackLayout>
     </ScrollView>
     
