@@ -12,7 +12,7 @@
     </ActionBar>
 
     <ScrollView>
-        <StackLayout class="smallMargin">
+        <StackLayout class="page">
 
             <ActivityIndicator
                 class="screen-cover-load-wheel"
@@ -20,14 +20,13 @@
                 visibility="{{ isLoading ? 'visible' : 'collapse' }}" />
 
             <!-- Profile Pic -->
-            <Label text="Profile Picture" />
-            <DockLayout stretchLastChild="true">
-                <Image dock="left" stretch="aspectFill" class="profile-picture-large"
+            <GridLayout rows="200" columns="200">
+                <Image stretch="aspectFill" class="profile-picture-large"
                        src="{{ imgSrc ? imgSrc : '~/images/picture-2.png' }}"/>
-                <Button dock="left" text="Change Image" tap="changeImage"
+                <Image class="edit-tiny" tap="changeImage"
                         isEnabled="{{ !isUploading && !isLoading }}"
-                        class="center-vertical" />
-            </DockLayout>
+                        src="~/images/edit.png" />
+            </GridLayout>
 
             <!-- User info -->
             <Label text="User Information" />
