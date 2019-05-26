@@ -24,7 +24,7 @@
         <lv:RadListView.headerItemTemplate>
             <StackLayout>
 
-                <Label text="{{ 'Select ' + userType }}" />
+                <Label class="text-header modal-header" text="{{ 'Select ' + userType }}" />
 
                 <!-- display remove button -->
                 <DockLayout stretchLastChild="true" class="cancel-top"

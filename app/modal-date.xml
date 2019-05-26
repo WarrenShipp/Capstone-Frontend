@@ -3,7 +3,7 @@
       xmlns:calendar="nativescript-ui-calendar">
     <ScrollView>
     <StackLayout>
-        <Label text="Choose Birth Date" />
+        <Label class="text-header modal-header" text="Choose Birth Date" />
         
         <!-- calendar -->
     <DatePicker id="birthDate" date="{{ birthDate }}" maxDate="{{ maxDate }}"/>
@@ -11,7 +11,7 @@
         <!-- buttons -->
         <GridLayout columns="*,*">
             <Button col="0" text="Save" tap="onDateSelected" />
-            <Button col="1" text="Deselect" tap="deselect" />
+            <Button col="1" class="button button-margin" text="Deselect" tap="deselect" />
         </GridLayout>
 
     </StackLayout>

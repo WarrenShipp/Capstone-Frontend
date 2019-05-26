@@ -3,7 +3,7 @@
       xmlns:calendar="nativescript-ui-calendar">
 
     <GridLayout rows="auto,*,auto">
-        <Label row="0" text="{{ 'Choose ' + typeName + ' date' }}" />
+        <Label class="text-header modal-header" row="0" text="{{ 'Choose ' + typeName + ' date' }}" />
         
         <!-- calendar -->
         <calendar:RadCalendar row="1" id="calendar"
@@ -19,7 +19,7 @@
                               selectedDate="{{ currentDate }}" />
 
         <!-- buttons -->
-        <Button row="2" text="Deselect" tap="deselect" />
+        <Button row="2" class="button button-margin" text="Deselect" tap="deselect" />
 
     </GridLayout>
 

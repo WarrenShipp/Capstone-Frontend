@@ -190,7 +190,7 @@ Label, TextField, Button {
 }
 
 .input {
-    
+
 }
 
 .input-open-modal {
@@ -233,6 +233,12 @@ Label, TextField, Button {
     border-bottom-width: 1;
 }
 
+.modal-header {
+    margin: auto;
+    text-align: center;
+    border-bottom-width: 1;
+}
+
 .text-info {
     color: rgb(48, 48, 48);
 }
@@ -246,3 +252,4 @@ Label, TextField, Button {
     font-weight: bold;
     margin: 5 5 10 5;
 }
+

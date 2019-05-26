@@ -1,95 +1,101 @@
-<Page navigatingTo="onNavigatingTo" 
-    xmlns:df="nativescript-pro-ui/dataform" 
-    xmlns="http://schemas.nativescript.org/tns.xsd" 
-    xmlns:dd="nativescript-drop-down" 
-    xmlns:calendar="nativescript-ui-calendar">
+<Page navigatingTo="onNavigatingTo"
+      xmlns:df="nativescript-pro-ui/dataform"
+      xmlns="http://schemas.nativescript.org/tns.xsd"
+      xmlns:dd="nativescript-drop-down"
+      xmlns:calendar="nativescript-ui-calendar">
     <ActionBar class="action-bar">
         <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
-        <ActionItem icon="res://navigation/menu" android:visibility="collapsed" tap="onDrawerButtonTap" ios.position="left">
+        <ActionItem icon="res://navigation/menu" android:visibility="collapsed" tap="onDrawerButtonTap"
+                    ios.position="left">
         </ActionItem>
         <Label class="action-bar-title" text="Search"></Label>
     </ActionBar>
 
-        <StackLayout >
-            <GridLayout columns="*,2*" rows="*,*"
-                        horizontalAlignment="left" verticalAlignment="top"
-                        class="searchForm">
-                <Label row="0" col="0" text="Type" />
-                <dd:DropDown id="searchType" col="1" hint="Select"
+    <StackLayout class="page">
+        <StackLayout class="section">
+            <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+
+                <Label class="pair-label text-label" text="Type"/>
+                <dd:DropDown class="pair-value input-dropdown"
+                             id="searchType" hint="Select"
                              items="{{ searchTypeList }}"
                              selectedIndex="{{ searchTypeIndex }}"
-                             selectedIndexChanged="searchTypeChanged" />
-            </GridLayout>
+                             selectedIndexChanged="searchTypeChanged"/>
+            </FlexboxLayout>
+        </StackLayout>
 
-            <!-- Club Search Form -->
-            <GridLayout columns="*,2*" rows="*,*,*"
-                        horizontalAlignment="left" verticalAlignment="top"
-                        height="auto"
-                        visibility="{{ showClub ? 'visible' : 'collapsed' }}">
-                <Label col="0" text="Name"></Label>
-                <TextField text="{{ clubName }}" col="1"></TextField>
-                <!-- <Label col="0" row="1" text="League  "></Label>
-                <TextField text="{{ leagueName }}" col="1" row="1"></TextField> -->
-            </GridLayout>
+        <!-- Club Search Form -->
+        <StackLayout
+                visibility="{{ showClub ? 'visible' : 'collapsed' }}">
+            <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                <Label class="pair-label text-label" text="Name"></Label>
+                <TextField class="pair-value input-text" text="{{ clubName }}"></TextField>
+            </FlexboxLayout>
+        </StackLayout>
 
-            <!-- Shot Search Form -->
-            <GridLayout columns="*,*" rows="*,*,*,*,*,*,*"
-                        horizontalAlignment="left" verticalAlignment="top"
-                        height="auto"
-                        visibility="{{ showShot ? 'visible' : 'collapsed' }}">
-                
-                <Label col="0" row="0" text="Player"></Label>
-                <Button col="1" row="0" text="{{ playerName ? playerName : '' }}"
-                        tap="openPlayerModal" horizontalAlignment="left" />
-
-                <Label col="0" row="1" text="Type" />
-                <dd:DropDown row="1" col="1" id="shotTypeDropdown" hint="Shot Type"
+        <!-- Shot Search Form -->
+        <StackLayout visibility="{{ showShot ? 'visible' : 'collapsed' }}">
+            <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                <Label class="pair-label text-label" text="Player"></Label>
+                <Button class="pair-value button button-margin input-open-modal" text="{{ playerName ? playerName : 'Select Player' }}"
+                        tap="openPlayerModal" horizontalAlignment="left"/>
+            </FlexboxLayout>
+            <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                <Label class="pair-label text-label" text="Type"/>
+                <dd:DropDown class="pair-value input-dropdown" id="shotTypeDropdown" hint="Shot Type"
                              items="{{ shotTypeList }}" selectedIndex="{{ shotTypeIndex }}"
-                             isEnabled="{{ isEnabled }}" />
-                
-                <Label col="0" row="2" text="Rating" />
-                <dd:DropDown row="2" col="1" id="ratingTypeDropdown" hint="Rating"
+                             isEnabled="{{ isEnabled }}"/>
+            </FlexboxLayout>
+            <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                <Label class="pair-label text-label" text="Rating"/>
+                <dd:DropDown class="pair-value input-dropdown" id="ratingTypeDropdown" hint="Rating"
                              items="{{ ratingTypeList }}" selectedIndex="{{ ratingTypeIndex }}"
-                             isEnabled="{{ isEnabled }}" />
+                             isEnabled="{{ isEnabled }}"/>
+            </FlexboxLayout>
+            <!-- Label  row="3" text="Coach" />
+            <TextField  row="3" text="{{ shotCoach }}" / -->
 
-                <!-- Label col="0" row="3" text="Coach" />
-                <TextField col="1" row="3" text="{{ shotCoach }}" / -->
-
-                <!-- Label col="0" row="4" text="Club" />
-                <TextField col="1" row="4" text="{{ shotClub }}" / -->
-                
-                <Label col="0" row="5" text= "Start Date" />
-                <Button text="{{ dateStartName ? dateStartName : '' }}" col="1" row="5"
+            <!-- Label   text="Club" />
+            <TextField   text="{{ shotClub }}" / -->
+            <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                <Label class="pair-label text-label" text="Start Date"/>
+                <Button class="pair-value button button-margin input-open-modal" text="{{ dateStartName ? dateStartName : 'Select Date' }}"
                         tap="showDateStart"
-                        visibility="{{ showCalendarStart ? 'collapsed' : 'visible' }}" />
-                <Label col="0" row="6" text= "End Date" />
-                <Button text="{{ dateEndName ? dateEndName : '' }}" col="1" row="6"
+                        visibility="{{ showCalendarStart ? 'collapsed' : 'visible' }}"/>
+            </FlexboxLayout>
+            <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                <Label class="pair-label text-label" text="End Date"/>
+                <Button class="pair-value button button-margin input-open-modal" text="{{ dateEndName ? dateEndName : 'Select Date' }}"
                         tap="showDateEnd"
-                        visibility="{{ showCalendarEnd ? 'collapsed' : 'visible' }}" />
-            
-            </GridLayout>
+                        visibility="{{ showCalendarEnd ? 'collapsed' : 'visible' }}"/>
+            </FlexboxLayout>
+        </StackLayout>
 
-            <!-- User Search Form -->
-            <GridLayout columns="*,2*" rows="*,*,*"
-                        horizontalAlignment="left" verticalAlignment="top"
-                        height="auto"
-                        visibility="{{ showUser ? 'visible' : 'collapsed' }}">
-                <Label col="0" text="Player"></Label>
-                <TextField text="{{ userName }}" col="1"></TextField>
-                <Label col="0" row="1" text="Club  "></Label>
-                <TextField text="{{ userClub }}" col="1" row="1"></TextField>
-                <Label col="0" row="2" text="Type  "></Label>
-                <dd:DropDown row="2" col="1" id="userTypeDropdown" hint="User Type"
+        <!-- User Search Form -->
+        <StackLayout visibility="{{ showUser ? 'visible' : 'collapsed' }}">
+            <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                <Label class="pair-label text-label" text="Player"></Label>
+                <TextField class="pair-value input-text" text="{{ userName }}"></TextField>
+            </FlexboxLayout>
+            <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                <Label class="pair-label text-label" text="Club  "></Label>
+                <TextField class="pair-value input-text" text="{{ userClub }}"></TextField>
+            </FlexboxLayout>
+            <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                <Label class="pair-label text-label" text="Type  "></Label>
+                <dd:DropDown class="pair-value input-dropdown"
+                             id="userTypeDropdown" hint="User Type"
                              items="{{ userTypeList }}"
                              selectedIndex="{{ userTypeIndex }}"
-                             isEnabled="{{ isEnabled }}" />
-            </GridLayout>
-    
-            <!-- Submit button -->
-            <Button class="btn btn-primary"
-                    horizontalAlignment="stretch" tap="sendSearch"
-                    text="Search"
-                    visibility="{{ showSubmit ? 'visible' : 'collapsed' }}" />
-
+                             isEnabled="{{ isEnabled }}"/>
+            </FlexboxLayout>
         </StackLayout>
+
+        <!-- Submit button -->
+        <Button class="button button-margin"
+                horizontalAlignment="stretch" tap="sendSearch"
+                text="Search"
+                visibility="{{ showSubmit ? 'visible' : 'collapsed' }}"/>
+
+    </StackLayout>
 </Page>

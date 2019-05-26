@@ -5,3 +5,28 @@
 .searchForm {
     padding: 10;
 }
+
+.input-dropdown{
+    margin: 2% 0;
+    background-color: white;
+    border-color: rgb(180, 180, 180);
+    border-width: 2;
+    border-radius: 5;
+    color:black;
+    padding: 7;
+    margin: 5;
+}
+.input-dropdown:disabled {
+    opacity: 0.5
+}
+
+/*.input-dropdown::after{*/
+/*    font-family: "Font Awesome 5 Free", "fa-solid-900";*/
+/*    content:"&#xf078 Test"*/
+/*}*/
+
+
+.section{
+    border-color: rgb(180, 180, 180);
+    border-bottom: 2;
+}

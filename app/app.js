@@ -40,6 +40,14 @@ if (application.android) {
         }
     );
 }
+// This may be a solution to the crashes when app resumes
+// var navigationOptions = {
+//     moduleName: 'home-page',
+//     clearHistory: true,
+// };
+// application.on(application.resumeEvent, (context) => {
+//     setTimeout(() => topmost().navigate(navigationOptions), 0);
+// });
 
 application.run({ moduleName: "app-root" });
 
