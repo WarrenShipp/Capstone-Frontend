@@ -58,8 +58,7 @@ exports.onDateSelected = onDateSelected;
 function deselect(args) {
     // send 
     var context = {
-        type: type,
-        date: null
+        date: birthDate
     };
     args.object.closeModal(context);
 
