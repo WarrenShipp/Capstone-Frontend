@@ -19,24 +19,12 @@
                 busy="{{ isLoading }}"
                 visibility="{{ isLoading ? 'visible' : 'collapse' }}" />
 
-            <GridLayout columns="*,*" rows="*,*,*"
-                        horizontalAlignment="left" verticalAlignment="top">
-                <Label col="0" row="0" text="Player:" />
-                <Label col="1" row="0" text="{{ playername ? playername : 'None' }}" />
-                <!--
-                <Label col="0" row="1" text="Coach:" />
-                <Label col="1" row="1" text="{{ coachname ? coachname : 'None' }}" />
-                <Label col="0" row="2" text="Club:" />
-                <Label col="1" row="2" text="{{ clubname ? clubname : 'None' }}" />
-                -->
-            </GridLayout>
-
             <GridLayout class="video-background" height="300">
                 <!-- video element -->
                 <VideoPlayer:Video
                     id="nativeVideoPlayer"
-                    controls="true" loop="true" autoplay="false"
-                    height="300" class="shot-video"
+                    controls="true" loop="false" autoplay="false"
+                    height="300" class="video"
                     src="{{ videoPath }}" />
                 <!-- loading element -->
                 <Label class="center-element" text="Getting video"
@@ -46,8 +34,21 @@
                        visibility="{{ !videoLoading && !hasVideo ? 'visible' : 'collapsed' }}" />
             </GridLayout>
 
-            <GridLayout columns="*,2*" rows="*,*,*,*,*"
-                        horizontalAlignment="left" verticalAlignment="top">
+            <StackLayout class="page">
+                <Label text="Shot Data" class="text-header" />
+
+                <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                    <Label text="Player:" class="pair-label text-label" />
+                    <Label text="{{ playername ? playername : 'None' }}"
+                           class="pair-value text-info" />
+                </FlexboxLayout>
+
+                <!--
+                <Label col="0" row="1" text="Coach:" />
+                <Label col="1" row="1" text="{{ coachname ? coachname : 'None' }}" />
+                <Label col="0" row="2" text="Club:" />
+                <Label col="1" row="2" text="{{ clubname ? clubname : 'None' }}" />
+                -->
 
                 <!--
                 <Label text="Date:" row="0" col="0" />
@@ -57,24 +58,34 @@
                 <Label id="time" text="{{ time }}" row="1" col="1" />
                 -->
 
-                <Label text="Shot Type:" row="2" col="0" />
-                <Label row="2" col="1" text="{{ shotTypeName ? shotTypeName : 'Unset' }}" />
+                <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                    <Label text="Shot Type:" class="pair-label text-label" />
+                    <Label text="{{ shotTypeName ? shotTypeName : 'Unset' }}"
+                           class="pair-value text-info" />
+                </FlexboxLayout>
 
-                <Label row="3" col="0" text="Rating:" />
-                <Label row="3" col="1" text="{{ ratingTypeName ? ratingTypeName : 'Unset' }}" />
+                <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                    <Label text="Rating:" class="pair-label text-label" />
+                    <Label text="{{ ratingTypeName ? ratingTypeName : 'Unset' }}"
+                           class="pair-value text-info" />
+                </FlexboxLayout>
 
-                <Label row="4" col="0" text="Duration:" />
-                <Label row="4" col="1" text="{{ duration }}" />
-            </GridLayout>
+                <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                    <Label text="Duration:" class="pair-label text-label" />
+                    <Label text="{{ duration + 's' }}"
+                           class="pair-value text-info" />
+                </FlexboxLayout>
 
-            <GridLayout columns="*,*,*" rows="*,*">
-                <Button col="0" class="smallbtn"
-                        text="Cancel" tap="cancel" />
-                <Button col="1" class="smallbtn"
-                        visibility="{{ canEdit ? 'visible' : 'collapsed' }}"
-                        isEnabled="{{ (canEdit && !isLoading && !lockUserAction) ? 'true' : 'false' }}"
-                        text="Edit" tap="edit" />
-            </GridLayout>
+                <DockLayout stretchLastChild="false">
+                    <Button dock="right" class="button-primary"
+                            visibility="{{ canEdit ? 'visible' : 'collapsed' }}"
+                            isEnabled="{{ (canEdit && !isLoading && !lockUserAction) ? 'true' : 'false' }}"
+                            text="Edit" tap="edit" />
+                    <Button dock="right" class="button"
+                            text="Cancel" tap="cancel" />
+                </DockLayout>
+            </StackLayout>
+            
         </StackLayout>
     </ScrollView>
 

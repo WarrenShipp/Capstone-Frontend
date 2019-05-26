@@ -144,7 +144,7 @@ function onLoad(args) {
             duration = player.getDuration();
         }
         let durSeconds = duration / 1000;
-        viewModel.set("duration", durSeconds);
+        viewModel.set("duration", durSeconds.toString());
         console.log("duration: " + duration);
         hasVideo = true;
         viewModel.set("hasVideo", hasVideo);
