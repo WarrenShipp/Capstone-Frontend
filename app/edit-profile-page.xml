@@ -20,7 +20,7 @@
             </GridLayout>
 
             <!-- User info -->
-            <Label text="User Information" />
+            <!-- <Label text="User Information" class="text-header"/> -->
             <FlexboxLayout flexWrap="wrap" class="pair-wrap">
                 <Label text="First Name:" class="pair-label text-label"/>
                 <TextField text="{{ firstName }}" class="input-text" isEnabled="{{ !isUploading && !isLoading }}" class="pair-value input-text" />
@@ -31,8 +31,10 @@
             </FlexboxLayout>
 
             <!-- Player Info -->
-            <Label text="Player Information" />
-            <Switch checked="{{ isPlayer }}" id="player-switch" isEnabled="{{ !isUploading && !isLoading }}" />
+            <DockLayout>
+            <Label dock="left" text="Player Information" class="text-header"/>
+            <Switch dock="right" checked="{{ isPlayer }}" id="player-switch" isEnabled="{{ !isUploading && !isLoading }}" />
+            </DockLayout>
             <StackLayout visibility="{{ isPlayer ? 'visible' : 'collapsed' }}">
                 <FlexboxLayout flexWrap="wrap" class="pair-wrap">
                     <Label text="Date of Birth:" class="pair-label text-label"/>
@@ -53,10 +55,11 @@
             </StackLayout>
 
             <!-- Coach Info -->
-            <Label text="Coach Information" />
-            <Switch checked="{{ isCoach }}" id="coach-switch" isEnabled="{{ !isUploading && !isLoading }}" />
+            <DockLayout>
+            <Label dock="left" text="Coach Information" class="text-header"/>
+            <Switch dock="right" checked="{{ isCoach }}" id="coach-switch" isEnabled="{{ !isUploading && !isLoading }}" />
+            </DockLayout>
             <StackLayout visibility="{{ isCoach ? 'visible' : 'collapsed' }}">
-                <Label text="Coaching Information" />
                 <FlexboxLayout flexWrap="wrap" class="pair-wrap">
                     <Label text="Years Experience:" class="pair-label text-label"/>
                     <TextField text="{{ yearsExperience }}" keyboardType="number" isEnabled="{{ !isUploading && !isLoading }}" class="pair-value input-text"/>
