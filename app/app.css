@@ -17,49 +17,43 @@ components that have the btn class name.
 */
 * {
     font-family: "Varela", "varela-regular";
-}
-
-.btn {
-    font-size: 18;
-}
-
-Page {
     font-size: 20;
-   
+    color: rgb(28, 28, 28);
 }
 
-.browselabel{
-    font-size: 30;
-    text-align: center;
+.page {
+    padding: 5;
+}
+
+.modal {
+    padding: 5;
+    border-radius: 5;
 }
 
 .smallbtn {
-    font-size:14;
-    padding:0;
+    font-size: 14;
+    padding: 0;
 }
 
 .input {
     font-size: 18;
-  }
+}
 
-.action-bar{
+.action-bar {
     background-color: red;
 }
 
-.smallMargin{
-    margin-left: 10px;
-    margin-right: 10px;
+.action-bar-title {
+    font-size: 20;
+    color: black;
+    text-align: center;
 }
 
 .center-element {
     vertical-align: middle;
-    margin: 0px auto;
+    margin: 0 auto;
     color: white;
     text-align: center;
-}
-
-.video-background {
-    background-color: rgb(0, 0, 0);
 }
 
 .center-vertical {
@@ -68,22 +62,170 @@ Page {
     margin-bottom: 0;
 }
 
+.video-background {
+    background-color: rgb(0, 0, 0);
+}
+
+.video {
+    width: 100%;
+}
+
+.profile-picture-tiny {
+    width: 50;
+    height: 50;
+    vertical-align: top;
+    text-align: center;
+}
+
 .profile-picture-small {
-    width: 300px;
-    height: 300px;
-    vertical-align: middle;
+    width: 100;
+    height: 100;
+    vertical-align: top;
     text-align: center;
 }
 
 .profile-picture-large {
-    width: 600px;
-    height: 600px;
+    width: 200;
+    height: 200;
+    vertical-align: top;
+    text-align: center;
+}
+
+.picture-small {
+    width: 100;
+    height: 100;
     vertical-align: middle;
     text-align: center;
+}
+
+.picture-large {
+    width: 200;
+    height: 200;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.button {
+    font-size: 20;
+    font-weight: bold;
+    color: rgb(60, 60, 60);
+    padding: 5;
+    border-color: rgb(180, 180, 180);
+    border-width: 2;
+    border-radius: 5;
+    background-color: white;
+}
+
+.button:disabled {
+    background-color: lightgrey;
+}
+
+.button-primary {
+    font-size: 20;
+    font-weight: bold;
+    padding: 5;
+    border-color: red;
+    border-width: 2;
+    border-radius: 5;
+    background-color: salmon;
+}
+
+.button-primary:disabled {
+    background-color: lightgrey;
+}
+
+.button-clear {
+    font-size: 20;
+    font-weight: bold;
+    padding: 5;
+    border: 0;
+    border-radius: 5;
+    background-color: transparent;
+}
+
+.button-clear:disabled {
+    color: grey;
 }
 
 .button-container > Button {
     background-color: transparent;
     margin: 0;
     padding: 0;
+}
+
+.screen-cover-load-wheel {
+    width: 50;
+    height: 50;
+    margin: auto auto;
+}
+
+.pair-wrap {
+    padding-top: 3;
+    padding-bottom: 3;
+}
+
+.pair-label {
+    padding: 0;
+    width: auto;
+}
+
+.pair-value {
+    padding: 0;
+    width: 100%;
+}
+
+.input {
+    
+}
+
+.input-open-modal {
+    background-color: transparent;
+    border-bottom-color: rgb(180, 180, 180);
+    border-bottom-width: 1;
+    padding: 5;
+}
+
+.input-text {
+    border-bottom-color: rgb(180, 180, 180);
+    border-bottom-width: 1;
+}
+
+.input-dropdown {
+    border-bottom-color: rgb(180, 180, 180);
+    border-bottom-width: 1;
+}
+
+.input-switch {
+
+}
+
+.input-slider {
+    color: blue;
+}
+
+.issue-field {
+    border-color: red;
+    border-width: 2;
+}
+
+.text-header {
+    font-size: 24;
+    padding: 5 0;
+    margin: 5 0;
+    border-bottom-color: rgb(225, 225, 225);
+    border-bottom-width: 1;
+}
+
+.text-info {
+    color: rgb(48, 48, 48);
+}
+
+.text-label {
+
+}
+
+.text-important {
+    font-size: 28;
+    font-weight: bold;
+    margin: 5 5 10 5;
 }

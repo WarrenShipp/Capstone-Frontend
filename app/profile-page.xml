@@ -10,7 +10,7 @@
     </ActionBar>
 
     <ScrollView>
-        <StackLayout class="smallMargin">
+        <StackLayout class="page">
             
             <ActivityIndicator
                 class="screen-cover-load-wheel"
@@ -18,22 +18,25 @@
                 visibility="{{ isLoading ? 'visible' : 'collapse' }}" />
             
             <!-- User info -->
-            <GridLayout columns="*,2*" rows="*" height="100">
-                <Image col="0" row="0" width="100" class="profile-picture-small"
-                       src="{{ imgSrc ? imgSrc : '~/images/picture-2.png' }}" />
-                <Label col="1" row="0" text="{{ name }}" textWrap="true"
-                       class="center-vertical" />
-            </GridLayout>
-            <DockLayout col="1" row="1" stretchLastChild="true"
-                        visibility="{{ email ? 'visible' : 'collapsed' }}">
-                <Label dock="left" text="Email:" />
-                <Label dock="right" text="{{ email }}" />
-            </DockLayout>
-            <DockLayout col="1" row="2" stretchLastChild="true"
-                        visibility="{{ phone ? 'visible' : 'collapsed' }}">
-                <Label dock="left" text="Phone:" />
-                <Label dock="right" text="{{ phone }}" />
-            </DockLayout>
+            <FlexboxLayout>
+                <Image class="profile-picture-small"
+                       src="{{ imgSrc ? imgSrc : '~/images/picture-2.png' }}"
+                       stretch="aspectFill" />
+                <Label text="{{ name }}" textWrap="true"
+                       class="center-vertical text-important" />
+            </FlexboxLayout>
+            
+            <Label text="User Information" class="text-header" />
+            <FlexboxLayout flexWrap="wrap" class="pair-wrap"
+                           visibility="{{ email ? 'visible' : 'collapsed' }}">
+                <Label text="Email:" class="pair-label text-label" />
+                <Label text="{{ email }}" class="pair-value text-info" />
+            </FlexboxLayout>
+            <FlexboxLayout flexWrap="wrap" class="pair-wrap"
+                           visibility="{{ phone ? 'visible' : 'collapsed' }}">
+                <Label text="Phone:" class="pair-label text-label" />
+                <Label text="{{ phone }}" class="pair-value text-info"/>
+            </FlexboxLayout>
 
             <!-- Registered Clubs -->
             <!--
@@ -48,28 +51,28 @@
 
             <!-- Player Info -->
             <StackLayout visibility="{{ isPlayer ? 'visible' : 'collapsed' }}">
-                <Label text="Player Information" />
-                <DockLayout stretchLastChild="true">
-                    <Label dock="left" text="Date of Birth:" />
-                    <Label dock="right" text="{{ birthDate }}" />
-                </DockLayout>
-                <DockLayout stretchLastChild="true">
-                    <Label dock="left" text="Batsman Type:" />
-                    <Label dock="right" text="{{ batsmanType }}" />
-                </DockLayout>
-                <DockLayout stretchLastChild="true">
-                    <Label dock="left" text="Bowler Type:" />
-                    <Label dock="right" text="{{ bowlerType }}" />
-                </DockLayout>
+                <Label text="Player Information" class="text-header" />
+                <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                    <Label text="Date of Birth:" class="pair-label text-label" />
+                    <Label text="{{ birthDate }}" class="pair-value text-info" />
+                </FlexboxLayout>
+                <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                    <Label text="Batsman Type:" class="pair-label text-label" />
+                    <Label text="{{ batsmanType }}" class="pair-value text-info" />
+                </FlexboxLayout>
+                <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                    <Label text="Bowler Type:" class="pair-label text-label" />
+                    <Label text="{{ bowlerType }}" class="pair-value text-info" />
+                </FlexboxLayout>
             </StackLayout>
 
             <!-- Coach Info -->
             <StackLayout visibility="{{ isCoach ? 'visible' : 'collapsed' }}">
-                <Label text="Coaching Information" />
-                <DockLayout>
-                    <Label dock="left" text="Years Experience:" />
-                    <Label dock="right" text="{{ yearsExperience }}" />
-                </DockLayout>
+                <Label text="Coaching Information" class="text-header" />
+                <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                    <Label text="Years Experience:" class="pair-label text-label" />
+                    <Label text="{{ yearsExperience }}" class="pair-value text-info" />
+                </FlexboxLayout>
             </StackLayout>
 
             <!-- Actions -->
@@ -82,8 +85,9 @@
                     visibility="{{ isSelf ? 'visible' : 'collapsed' }}" / -->
             
             <!-- Buttons -->
-            <DockLayout visibility="{{ canEdit ? 'visible' : 'collapsed' }}">
-                <Button dock="right" text="Edit" tap="editSelf" />
+            <DockLayout visibility="{{ canEdit ? 'visible' : 'collapsed' }}"
+                        stretchLastChild="false" >
+                <Button dock="right" text="Edit" tap="editSelf" class="button" />
             </DockLayout>
 
         </StackLayout>

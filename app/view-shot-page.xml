@@ -10,7 +10,7 @@
         </ActionItem>
         <Label class="action-bar-title" text="{{ pageName ? pageName : '...' }}"></Label>
     </ActionBar>
-    
+
     <ScrollView>
         <StackLayout>
 
