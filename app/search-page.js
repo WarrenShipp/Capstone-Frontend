@@ -123,8 +123,8 @@ exports.onNavigatingTo = onNavigatingTo;
             return;
         }
         playerId = vals.id;
-        firstname = vals.user;
-        viewModel.set("playername", firstname);
+        playerName = vals.user;
+        viewModel.set("playerName", playerName);
     }
     button.showModal(modalPlayerSelectModule, context, callback, fullscreen);
 }
