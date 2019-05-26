@@ -1,0 +1,18 @@
+﻿.hamburger {
+    background-color: rgb(20, 20, 20);
+    width: 70%;
+}
+
+.hamburger-item {
+    color: white;
+    font-size: 24;
+    text-align: left;
+    font-weight: normal;
+    padding: 10;
+    margin: 0;
+}
+
+.hamburger-divided {
+    border-bottom-color: rgb(128, 128, 128);
+    border-bottom-width: 1;
+}

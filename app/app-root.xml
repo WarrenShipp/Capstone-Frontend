@@ -1,26 +1,26 @@
 <nsDrawer:RadSideDrawer xmlns:nsDrawer="nativescript-ui-sidedrawer"
                         loaded="onLoaded" drawerOpening="onDrawerOpen">
     <nsDrawer:RadSideDrawer.drawerContent>
-        <StackLayout backgroundColor="gray">
-            <Button class="btn btn-primary sidedrawer-list-item-text" text="Home"
+        <StackLayout class="hamburger">
+            <Button class="button-clear hamburger-item hamburger-divided" text="Home"
                 tap="navigateToHome" />
-            <Button class="btn btn-primary sidedrawer-list-item-text" text="My Profile"
+            <Button class="button-clear hamburger-item" text="My Profile"
                 tap="navigateToProfile" visibility="{{ loggedIn ? 'visible' : 'collapsed' }}" />
-            <Button class="btn btn-primary sidedrawer-list-item-text" text="Create New Shot"
+            <Button class="button-clear hamburger-item" text="Create New Shot"
                 tap="navigateToRecord" />
-            <Button class="btn btn-primary sidedrawer-list-item-text" text="Search"
+            <Button class="button-clear hamburger-item" text="Search"
                 tap="navigateToSearch" visibility="{{ loggedIn ? 'visible' : 'collapsed' }}" />
-            <Button class="btn btn-primary sidedrawer-list-item-text" text="View Saved Shots"
+            <Button class="button-clear hamburger-item" text="View Saved Shots"
                 tap="navigateToSaved" />
-            <Button class="btn btn-primary sidedrawer-list-item-text" text="Club Creation"
-                tap="navigateToClubCreate" />
-            <Button class="btn btn-primary sidedrawer-list-item-text" text="My Club"
-                tap="navigateToMyClub" />
-            <Button class="btn btn-primary sidedrawer-list-item-text" text="Login"
+            <Button class="button-clear hamburger-item" text="Club Creation"
+                tap="navigateToClubCreate" visibility="{{ debug ? 'visible' : 'collapsed' }}" />
+            <Button class="button-clear hamburger-item" text="My Club"
+                tap="navigateToMyClub" visibility="{{ debug ? 'visible' : 'collapsed' }}" />
+            <Button class="button-clear hamburger-item" text="Login"
                 tap="navigateToLogin" visibility="{{ loggedIn ? 'collapsed' : 'visible' }}" />
-            <Button class="btn btn-primary sidedrawer-list-item-text" text="Logout"
+            <Button class="button-clear hamburger-item" text="Logout"
                 tap="logout" visibility="{{ loggedIn ? 'visible' : 'collapsed' }}" />
-            <Button class="btn btn-primary sidedrawer-list-item-text" text="ADMIN TOOLS"
+            <Button class="button-clear hamburger-item" text="ADMIN TOOLS"
                 tap="navigateToAdmin" visibility="{{ debug ? 'visible' : 'collapsed' }}" />
         </StackLayout>
     </nsDrawer:RadSideDrawer.drawerContent>
