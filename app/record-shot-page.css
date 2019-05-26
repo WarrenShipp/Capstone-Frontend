@@ -1,21 +1,39 @@
 ﻿.record-button-row {
     background-color: transparent;
     z-index: 10;
+    height: 96;
+    margin-bottom: 0;
 }
 
-.record-button-row > Label {
-    margin: 18px 20px;
-    top: 24px;
+.record-button-row  Label {
     color: white;
-    position: relative;
-}
-
-.record-button-row > Button {
-    margin: 0px 8px;
     background-color: white;
-    position: relative;
+    color: #000;
+    opacity: 0.5;
+    line-height: 60px;
+    margin-right: 0;
+    padding:5;
+    margin: 5;
+    padding-top:auto;
+    border-radius:30;
+    height:auto;
+    text-align: center;
+    vertical-align: center;
 }
 
+.record-button-row  Button {
+    font-size: 24;
+    position: relative;
+    background-color: red;
+    color: black;
+    width: 76;
+    height: 76;
+    border-radius: 38;
+}
+.btn{
+    margin-bottom: 10;
+
+}
 .fix-absolute-layout {
     position: relative;
 }

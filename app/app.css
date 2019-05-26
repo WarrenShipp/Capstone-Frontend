@@ -171,6 +171,7 @@ Label, TextField, Button {
 .pair-wrap {
     padding-top: 3;
     padding-bottom: 3;
+    justify-content: space-between;
 }
 
 .pair-label {
@@ -251,5 +252,11 @@ Label, TextField, Button {
     font-size: 28;
     font-weight: bold;
     margin: 5 5 10 5;
+}
+
+
+.fas {
+    font-family: Font Awesome 5 Free, fa-solid-900;
+    font-weight: 900;
 }
 

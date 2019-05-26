@@ -1,26 +1,32 @@
 <Page
-  xmlns="http://schemas.nativescript.org/tns.xsd"
-  navigatingTo="navigatingTo"
-  xmlns:recorder="nativescript-videorecorder/advanced"
-  loaded="loaded" page.actionBarHidden="true" hasActionBar="false">
-    <GridLayout rows="9*,*" col="*"
-        height="100%" width="100%" class="fix-absolute-layout">
+        xmlns="http://schemas.nativescript.org/tns.xsd"
+        navigatingTo="navigatingTo"
+        xmlns:recorder="nativescript-videorecorder/advanced"
+        loaded="loaded" page.actionBarHidden="true" hasActionBar="false">
+    <GridLayout dock="top" rows="*,120" col="*"
+                height="100%" width="100%" class="fix-absolute-layout">
         <recorder:AdvancedVideoView quality="highest" cameraPosition="back"
                                     row="0" col="0" rowSpan="2"
-                                    height="100%" width="100%"
-                                    id="camera" />
-        <StackLayout width="100%" orientation="horizontal"
-                     row="1" col="0"
-                     class="record-button-row" id="recordButtonRow">
-            <Button text="Cancel" tap="cancel"
-                    isEnabled="{{ !disabled }}"
-                    class="btn {{ disabled ? '' : 'btn-active' }}" />
-            <Button text="{{ !recording ? 'Record' : 'Finish' }}"
-                    tap="recordVideo"
-                    class="btn {{ disabled ? '' : 'btn-active' }}"
-                    isEnabled="{{ !disabled }}" />
-            <Label text="{{ timeRecorded }}"
-                    visibility="{{ recording ? 'visible' : 'collapsed' }}" />
-        </StackLayout>
+                                    height="auto" width="100%"
+                                    id="camera"/>
+        <DockLayout row="1" col="0" stretchLastChild="false">
+            <FlexboxLayout justifyContent="space-between" dock="bottom" class="record-button-row" flexWrap="nowrap"
+                           flexDirection="row" flexGrow="0"
+                           flexShrink="0">
+                <Button text="&#xf05e;" tap="cancel"
+                        isEnabled="{{ !disabled }}"
+                        class="fas btn {{ disabled ? '' : 'btn-active' }}"/>
+
+                <Button alignSelf="center" text="{{ !recording ? '&#xf03d;' : '&#xf00c;' }}"
+                        tap="recordVideo"
+                        class="fas btn {{ disabled ? '' : 'btn-active' }}"
+                        isEnabled="{{ !disabled }}"/>
+                <FlexboxLayout flexWrap="nowrap" justifyContent="center"
+                               flexDirection="column" flexGrow="0">
+                    <Label text="{{  recording ? timeRecorded : '0:00/0:20' }}"
+                           visibility="visible"/>
+                </FlexboxLayout>
+            </FlexboxLayout>
+        </DockLayout>
     </GridLayout>
 </Page>
