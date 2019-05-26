@@ -1,30 +1,26 @@
 var observable = require("data/observable").Observable;
 var viewModel = new observable();
 
-var type;
-var typeName;
 var maxDate;
 var minDate;
-var currentDate;
+var birthDate;
+var temppage;
 
 /**
  * Sets up binding context
  * @param {any} args
  */
 function onShownModally(args) {
-    var temppage = args.object;
+    temppage = args.object;
     temppage.bindingContext = viewModel;
 
     // set vars
-    type = args.context.type;
-    typeName = args.context.typeName;
     maxDate = args.context.maxDate ? args.context.maxDate : (new Date()).toISOString();
     minDate = args.context.minDate ? args.context.minDate : null;
-    currentDate = args.context.currentDate ? args.context.currentDate : null;
-    viewModel.set("typeName", typeName);
+    birthDate = args.context.birthDate ? args.context.birthDate : null;
     viewModel.set("maxDate", maxDate);
     viewModel.set("minDate", minDate);
-    viewModel.set("currentDate", currentDate);
+    viewModel.set("birthDate", birthDate);
 
 }
 exports.onShownModally = onShownModally;
@@ -34,25 +30,21 @@ exports.onShownModally = onShownModally;
  * @param {any} args
  */
 function onDateSelected(args) {
-    console.log("date: " + args.date);
-    var offset = args.date.getTimezoneOffset();
+    let datePicker = temppage.getViewById("birthDate");
+    
+    console.log(datePicker);
+    var yourDate = new Date(datePicker.year, datePicker.month-1, datePicker.day);
+    var offset = yourDate.getTimezoneOffset(); 
+    console.log(yourDate);
     console.log(offset);
-    var yourDate = new Date(args.date.getTime() - (offset * 60 * 1000));
-    // console.log(yourDate.toISOString());
-    // yourDate = yourDate.toISOString().split('T')[0];
+    yourDate = new Date(yourDate.getTime() - (offset*60*1000));
+    yourDate = yourDate.toISOString().split('T')[0];
 
     // compare dates with max and min to ensure that we are within the correct
     // bounds
-    if (maxDate && yourDate > maxDate) {
-        return;
-    }
-    if (minDate && yourDate < minDate) {
-        return;
-    }
 
     // send 
     var context = {
-        type: type,
         date: yourDate
     };
     args.object.closeModal(context);

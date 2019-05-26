@@ -51,6 +51,8 @@ var yearsExperience;
 var isLoading;
 var isUploading;
 
+const modalCalendarModule = "modal-date";
+
 /**
  * Sets up page. Gets data to display to the page.
  * @param {any} args
@@ -213,7 +215,7 @@ function _makeProfilePage(user, isSelf) {
     }
 
     console.log("Doing viewmodels");
-
+    birthDate = birthDate.toISOString().split('T')[0];
     // set all
     viewModel.set("imgSrc", imgSrc);
     viewModel.set("firstName", firstName);
@@ -273,13 +275,13 @@ function save(args) {
     let dropdownBowler = page.getViewById("bowlerType");
     var saveBowlerType = dropdownBowler.selectedIndex;
     console.log("From ID: " + saveBowlerType + "; From VM: " + viewModel.get("bowlerTypeIndex"));
-    let datePicker = page.getViewById("birthDate");
-    console.log(datePicker);
-    console.log("date picker: " + datePicker.year);
-    console.log("date picker: " + datePicker.month);
-    console.log("date picker: " + datePicker.day);
+    let saveBirthDate = viewModel.get("birthDate");
+    // console.log(datePicker);
+    // console.log("date picker: " + datePicker.year);
+    // console.log("date picker: " + datePicker.month);
+    // console.log("date picker: " + datePicker.day);
 
-    var saveBirthDate = new Date(datePicker.year, datePicker.month-1, datePicker.day);
+    //var saveBirthDate = new Date(datePicker.year, datePicker.month-1, datePicker.day);
 
     // coach info args
     var saveYearsExperience = viewModel.get("yearsExperience");
@@ -298,11 +300,10 @@ function save(args) {
     console.log(today.getDate());
     console.log(today.getMonth());
     console.log(today.getFullYear());
-    console.log(saveBirthDate);
 
-    var offset = saveBirthDate.getTimezoneOffset(); 
-    console.log(offset);
-    saveBirthDate = new Date(saveBirthDate.getTime() - (offset*60*1000));
+    var offset = today.getTimezoneOffset(); 
+    // console.log(offset);
+    // saveBirthDate = new Date(saveBirthDate.getTime() - (offset*60*1000));
     today = new Date(today.getTime() - (offset*60*1000));
     // //phone validation is not working properly at the moment, regex check needs to match the backend
     // var regex = new RegExp("^(?:\\+?(61))? ?(?:\\((?=.*\\)))?(0?[2-57-8])\\)? ?(\\d\\d(?:[- ](?=\\d{3})|(?!\\d\\d[- ]?\\d[- ]))\\d\\d[- ]?\\d[- ]?\\d{3})$");
@@ -355,7 +356,7 @@ function save(args) {
     // http request only accepts strings
     var stringBatsman = String(saveBatsmanType);
     var stringBowler = String(saveBowlerType);
-    var stringBirthdate = saveBirthDate.toISOString().split('T')[0];
+    var stringBirthdate = saveBirthDate;
     allFields.push({ name: "is_player", value: isPlayer.toString() });
     if (isPlayer) {
         if (savePhone != phone) {
@@ -401,6 +402,32 @@ function save(args) {
     // page.frame.goBack();
 }
 exports.save = save;
+
+function showBirthDate(args){
+    console.log("Open");
+    const button = args.object;
+    const fullscreen = false;
+
+    // determine date params
+    const context = {};
+
+    if(birthDate){
+        context.birthDate = viewModel.get("birthDate");
+    }
+
+    var callback = function (vals) {
+        console.log(vals);
+        if (!vals) {
+            // do nothing
+            return;
+        }
+        var date = vals.date;
+        console.log(date);
+        viewModel.set("birthDate", date);
+    }
+    button.showModal(modalCalendarModule, context, callback, fullscreen);
+}
+exports.showBirthDate = showBirthDate;
 
 /**
  * Allows user to select a new image for their profile picture.
@@ -519,6 +546,8 @@ function backEvent(args) {
     }
 }
 exports.backEvent = backEvent;
+
+
 
 /**
  * Sets all values to default. Waits for response from server.

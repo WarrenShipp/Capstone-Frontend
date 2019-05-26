@@ -49,10 +49,12 @@
             <StackLayout visibility="{{ isPlayer ? 'visible' : 'collapsed' }}">
                 <DockLayout>
                     <Label dock="left" text="Date of Birth:" />
-                    <DatePicker dock="left" id="birthDate"
+                    <!-- <DatePicker dock="left" id="birthDate"
                                 date="{{ birthDate }}"
                                 maxDate="{{ maxDate }}"
-                                isEnabled="{{ !isUploading && !isLoading }}" />
+                                isEnabled="{{ !isUploading && !isLoading }}" /> -->
+                    <Button text="{{ birthDate ? birthDate : '' }}"
+                        tap="showBirthDate" />            
                 </DockLayout>
                 <DockLayout>
                     <Label dock="left" text="Phone Number:" />
