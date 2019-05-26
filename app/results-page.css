@@ -14,10 +14,6 @@
     padding-left: 5;
 }
 
-.image-item:hover{
-    background-color: lightgray;
-}
-
 .shot-header{
     font-size: 20;
     font-weight: bold;

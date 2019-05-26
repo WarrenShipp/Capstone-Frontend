@@ -15,7 +15,7 @@
         <lv:RadListView.itemTemplate>
             <DockLayout stretchLastChild="true" class="image-item">
                 <Image dock="left" stretch="aspectFill" width="100" height="100"
-                        src="{{ image ? image : '~/images/picture-2.png' }}" />
+                        src="{{ image }}" />
                 <StackLayout dock="left">
                     <Label class="shot-header" text="{{ name }}" />
                     <Label text="{{ shotTypeName ? shotTypeName : '' }}"

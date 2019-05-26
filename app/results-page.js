@@ -182,6 +182,7 @@ function onNavigatingTo(args) {
     */
 
 }
+
 exports.onNavigatingTo = onNavigatingTo;
 
 /**
@@ -210,7 +211,7 @@ function _loadResults(searchUrl) {
     lists = new ObservableArray([]);
     viewModel.set("itemList", lists);
     listView = page.getViewById("itemList");
-    
+
     // set page vars
     canLoadMore = false;
     noMoreLoading = false;
@@ -307,6 +308,7 @@ function onLoadMoreData(args) {
         }
     );
 }
+
 exports.onLoadMoreData = onLoadMoreData;
 
 function _loadItems(resultList) {
@@ -315,7 +317,8 @@ function _loadItems(resultList) {
         for (var i in resultList) {
             lists.push({
                 id: resultList[i].id,
-                name: resultList[i].name
+                name: resultList[i].name,
+                image : resultList[i].logo
             });
         }
     }
@@ -328,6 +331,9 @@ function _loadItems(resultList) {
                 resultList[i].video_set[0].thumbnail &&
                 resultList[i].video_set[0].thumbnail.file
             ) ? resultList[i].video_set[0].thumbnail.file : null;
+            if (image == null) {
+                image = '~/images/picture-2.png';
+            }
             lists.push({
                 name: resultList[i].player_name,
                 type: resultList[i].type,
@@ -363,9 +369,8 @@ function onItemTap(args) {
     var passContext;
     if (searchType == 0) {
         redirect = 'clubsingle-page';
-        passContext = { path: path, id: id };
-    }
-    else if (searchType == 1) {
+        passContext = {path: path, id: id};
+    } else if (searchType == 1) {
         redirect = 'view-shot-page';
         passContext = {
             sourcePage: "view-local-shots-page",
@@ -373,10 +378,9 @@ function onItemTap(args) {
             id: id
         };
 
-    }
-    else if (searchType == 2) {
+    } else if (searchType == 2) {
         redirect = 'profile-page';
-        passContext = { userId: id };
+        passContext = {userId: id};
     }
     var navigationOptions = {
         moduleName: redirect,
@@ -384,6 +388,7 @@ function onItemTap(args) {
     }
     frameModule.topmost().navigate(navigationOptions);
 }
+
 exports.onItemTap = onItemTap;
 
 /**
@@ -394,6 +399,7 @@ function onDrawerButtonTap(args) {
     const sideDrawer = app.getRootView();
     sideDrawer.showDrawer();
 }
+
 exports.onDrawerButtonTap = onDrawerButtonTap;
 
 /**
@@ -405,4 +411,5 @@ function navigateToSingle(args) {
     const page = button.page;
     page.frame.navigate("view-shot-page");
 }
+
 exports.navigateToSingle = navigateToSingle;
