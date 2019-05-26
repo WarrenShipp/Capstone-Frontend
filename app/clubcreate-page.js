@@ -29,6 +29,12 @@ function onNavigatingTo(args) {
     viewModel = new observable();
     page.bindingContext = viewModel;
     viewModel.set("phoneNumber", "");
+    viewModel.set("clubName", "");
+    viewModel.set("street_address_l1", "");
+    viewModel.set("street_address_l2", "");
+    viewModel.set("suburb", "");
+    viewModel.set("postcode", "");
+    viewModel.set("country", "");
     var token = appSettings.getString(global.tokenAccess);
     sendToken = token;
 }
@@ -91,6 +97,7 @@ function clubRequest() {
     clubName = viewModel.get("clubName");
     clubPhone = viewModel.get("phoneNumber");
     adddressLine1 = viewModel.get("street_address_l1");
+    console.log("here" + adddressLine1);
     addressLine2 = viewModel.get("street_address_l2");
     addressSuburb = viewModel.get("suburb");
     addressPostcode = viewModel.get("postcode");

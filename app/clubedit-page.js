@@ -13,10 +13,11 @@ var sendToken;
 var viewModel;
 var gotData;
 var clubId;
+var token = appSettings.getString(global.tokenAccess);
 
 exports.onNavigatingTo = function (args) {
     console.log("pageLoaded");
-    var token = appSettings.getString(global.tokenAccess);
+    
 
     var page = args.object;
     viewModel = new observable();
@@ -91,8 +92,6 @@ exports.imagePicker = imagePicker;
  * Sending request to server to update club details
  */
 function clubRequest() {
-    console.log(sendToken);
-
     var file = logo;
     var editUrl = global.serverUrl + global.endpointClub + clubId + "/";
     console.log("club url= " + editUrl);
@@ -106,22 +105,22 @@ function clubRequest() {
     var addressCountry = viewModel.get("country");
 
     // upload configuration
-    http.request({
-        url: editUrl,
-        method: "PATCH",
-        headers: { "Content-Type": "application/json", "Authorization": sendToken },
-        content: JSON.stringify({ "name": "patchtest" })
-    }).then(function (result) {
-        console.log(JSON.stringify(result));
-    }, function (error) {
-        console.error(JSON.stringify(error));
-    });
+    // http.request({
+    //     url: editUrl,
+    //     method: "PATCH",
+    //     headers: { "Content-Type": "application/json", "Authorization": sendToken },
+    //     content: JSON.stringify({ "name": "patchtest" })
+    // }).then(function (result) {
+    //     console.log(JSON.stringify(result));
+    // }, function (error) {
+    //     console.error(JSON.stringify(error));
+    // });
 
     var request = {
         url: editUrl,
         method: "PATCH",
         headers: {
-            "Content-Type": "multipart/form-data", "Authorization": sendToken
+            "Content-Type": "multipart/form-data", "Authorization": "Bearer " + token
         },
         description: "Updating"
 
@@ -146,7 +145,7 @@ function clubRequest() {
     var task = session.multipartUpload(params, request);
 
     task.on("error", errorHandler);
-    task.on("responded", respondedHandler);
+    //task.on("responded", respondedHandler);
     task.on("complete", completeHandler);
 
     // event arguments:
@@ -155,7 +154,7 @@ function clubRequest() {
     // error: java.lang.Exception (Android) / NSError (iOS)
     // response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
     function errorHandler(e) {
-        alert("received " + e.responseCode + " code.");
+        //alert("received " + e.responseCode + " code.");
         var serverResponse = e.response;
         console.log(JSON.stringify(serverResponse));
         console.log(e.error);
@@ -167,9 +166,9 @@ function clubRequest() {
     // task: Task
     // responseCode: number
     // data: string
-    function respondedHandler(e) {
-        alert("responded received " + e.responseCode + " code. Server sent: " + e.data);
-    }
+    // function respondedHandler(e) {
+    //     alert("responded received " + e.responseCode + " code. Server sent: " + e.data);
+    // }
 
     // event arguments:
     // task: Task
