@@ -114,7 +114,6 @@ components that have the btn class name.
     border-width: 2;
     border-radius: 5;
     background-color: white;
-    margin: 3;
 }
 
 .button:disabled {
@@ -184,7 +183,6 @@ components that have the btn class name.
     border-bottom-color: rgb(180, 180, 180);
     border-bottom-width: 1;
     padding: 5;
-    text-align: left;
 }
 
 .input-text {

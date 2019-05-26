@@ -82,9 +82,9 @@
 
             <!-- Buttons -->
             <DockLayout stretchLastChild="false">
-                <Button dock="right" text="Save" tap="save" isEnabled="{{ !isUploading && !isLoading }}" class="button" />
-                <Button dock="right" text="Cancel" tap="cancel" isEnabled="{{ !isUploading }}" class="button" />
-                <ActivityIndicator dock="right" busy="{{ isUploading }}" visibility="{{ isUploading ? 'visible' : 'collapse' }}" class="button"/>
+                <Button dock="right" text="Save" tap="save" isEnabled="{{ !isUploading && !isLoading }}" class="button button-margin" />
+                <Button dock="right" text="Cancel" tap="cancel" isEnabled="{{ !isUploading }}" class="button button-margin" />
+                <ActivityIndicator dock="right" busy="{{ isUploading }}" visibility="{{ isUploading ? 'visible' : 'collapse' }}" />
             </DockLayout>
 
         </StackLayout>
