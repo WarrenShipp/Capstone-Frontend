@@ -1,6 +1,6 @@
 <Page loaded="pageLoaded" xmlns="http://www.nativescript.org/tns.xsd"
       navigatingFrom="onNavigatingFrom">
-<ActionBar class="action-bar">
+    <ActionBar class="action-bar">
         <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
         <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
             tap="onDrawerButtonTap" ios.position="left">
@@ -8,24 +8,24 @@
         <Label class="action-bar-title" text="Login"></Label>
     </ActionBar>
 
-		<StackLayout>
-			<Label text="Cricket App" />
+    <ScrollView>
+        <StackLayout class="page">
 
-			<StackLayout >
-				<TextField id="email" hint="Email" text="{{ email }}"
-                           returnKeyType="next" keyboardType="email"
-                           AutocapitalizationType="none" isEnabled="{{ !requestStatus }}" />
-				<Label class="hr-light" />
-			</StackLayout>
+            <StackLayout >
+                <TextField id="email" hint="Email" text="{{ email }}"
+                            returnKeyType="next" keyboardType="email"
+                            AutocapitalizationType="none" isEnabled="{{ !requestStatus }}" />
+            </StackLayout>
 
-			<StackLayout>
-				<TextField id="password" hint="Password" text="{{ password }}"
-                           secure="true" AutocapitalizationType="none" isEnabled="{{ !requestStatus }}" />
-				<Label class="hr-light" />
-			</StackLayout>
+            <StackLayout>
+                <TextField id="password" hint="Password" text="{{ password }}"
+                            secure="true" AutocapitalizationType="none" isEnabled="{{ !requestStatus }}" />
+            </StackLayout>
 
-			<Button text="Sign In" tap="login" isEnabled="{{ !requestStatus }}" />
-            <Button text="Create Account" tap="createAccount" isEnabled="{{ !requestStatus }}" />
-			
-		</StackLayout>
+            <Button text="Sign In" class="button" tap="login" isEnabled="{{ !requestStatus }}" />
+            <Button text="Create Account" class="button" tap="createAccount" isEnabled="{{ !requestStatus }}" />
+
+        </StackLayout>
+    </ScrollView>
+	
 </Page>
