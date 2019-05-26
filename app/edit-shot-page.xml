@@ -55,7 +55,7 @@
                     <Button text="{{ playername }}"
                             isEnabled="{{ !lockUserActions && canFindUser }}"
                             tap="openPlayerModal"
-                            class="pair-value-small input-open-modal text-info" />
+                            class="pair-value-small input-open-modal button button-margin text-info" />
                 </FlexboxLayout>
                 <!--
             <TextField id="coachname" hint="Coach"
@@ -83,7 +83,7 @@
                                  selectedIndex="{{ shotTypeIndex }}"
                                  selectedIndexChanged="shotTypeDropdownChanged"
                                  isEnabled="{{ !lockUserActions }}"
-                                 class="pair-value-small text-info" />
+                                 class="pair-value-small text-info input-dropdown" style="flex-grow:1;flex-shrink:1"/>
                 </FlexboxLayout>
 
                 <FlexboxLayout flexWrap="wrap" class="pair-wrap">
@@ -93,7 +93,7 @@
                                  selectedIndex="{{ ratingTypeIndex }}"
                                  selectedIndexChanged="ratingTypeDropdownChanged"
                                  isEnabled="{{ !lockUserActions }}"
-                                 class="pair-value-small text-info" />
+                                 class="pair-value-small text-info input-dropdown" style="flex-grow:1"/>
                 </FlexboxLayout>
 
                 <FlexboxLayout flexWrap="wrap" class="pair-wrap">
