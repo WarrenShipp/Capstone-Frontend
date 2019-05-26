@@ -18,6 +18,9 @@ components that have the btn class name.
 * {
     font-family: "Varela", "varela-regular";
     font-size: 20;
+}
+
+Label, TextField, Button {
     color: rgb(28, 28, 28);
 }
 
