@@ -1,126 +1,93 @@
-<Page loaded="pageLoaded"
-      navigatingTo="navigatingTo"
-      xmlns="http://www.nativescript.org/tns.xsd"
-      xmlns:dd="nativescript-drop-down"
-      >
+<Page loaded="pageLoaded" navigatingTo="navigatingTo" 
+    xmlns="http://www.nativescript.org/tns.xsd" 
+    xmlns:dd="nativescript-drop-down">
     <ActionBar class="action-bar">
         <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
-        <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
-            tap="onDrawerButtonTap" ios.position="left">
+        <ActionItem icon="res://navigation/menu" android:visibility="collapsed" tap="onDrawerButtonTap" ios.position="left">
         </ActionItem>
         <Label class="action-bar-title" text="{{ profileTitle }}"></Label>
     </ActionBar>
 
     <ScrollView>
-        <StackLayout class="smallMargin">
+        <StackLayout class="page">
 
-            <ActivityIndicator
-                class="screen-cover-load-wheel"
-                busy="{{ isLoading }}"
-                visibility="{{ isLoading ? 'visible' : 'collapse' }}" />
+            <ActivityIndicator class="screen-cover-load-wheel" busy="{{ isLoading }}" visibility="{{ isLoading ? 'visible' : 'collapse' }}" />
 
             <!-- Profile Pic -->
-            <Label text="Profile Picture" />
-            <DockLayout stretchLastChild="true">
-                <Image dock="left" stretch="aspectFill" class="profile-picture-large"
-                       src="{{ imgSrc ? imgSrc : '~/images/picture-2.png' }}"/>
-                <Button dock="left" text="Change Image" tap="changeImage"
-                        isEnabled="{{ !isUploading && !isLoading }}"
-                        class="center-vertical" />
-            </DockLayout>
+            <GridLayout rows="200" columns="200">
+                <Image stretch="aspectFill" class="profile-picture-large" src="{{ imgSrc ? imgSrc : '~/images/picture-2.png' }}"/>
+                <Image class="edit-tiny" tap="changeImage" isEnabled="{{ !isUploading && !isLoading }}" src="~/images/edit.png" />
+            </GridLayout>
 
             <!-- User info -->
-            <Label text="User Information" />
-            <DockLayout stretchLastChild="true">
-                <Label dock="left" text="First Name:" />
-                <TextField dock="left" text="{{ firstName }}"
-                           isEnabled="{{ !isUploading && !isLoading }}" />
-            </DockLayout>
-            <DockLayout stretchLastChild="true">
-                <Label dock="left" text="First Name:" />
-                <TextField dock="left" text="{{ lastName }}"
-                           isEnabled="{{ !isUploading && !isLoading }}" />
-            </DockLayout>
+            <!-- <Label text="User Information" class="text-header"/> -->
+            <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                <Label text="First Name:" class="pair-label text-label"/>
+                <TextField text="{{ firstName }}" class="input-text" isEnabled="{{ !isUploading && !isLoading }}" class="pair-value input-text" />
+            </FlexboxLayout>
+            <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                <Label text="Last Name:" class="pair-label text-label"/>
+                <TextField dock="left" text="{{ lastName }}" class="input-text" isEnabled="{{ !isUploading && !isLoading }}" class="pair-value input-text" />
+            </FlexboxLayout>
 
             <!-- Player Info -->
-            <Label text="Player Information" />
-            <Switch checked="{{ isPlayer }}" id="player-switch"
-                    isEnabled="{{ !isUploading && !isLoading }}" />
+            <DockLayout>
+            <Label dock="left" text="Player Information" class="text-header"/>
+            <Switch dock="right" checked="{{ isPlayer }}" id="player-switch" isEnabled="{{ !isUploading && !isLoading }}" />
+            </DockLayout>
             <StackLayout visibility="{{ isPlayer ? 'visible' : 'collapsed' }}">
-                <DockLayout>
-                    <Label dock="left" text="Date of Birth:" />
-                    <!-- <DatePicker dock="left" id="birthDate"
-                                date="{{ birthDate }}"
-                                maxDate="{{ maxDate }}"
-                                isEnabled="{{ !isUploading && !isLoading }}" /> -->
-                    <Button text="{{ birthDate ? birthDate : '' }}"
-                        tap="showBirthDate" />            
-                </DockLayout>
-                <DockLayout>
-                    <Label dock="left" text="Phone Number:" />
-                    <TextField dock="left" text="{{ phone }}"
-                               autocapitalizationType="none"
-                               isEnabled="{{ !isUploading && !isLoading }}"  />
-                </DockLayout>
-                <DockLayout stretchLastChild="true">
-                    <Label dock="left" text="Batsman Type:" />
-                    <dd:DropDown dock="left" id="batsmanType" hint="Batsman Type"
-                                 items="{{ batsmanTypeList }}"
-                                 selectedIndex="{{ batsmanTypeIndex }}"
-                                 isEnabled="{{ !isUploading && !isLoading }}" />
-                </DockLayout>
-                <DockLayout stretchLastChild="true">
-                    <Label dock="left" text="Bowler Type:" />
-                    <dd:DropDown dock="left" id="bowlerType" hint="Bowler Type"
-                                 items="{{ bowlerTypeList }}"
-                                 selectedIndex="{{ bowlerTypeIndex }}"
-                                 isEnabled="{{ !isUploading && !isLoading }}" />
-                </DockLayout>
+                <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                    <Label text="Date of Birth:" class="pair-label text-label"/>
+                    <Label text="{{ birthDate ? birthDate : '' }}" class="pair-value input-open-modal" tap="showBirthDate" class="pair-value input-text" />
+                </FlexboxLayout>
+                <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                    <Label text="Phone Number:" class="pair-label text-label" />
+                    <TextField text="{{ phone }}" autocapitalizationType="none" isEnabled="{{ !isUploading && !isLoading }}" class="pair-value input-text" />
+                </FlexboxLayout>
+                <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                    <Label text="Batsman Type:" class="pair-label text-label"/>
+                    <dd:DropDown id="batsmanType" hint="Batsman Type" items="{{ batsmanTypeList }}" selectedIndex="{{ batsmanTypeIndex }}" isEnabled="{{ !isUploading && !isLoading }}" class="pair-value input-dropdown"/>
+                </FlexboxLayout>
+                <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                    <Label text="Bowler Type:" class="pair-label text-label"/>
+                    <dd:DropDown dock="left" id="bowlerType" hint="Bowler Type" items="{{ bowlerTypeList }}" selectedIndex="{{ bowlerTypeIndex }}" isEnabled="{{ !isUploading && !isLoading }}" class="pair-value input-dropdown"/>
+                </FlexboxLayout>
             </StackLayout>
 
             <!-- Coach Info -->
-            <Label text="Coach Information" />
-            <Switch checked="{{ isCoach }}" id="coach-switch"
-                    isEnabled="{{ !isUploading && !isLoading }}" />
+            <DockLayout>
+            <Label dock="left" text="Coach Information" class="text-header"/>
+            <Switch dock="right" checked="{{ isCoach }}" id="coach-switch" isEnabled="{{ !isUploading && !isLoading }}" />
+            </DockLayout>
             <StackLayout visibility="{{ isCoach ? 'visible' : 'collapsed' }}">
-                <Label text="Coaching Information" />
-                <DockLayout stretchLastChild="true">
-                    <Label dock="left" text="Years Experience:" />
-                    <TextField dock="left" text="{{ yearsExperience }}"
-                               keyboardType="number"
-                               isEnabled="{{ !isUploading && !isLoading }}" />
-                </DockLayout>
+                <FlexboxLayout flexWrap="wrap" class="pair-wrap">
+                    <Label text="Years Experience:" class="pair-label text-label"/>
+                    <TextField text="{{ yearsExperience }}" keyboardType="number" isEnabled="{{ !isUploading && !isLoading }}" class="pair-value input-text"/>
+                </FlexboxLayout>
             </StackLayout>
 
             <!-- Change Password -->
             <!-- <Label text="Change Password" />
             <DockLayout stretchLastChild="true">
                 <Label dock="left" text="Old Password:" />
-                <TextField dock="left" text="{{ oldPassword }}"
-                       autocapitalizationType="none" secure="true" />
+                <TextField dock="left" text="{{ oldPassword }}" autocapitalizationType="none" secure="true" />
             </DockLayout>
             <DockLayout stretchLastChild="true">
                 <Label dock="left" text="New Password:" />
-                <TextField dock="left" text="{{ newPassword }}"
-                       autocapitalizationType="none" secure="true" />
+                <TextField dock="left" text="{{ newPassword }}" autocapitalizationType="none" secure="true" />
             </DockLayout>
             <DockLayout stretchLastChild="true">
                 <Label dock="left" text="Confirm Password:" />
-                <TextField dock="left" text="{{ confirmPassword }}"
-                       autocapitalizationType="none" secure="true" />
+                <TextField dock="left" text="{{ confirmPassword }}" autocapitalizationType="none" secure="true" />
             </DockLayout> -->
 
             <!-- place here to tell user that something is happening -->
-            
+
             <!-- Buttons -->
             <DockLayout stretchLastChild="false">
-                <Button dock="right" text="Save" tap="save"
-                        isEnabled="{{ !isUploading && !isLoading }}" />
-                <Button dock="right" text="Cancel" tap="cancel"
-                        isEnabled="{{ !isUploading }}" />
-                <ActivityIndicator
-                    dock="right" busy="{{ isUploading }}"
-                    visibility="{{ isUploading ? 'visible' : 'collapse' }}" />
+                <Button dock="right" text="Save" tap="save" isEnabled="{{ !isUploading && !isLoading }}" class="button button-margin" />
+                <Button dock="right" text="Cancel" tap="cancel" isEnabled="{{ !isUploading }}" class="button button-margin" />
+                <ActivityIndicator dock="right" busy="{{ isUploading }}" visibility="{{ isUploading ? 'visible' : 'collapse' }}" />
             </DockLayout>
 
         </StackLayout>

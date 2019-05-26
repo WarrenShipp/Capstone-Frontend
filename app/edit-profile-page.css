@@ -3,3 +3,14 @@
     height: 300px;
     vertical-align: middle;
 }
+
+.edit-tiny {
+    width: 50;
+    height: 50;
+    vertical-align: bottom;
+    horizontal-align: right;
+}
+
+.button-margin {
+    margin: 3;
+}
