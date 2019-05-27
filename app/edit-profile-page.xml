@@ -16,7 +16,8 @@
             <!-- Profile Pic -->
             <GridLayout rows="200" columns="200">
                 <Image stretch="aspectFill" class="profile-picture-large" src="{{ imgSrc ? imgSrc : '~/images/picture-2.png' }}"/>
-                <Image class="edit-tiny" tap="changeImage" isEnabled="{{ !isUploading && !isLoading }}" src="~/images/edit.png" />
+                <!-- Image class="edit-tiny" tap="changeImage" isEnabled="{{ !isUploading && !isLoading }}" src="~/images/edit.png" / -->
+                <Image class="edit-tiny" isEnabled="false" src="~/images/edit.png" />
             </GridLayout>
 
             <!-- User info -->

@@ -6,7 +6,7 @@ var http = require("http");
 var HTTPRequestWrapper = require("../app/http/http-request.js");
 
 let viewModel;
-const DEBUG = true;
+const DEBUG = false;
 
 /**
  * Called when the frame is loaded. Handles access and token refreshing.
