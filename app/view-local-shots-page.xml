@@ -1,4 +1,6 @@
-<Page xmlns="http://www.nativescript.org/tns.xsd" navigatedTo="onLoading">
+<Page xmlns="http://www.nativescript.org/tns.xsd" navigatedTo="onLoading"
+      xmlns:lv="nativescript-ui-listview"
+      xmlns:VideoPlayer="nativescript-videoplayer">
     <ActionBar class="action-bar">
         <NavigationButton ios:visibility="collapsed" icon="res://ham" tap="onDrawerButtonTap"></NavigationButton>
         <ActionItem icon="res://navigation/menu" android:visibility="collapsed"
@@ -6,22 +8,48 @@
         </ActionItem>
         <Label class="action-bar-title" text="Local Shots"></Label>
     </ActionBar>
-    <StackLayout id="listContainer">
-        <ListView items="{{ itemList }}" itemTap="onItemTap" id="itemList">
-            <ListView.itemTemplate>
-                <StackLayout>
-                    <GridLayout cols="*,3*" rows="*">
-                        <!-- Label col="0" row="0" text="Thumb" / -->
-                        <StackLayout col="1" row="0">
-                            <Label text="{{ 'Name: ' + playerName }}" />
-                            <Label text="{{ 'Shot: ' + shotType }}" />
-                            <Label text="{{ 'Rating: ' + ratingType }}" />
-                            <Label text="{{ 'Date: ' + date }}" />
-                        </StackLayout>
-                    </GridLayout>
+    
+    <lv:RadListView class="page" items="{{ itemList }}" itemTap="onItemTap" id="itemList" >
+
+        <!-- List items -->
+        <lv:RadListView.itemTemplate>
+            <DockLayout stretchLastChild="true" class="image-item">
+                <!-- VideoPlayer:Video id="{{ 'thumbnailVideo-' + id }}"
+                                   controls="false" loop="false"
+                                   autoplay="false" muted="true"
+                                   src="{{ videoPath }}"
+                                   class="picture-small"
+                                   stretch="aspectFill"
+                                   width="100" height="100"
+                                   dock="left" / -->
+                <StackLayout dock="left">
+                    <Label class="shot-header" text="{{ name ? name : 'No Player Set' }}" />
+                    <Label text="{{ shotTypeName ? shotTypeName : '' }}"
+                            visibility="{{ shotTypeName ? 'visible' : 'collapsed' }}" />
+                    <Label text="{{ ratingTypeName ? ratingTypeName : '' }}"
+                            visibility="{{ ratingTypeName ? 'visible' : 'collapsed' }}" />
                 </StackLayout>
-            </ListView.itemTemplate>
-        </ListView>
-    </StackLayout>
+            </DockLayout>
+
+        </lv:RadListView.itemTemplate>
+
+        <!-- Loading wheel -->
+        <lv:RadListView.headerItemTemplate>
+            <StackLayout>
+                <ActivityIndicator busy="{{ isLoading }}"
+                                   visibility="{{ isLoading ? 'visible' : 'collapse' }}" />
+            </StackLayout>
+        </lv:RadListView.headerItemTemplate>
+
+        <!-- Messages and onDemand loading wheel -->
+        <lv:RadListView.footerItemTemplate>
+            <StackLayout>
+                <Label text="No results" visibility="{{ noResults ? 'visible' : 'collapsed' }}" />
+                <Label text="An error occured when getting search results!"
+                       visibility="{{ errorMessage ? 'visible' : 'collapsed' }}" />
+            </StackLayout>
+        </lv:RadListView.footerItemTemplate>
+
+    </lv:RadListView>
 
 </Page>

@@ -1,0 +1,22 @@
+.image-item{
+    border-color: transparent;
+    border-bottom-color: rgb(225, 225, 225);
+    border-width: 1;
+    border-radius: 0;
+    padding-bottom: 3;
+    padding-top: 3;
+}
+.image-item Image{
+    border-radius: 4;
+}
+
+.image-item StackLayout{
+    padding-left: 5;
+}
+
+.shot-header{
+    font-size: 20;
+    font-weight: bold;
+    text-decoration: underline;
+    margin:0;
+}

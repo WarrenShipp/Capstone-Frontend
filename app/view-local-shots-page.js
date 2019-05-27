@@ -1,14 +1,13 @@
 ﻿const app = require("tns-core-modules/application");
 var observable = require("data/observable");
-var Sqlite = require("nativescript-sqlite");
-var listViewModule = require("tns-core-modules/ui/list-view");
-var Label = require("tns-core-modules/ui/label").Label;
 var ObservableArray = require("data/observable-array").ObservableArray;
 var viewModel = new observable.Observable();
 var frameModule = require("ui/frame");
-//const dialogs = require("tns-core-modules/ui/dialogs");
 var LocalSave = require("../app/localsave/localsave.js");
 var db = new LocalSave();
+const ShotTypes = require("../app/helpers/type-list").ShotTypes;
+const RatingTypes = require("../app/helpers/type-list").RatingTypes;
+const VideoPlayer = require("nativescript-videoplayer").Video;
 
 // View Types
 const VIEW_LOCAL = "view_local";
@@ -16,6 +15,9 @@ const VIEW_ONLINE = "view_online";
 
 // page vars
 var itemList;
+var isLoading;
+var noResults;
+var errorMessage;
 
 /**
  * Loads data when page is opened.
@@ -23,12 +25,20 @@ var itemList;
  */
 function onLoading(args) {
     page = args.object;
-    console.log(args.object);
-    var container = page.getViewById("listContainer");
     var itemListContainer = page.getViewById("itemList");
-    console.log(container);
+
     itemList = new ObservableArray([]);
     viewModel.set("itemList", itemList);
+
+    isLoading = true;
+    viewModel.set("isLoading", isLoading);
+
+    noResults = false;
+    viewModel.set("noResults", noResults);
+
+    errorMessage = false;
+    viewModel.set("errorMessage", errorMessage);
+
     page.bindingContext = viewModel;
 
     // get list of local shots and display.
@@ -41,19 +51,62 @@ function onLoading(args) {
             for (var row in resultSet) {
                 var item = {
                     id: resultSet[row][0],
-                    path: resultSet[row][1],
+                    videoPath: resultSet[row][1],
                     playerName: resultSet[row][2],
                     shotType: resultSet[row][7],
                     ratingType: resultSet[row][8],
-                    date: resultSet[row][6]
+                    date: resultSet[row][6],
+                    thumbnail: (resultSet[row][5] && resultSet[row][5] >= 0)
                 };
-                console.log("RESULT: ", item);
-                toAdd.push(item);
+                if (item.shotType) {
+                    var shotTypeName = ShotTypes.getNameFromValue(item.shotType);
+                    if (shotTypeName) {
+                        item.shotTypeName = shotTypeName;
+                    }
+                }
+                if (item.ratingType) {
+                    var ratingTypeName = RatingTypes.getNameFromValue(item.ratingType);
+                    if (ratingTypeName) {
+                        item.ratingTypeName = ratingTypeName;
+                    }
+                }
+                itemList.push(item);
+
+                // set video so that it shows the thumbnail
+                /* NOTE: not working due to video being added after the DB call completes.
+
+                var player = page.getViewById("thumbnailVideo-" + item.id);
+                player.on(VideoPlayer.playbackReadyEvent, args => {
+                    duration = player.getDuration();
+                    // need to "kickstart" player, otherwise video won't show.
+                    var duration = player.getDuration();
+                    if (duration == 0) {
+                        player.play();
+                        player.pause();
+                        player.seekToTime(0);
+                        duration = player.getDuration();
+                    }
+                    player.seekToTime(resultSet[row][5]);
+                });
+                */
             }
-            itemList.push(toAdd);
-            itemListContainer.refresh();
+
+            isLoading = false;
+            viewModel.set("isLoading", isLoading);
+            if (toAdd.length == 0) {
+                noResults = true;
+                viewModel.set("noResults", noResults);
+            }
+        },
+        function (error) {
+            isLoading = false;
+            viewModel.set("isLoading", isLoading);
+            errorMessage = true;
+            viewModel.set("errorMessage", errorMessage);
         }
     );
+
+    // set video and thumbnail
     
 }
 exports.onLoading = onLoading;
