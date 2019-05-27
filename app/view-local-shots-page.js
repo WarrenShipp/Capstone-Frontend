@@ -47,7 +47,7 @@ function onLoading(args) {
         [],
         function (resultSet) {
             console.log(resultSet);
-            toAdd = [];
+            var noResults = false;
             for (var row in resultSet) {
                 var item = {
                     id: resultSet[row][0],
@@ -71,6 +71,7 @@ function onLoading(args) {
                     }
                 }
                 itemList.push(item);
+                noResults = true;
 
                 // set video so that it shows the thumbnail
                 /* NOTE: not working due to video being added after the DB call completes.
@@ -93,10 +94,7 @@ function onLoading(args) {
 
             isLoading = false;
             viewModel.set("isLoading", isLoading);
-            if (toAdd.length == 0) {
-                noResults = true;
-                viewModel.set("noResults", noResults);
-            }
+            viewModel.set("noResults", noResults);
         },
         function (error) {
             isLoading = false;
