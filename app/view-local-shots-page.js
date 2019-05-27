@@ -47,7 +47,7 @@ function onLoading(args) {
         [],
         function (resultSet) {
             console.log(resultSet);
-            var noResults = false;
+            var noResults = true;
             for (var row in resultSet) {
                 var item = {
                     id: resultSet[row][0],
@@ -71,7 +71,7 @@ function onLoading(args) {
                     }
                 }
                 itemList.push(item);
-                noResults = true;
+                noResults = false;
 
                 // set video so that it shows the thumbnail
                 /* NOTE: not working due to video being added after the DB call completes.
