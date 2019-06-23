@@ -1,4 +1,4 @@
-# Capstone-Frontend
+﻿# Capstone-Frontend
 Frontend for the capstone Renegades project. This repository contains all files needed to develop the application using NativeScript Sidekick.
 
 # Getting Started
@@ -66,3 +66,5 @@ This section lists the current status of the project.
 - bugfix - re03 - Phone numbers not being validated
 - bugfix - re04 - New accounts created does not have date of birth
 - bugfix - re05 - When changing player to coach, date of birth is erased
+- bugfix - re06 - App breaks when restarting
+- bugfix - re07 - Videos are not playing
