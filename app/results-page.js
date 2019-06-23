@@ -1,5 +1,4 @@
 ﻿var observable = require("data/observable");
-var Sqlite = require("nativescript-sqlite");
 var listViewModule = require("tns-core-modules/ui/list-view");
 var Label = require("tns-core-modules/ui/label").Label;
 var ObservableArray = require("data/observable-array").ObservableArray;
@@ -11,11 +10,11 @@ var bghttp = require("nativescript-background-http");
 var session = bghttp.session("file-upload");
 const ActivityIndicator = require("tns-core-modules/ui/activity-indicator").ActivityIndicator;
 const app = require("tns-core-modules/application");
-
 const HTTPRequestWrapper = require("../app/http/http-request.js");
 const RatingTypes = require("../app/helpers/type-list").RatingTypes;
 const ShotTypes = require("../app/helpers/type-list").ShotTypes;
 
+// consts
 const VIEW_ONLINE = "view_online";
 
 // use this to ensure results persist between page opening. When these values
@@ -37,6 +36,7 @@ var isLoadingMore;
 var noResults;
 var errorMessage;
 
+// all possible types of search results.
 const searchTypeList = [
     "Club",
     "Shot",
@@ -53,14 +53,12 @@ function onNavigatingTo(args) {
 
     var gotData = page.navigationContext;
     var searchTypeGet = gotData.searchType;
-    console.log(searchType);
 
     // set page
     searchType = searchTypeGet;
     viewModel.set("searchType", searchTypeList[searchType]);
 
     var sendToken = appSettings.getString(global.tokenAccess);
-    console.log("token is:" + sendToken);
 
     isLoading = true;
     viewModel.set("isLoading", isLoading);
@@ -70,116 +68,6 @@ function onNavigatingTo(args) {
         // if not loaded, then do loading.
         _loadResults(gotData.urlSearch);
     }
-
-    /*
-    http.request({
-        url: gotData.urlSearch,
-        method: "GET",
-        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken }
-    }).then(function (result) {
-        viewModel.set("isLoading", false);
-        console.log(JSON.stringify(result));
-        var obj = JSON.stringify(result);
-        obj = JSON.parse(obj);
-        var test = obj.content.results;
-        var count = result.count;
-        console.log(count);
-        if (searchType == 0) { // club search
-            for (i = 0; i < 10; i++) {
-                lists.push({
-                    id: test[i].id,
-                    name: test[i].name
-                });
-            }
-        }
-        else if (searchType == 1) { // shot search
-            for (i = 0; i < 10; i++) {
-                console.log(test[i].player_name);
-                console.log(test[i].type);
-                lists.push({
-                    name: test[i].player_name,
-                    type: test[i].type,
-                    rating: test[i].rating,
-                    id: test[i].id
-                });
-            }
-        }
-        else if (searchType == 2) { // user search
-            for (i = 0; i < 10; i++) {
-                console.log(obj.content.results[i].id);
-                lists.push({
-                    id: test[i].id,
-                    firstname: test[i].first_name,
-                    lastname: test[i].last_name,
-                    email: test[i].email
-                });
-            }
-        }
-        
-
-    }, function (error) {
-        console.error(JSON.stringify(error));
-    });
-
-    // trigger for when a shot is loaded.
-    listView.on(listViewModule.ListView.itemLoadingEvent, (args) => {
-        if (!args.view) {
-            // Create label if it is not already created.
-            args.view = new Label();
-            args.view.className = "list-group-item";
-        }
-        if (searchType == 0) {
-            (args.view).text = "ID: " + listView.items.getItem(args.index).id + " Name: " + listView.items.getItem(args.index).name;
-            (args.view).textWrap = true;
-        }
-        else if (searchType == 1) {
-            (args.view).text = "Name: " + listView.items.getItem(args.index).name + " Shot Type: " + listView.items.getItem(args.index).type + " Rating: " +
-                listView.items.getItem(args.index).rating;
-            (args.view).textWrap = true;
-        }
-        else if (searchType == 2) {
-            (args.view).text = "Email: " + listView.items.getItem(args.index).email + " Name: " + listView.items.getItem(args.index).firstname + " " +
-                listView.items.getItem(args.index).lastname;
-            (args.view).textWrap = true;
-        }
-
-    });
-
-    // trigger for when a shot is tapped.
-    listView.on(listViewModule.ListView.itemTapEvent, (args) => {
-        const tappedItemIndex = args.index;
-        const tappedItemView = args.view;
-        var path = listView.items.getItem(args.index).path;
-        var id = listView.items.getItem(args.index).id;
-        var redirect;
-        var passContext;
-        if (searchType == 0) {
-            redirect = 'clubsingle-page';
-            passContext = { path: path, id: id };
-        }
-        else if (searchType == 1) {
-            redirect = 'view-shot-page';
-            passContext = {
-                sourcePage: "view-local-shots-page",
-                type: VIEW_ONLINE,
-                id: id
-            };
-
-        }
-        else if (searchType == 2) {
-            redirect = 'profile-page';
-            passContext = { userId: id };
-        }
-        var navigationOptions = {
-            moduleName: redirect,
-            context: passContext
-        }
-        container.removeChild(listView);
-        frameModule.topmost().navigate(navigationOptions);
-    });
-
-    container.addChild(listView);
-    */
 
 }
 
@@ -231,7 +119,6 @@ function _loadResults(searchUrl) {
         // callback
         function (result) {
             // parse results
-            // console.log(JSON.stringify(result));
             var obj = JSON.stringify(result);
             obj = JSON.parse(obj);
             var resultList = obj.content.results;
@@ -261,6 +148,10 @@ function _loadResults(searchUrl) {
     );
 }
 
+/**
+ * Loads more search results from the server.
+ * @param {any} args
+ */
 function onLoadMoreData(args) {
 
     // set page vars
@@ -276,7 +167,6 @@ function onLoadMoreData(args) {
         // callback
         function (result) {
             // parse results
-            console.log(result);
             var obj = JSON.stringify(result);
             obj = JSON.parse(obj);
             var resultList = obj.content.results;
@@ -308,9 +198,12 @@ function onLoadMoreData(args) {
         }
     );
 }
-
 exports.onLoadMoreData = onLoadMoreData;
 
+/**
+ * Shows the results on the page.
+ * @param {any} resultList
+ */
 function _loadItems(resultList) {
     // push club results
     if (searchType == 0) {
@@ -325,6 +218,7 @@ function _loadItems(resultList) {
     // push shot results
     else if (searchType == 1) {
         for (var i in resultList) {
+            // if (video exists) ? video : null
             var image = (
                 resultList[i].video_set &&
                 resultList[i].video_set[0] &&
@@ -367,18 +261,23 @@ function onItemTap(args) {
     var id = lists.getItem(args.index).id;
     var redirect;
     var passContext;
+
+    // go to club page
     if (searchType == 0) {
         redirect = 'clubsingle-page';
         passContext = {path: path, id: id};
-    } else if (searchType == 1) {
+    }
+    // go to shot page
+    else if (searchType == 1) {
         redirect = 'view-shot-page';
         passContext = {
             sourcePage: "view-local-shots-page",
             type: VIEW_ONLINE,
             id: id
         };
-
-    } else if (searchType == 2) {
+    }
+    // go to profile page
+    else if (searchType == 2) {
         redirect = 'profile-page';
         passContext = {userId: id};
     }
@@ -388,7 +287,6 @@ function onItemTap(args) {
     }
     frameModule.topmost().navigate(navigationOptions);
 }
-
 exports.onItemTap = onItemTap;
 
 /**
@@ -399,7 +297,6 @@ function onDrawerButtonTap(args) {
     const sideDrawer = app.getRootView();
     sideDrawer.showDrawer();
 }
-
 exports.onDrawerButtonTap = onDrawerButtonTap;
 
 /**
@@ -411,5 +308,4 @@ function navigateToSingle(args) {
     const page = button.page;
     page.frame.navigate("view-shot-page");
 }
-
 exports.navigateToSingle = navigateToSingle;

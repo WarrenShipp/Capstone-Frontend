@@ -3,13 +3,6 @@ const appSettings = require("application-settings");
 const http = require("http");
 const dialogs = require("tns-core-modules/ui/dialogs");
 
-// use this to pass callback to _doCallback
-var lexicalCallback;
-var lexicalErrorCallback;
-
-var lexicalCallbacks = [];
-var lexicalErrorCallbacks = [];
-
 /**
  * This class acts as a wrapper and error handler for all HTTP requests. It
  * allows users to add a callback to a response, as well as callbacks for when
@@ -17,6 +10,8 @@ var lexicalErrorCallbacks = [];
  */
 class HTTPRequestWrapper {
 
+    // these codes are the only ones returned when a request has been
+    // successfully handled.
     static goodResponses = [
         { statusCode: 200, description: "OK" },
         { statusCode: 201, description: "Created" },
@@ -24,6 +19,7 @@ class HTTPRequestWrapper {
         { statusCode: 204, description: "No Content" },
         { statusCode: 205, description: "Reset Content" }
     ];
+    // used when a content type is not set
     static defaultContentType = "application/json";
 
     /**
@@ -42,14 +38,26 @@ class HTTPRequestWrapper {
         this.content = null;
     }
 
+    /**
+     * Sets the authorisation token. Default is set in constructor.
+     * @param {any} authToken
+     */
     setAuthToken(authToken) {
         this.authToken = authToken;
     }
 
+    /**
+     * Sets the content type. Default is defaultContentType
+     * @param {any} contentType
+     */
     setContentType(contentType) {
         this.content = contentType;
     }
 
+    /**
+     * Sets the content. Default is set in constructor.
+     * @param {any} content
+     */
     setContent(content) {
         this.content = content;
     }
@@ -84,8 +92,12 @@ class HTTPRequestWrapper {
 
     /**
      * Sends a request with the given information.
-     * @param {any} callback Optional. Can be provided earlier using
-              setCallback(). Will override the callback.
+     * @param {Function} callback Optional. Can be provided earlier using
+     *        setCallback(). Will override the callback.
+     * @param {Function} errorCallback Optional. Used when an error occurs.
+              Intended to perform page-specific functionality upon failing a
+              request, such as exiting a page. Can also be set using
+              setErrorCallback().
      */
     send(callback = null, errorCallback = null) {
 
@@ -124,25 +136,32 @@ class HTTPRequestWrapper {
                 request.content = content;
             }
         }
-        console.log(request);
 
-        // run request
+        // set callbacks using lexical scoping
         var lexicalCallback = this.callback ? this.callback : this._defaultCallback;
         var lexicalErrorCallback = this.errorCallback ? this.errorCallback : null;
+
+        // run request
         http.request(request).then(
             // do reponse
             function (response) {
+                // has a status code that is valid
                 if (HTTPRequestWrapper.goodResponses.some(obj => obj.statusCode == response.statusCode)) {
 
                     // do callback
                     try {
                         lexicalCallback(response);
                     } catch (err) {
+                        // console logging handled here
                         console.error("HTTP response error: " + err + "\n" + err.stack);
                         console.error(response.content.toString());
+
+                        // other functions handled in error callback
                         if (lexicalErrorCallback) {
                             lexicalErrorCallback(err);
-                        } else {
+                        }
+                        // if no error callback, we show a dialog
+                        else {
                             dialogs.alert({
                                 title: "Response to HTTP request could not be handled.",
                                 message: err.message,
@@ -150,12 +169,19 @@ class HTTPRequestWrapper {
                             }).then(function () { });
                         }
                     }
-                } else {
+                }
+                // otherwise throw error for bad status code
+                else {
+                    // console logging handled here
                     var err = new Error("Bad response code: " + response.statusCode);
                     console.error(err.message + "\n" + err.stack);
+
+                    // other functions handled in error callback
                     if (lexicalErrorCallback) {
                         lexicalErrorCallback(err);
-                    } else {
+                    }
+                    // if no error callback, we show a dialog
+                    else {
                         dialogs.alert({
                             title: "HTTP request could not be handled.",
                             message: err.message,
@@ -164,12 +190,17 @@ class HTTPRequestWrapper {
                     }
                 }
             },
-            // do error
+            // do general error
             function (err) {
+                // console logging handled here
                 console.error(err.message);
+
+                // other functions handled in error callback
                 if (lexicalCallbackError) {
                     lexicalErrorCallback(err);
-                } else {
+                }
+                // if no error callback, we show a dialog
+                else {
                     dialogs.alert({
                         title: "HTTP request failed",
                         message: err.message,
@@ -179,57 +210,6 @@ class HTTPRequestWrapper {
             }
         );
 
-    }
-
-    /**
-     * Handles the response, plus all error checking.
-     * @param {any} response
-     */
-    _doResponse(response) {
-        if (HTTPRequestWrapper.goodResponses.some(obj => obj.statusCode == response.statusCode)) {
-            
-            // do callback
-            try {
-                lexicalCallback(response);
-            } catch (err) {
-                console.error("HTTP response error: " + err + "\n" + err.stack);
-                console.error(response.content.toString());
-                if (lexicalErrorCallback) {
-                    lexicalErrorCallback(err);
-                } else {
-                    dialogs.alert({
-                        title: "Response to HTTP request could not be handled.",
-                        message: err.message,
-                        okButtonText: "Okay"
-                    }).then(function () { });
-                }
-            }
-        } else {
-            var err = new Error("Bad response code: " + response.statusCode);
-            console.error(err.message + "\n" + err.stack);
-            if (lexicalErrorCallback) {
-                lexicalErrorCallback(err);
-            } else {
-                dialogs.alert({
-                    title: "HTTP request could not be handled.",
-                    message: err.message,
-                    okButtonText: "Okay"
-                }).then(function () { });
-            }
-        }
-    }
-
-    _doRejection(err) {
-        console.error(err.message);
-        if (lexicalCallbackError) {
-            lexicalErrorCallback(err);
-        } else {
-            dialogs.alert({
-                title: "HTTP request failed",
-                message: err.message,
-                okButtonText: "Okay"
-            }).then(function () { });
-        }
     }
 
     /**

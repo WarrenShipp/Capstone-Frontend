@@ -91,10 +91,6 @@ function onNavigatingTo(args) {
     }
     shotId = page.navigationContext.id;
 
-    console.log("sourcePage: " + sourcePage);
-    console.log("type: " + type);
-    console.log("shotId: " + shotId);
-
     // set edit button params
     switch (type) {
         case VIEW_LOCAL:
@@ -134,7 +130,6 @@ function onLoad(args) {
     // set duration
     player = page.getViewById("nativeVideoPlayer");
     player.on(VideoPlayer.Video.playbackReadyEvent, vals => {
-        console.log("Ready to play video");
         duration = player.getDuration();
         // need to "kickstart" player, otherwise video won't show.
         if (duration == 0) {
@@ -145,7 +140,6 @@ function onLoad(args) {
         }
         let durSeconds = duration / 1000;
         viewModel.set("duration", durSeconds.toString());
-        console.log("duration: " + duration);
         hasVideo = true;
         viewModel.set("hasVideo", hasVideo);
         videoLoading = false;
@@ -232,7 +226,6 @@ function _getShot() {
  * Sets shot using local data.
  */
 function _setShotLocal() {
-    console.log("local");
     // shot id
     if (!shotId) {
         isLoading = false;
@@ -255,12 +248,11 @@ function _setShotLocal() {
 
     // get item
     var query = "SELECT * FROM " + LocalSave._tableName + " WHERE id=?";
-    console.log(query);
     db.queryGet(
         query,
         [shotId],
         function (row) {
-            /*
+            /* REMINDER:
             { name: "id", type: "INTEGER PRIMARY KEY AUTOINCREMENT" },
             { name: "path", type: "TEXT" },
             { name: "playername", type: "TEXT" },
@@ -272,7 +264,6 @@ function _setShotLocal() {
             { name: "ratingtype", type: "INTEGER" },
             { name: "duration", type: "INTEGER" }
             */
-            console.log(row);
 
             // player name
             firstname = row[2] ? row[2] : null;
@@ -291,7 +282,6 @@ function _setShotLocal() {
             if (shotTypeIndex != 0) {
                 shotTypeName = ShotTypes.getNameFromValue(shotTypeIndex);
             }
-            console.log("shottype = " + shotTypeIndex + " " + row[7]);
             viewModel.set("shotTypeName", shotTypeName);
 
             // set rating type
@@ -299,7 +289,6 @@ function _setShotLocal() {
             if (ratingTypeIndex != 0) {
                 ratingTypeName = RatingTypes.getNameFromValue(ratingTypeIndex);
             }
-            console.log("ratingtype = " + ratingTypeIndex + " " + row[8]);
             viewModel.set("ratingTypeName", ratingTypeName);
 
             // set date / time data
@@ -366,8 +355,7 @@ function _setShotSearch(editTypeOptions) {
 
     // reset
     _resetPage();
-
-    console.log("online");
+    
     var sendToken = appSettings.getString(global.tokenAccess);
     var shotUrl = global.serverUrl + global.endpointShot + shotId;
 
@@ -380,7 +368,6 @@ function _setShotSearch(editTypeOptions) {
     );
     request.send(
         function (result) {
-            // console.log(JSON.stringify(result));
             var obj = JSON.stringify(result);
             obj = JSON.parse(obj);
             var info = obj.content;
@@ -432,6 +419,11 @@ function _setShotSearch(editTypeOptions) {
 
 }
 
+/**
+ * Error specific to this page. We need to know what the context of the page is
+ * before we can do anything. This is called when the page is accessed
+ * incorrectly.
+ */
 function _throwNoContextError() {
     console.error("Cannot view a Shot without knowing the context.");
     return new Error("Cannot view a Shot without knowing the context.");

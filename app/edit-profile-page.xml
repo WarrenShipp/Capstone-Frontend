@@ -67,7 +67,8 @@
             </StackLayout>
 
             <!-- Change Password -->
-            <!-- <Label text="Change Password" />
+            <!-- NOTE: this has been disabled for now since the password change functionality has not been properly implemented.
+            <Label text="Change Password" />
             <DockLayout stretchLastChild="true">
                 <Label dock="left" text="Old Password:" />
                 <TextField dock="left" text="{{ oldPassword }}" autocapitalizationType="none" secure="true" />
@@ -79,7 +80,8 @@
             <DockLayout stretchLastChild="true">
                 <Label dock="left" text="Confirm Password:" />
                 <TextField dock="left" text="{{ confirmPassword }}" autocapitalizationType="none" secure="true" />
-            </DockLayout> -->
+            </DockLayout>
+            -->
 
             <!-- place here to tell user that something is happening -->
 

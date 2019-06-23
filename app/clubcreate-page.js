@@ -7,7 +7,6 @@ var http = require("http");
 var bghttp = require("nativescript-background-http");
 var session = bghttp.session("file-upload");
 
-
 // Variables
 var logo = null;
 var sendToken;
@@ -53,7 +52,6 @@ exports.onDrawerButtonTap = onDrawerButtonTap;
  * Picks an image. Sets it as the logo.
  */
 function imagePicker() {
-    console.log("Image Pick Club Logo");
     var context = imagepicker.create({ mode: "single" });
     context
         .authorize()
@@ -63,7 +61,6 @@ function imagePicker() {
         .then(function (selection) {
             selection.forEach(function (selected) {
                 // process the selected image
-                console.log(selected.android.toString());
                 logo = selected.android.toString();
             });
             list.items = selection;
@@ -82,8 +79,6 @@ function clubRequest() {
     const documentsFolder = fileSystemModule.knownFolders.currentApp();
     const path = fileSystemModule.path.join(documentsFolder.path, "images/ball.jpg");
     var file;
-    console.log(path);
-    console.log(sendToken);
     if (logo !== null) {
         file = logo;
     }
@@ -129,35 +124,39 @@ function clubRequest() {
     task.on("responded", respondedHandler);
     task.on("complete", completeHandler);
 
-    // event arguments:
-    // task: Task
-    // responseCode: number
-    // error: java.lang.Exception (Android) / NSError (iOS)
-    // response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
+    /**
+     * Gives the user a response when there is an error.
+     * @param {any} e event arguments:
+     *        task: Task
+     *        responseCode: number
+     *        error: java.lang.Exception (Android) / NSError (iOS)
+     *        response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
+     */
     function errorHandler(e) {
-        //alert("received error " + e.responseCode + " code.");
         alert(e.responseCode + e.response.getBodyAsString())
         var serverResponse = e.response;
-        console.log(JSON.stringify(serverResponse));
-        console.log(e.error);
-        console.log(e.response.getBodyAsString());
-        console.log(e.task);
+        console.error(e.error);
     }
 
-    // event arguments:
-    // task: Task
-    // responseCode: number
-    // data: string
+    /**
+     * Gives a response to the user when the request has been rececived.
+     * @param {any} e event arguments:
+     *        task: Task
+     *        responseCode: number
+     *        data: string
+     */
     function respondedHandler(e) {
         alert("responded received " + e.responseCode + " code. Server sent: " + e.data);
     }
 
-    // event arguments:
-    // task: Task
-    // responseCode: number
-    // response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
+    /**
+     * Alerts user when club is created.
+     * @param {any} e event arguments:
+     *        task: Task
+     *        responseCode: number
+     *        response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
+     */
     function completeHandler(e) {
-        //alert("received " + e.responseCode + " code");
         var serverResponse = e.response;
         alert("Club Created");
     }

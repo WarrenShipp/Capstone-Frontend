@@ -41,12 +41,11 @@ function onLoading(args) {
 
     page.bindingContext = viewModel;
 
-    // get list of local shots and display.
+    // get list of local shots and display them.
     db.queryAll(
         "SELECT * FROM " + LocalSave._tableName,
         [],
         function (resultSet) {
-            console.log(resultSet);
             var noResults = true;
             for (var row in resultSet) {
                 var item = {
@@ -74,7 +73,10 @@ function onLoading(args) {
                 noResults = false;
 
                 // set video so that it shows the thumbnail
-                /* NOTE: not working due to video being added after the DB call completes.
+                /* NOTE: not working due to video being added after the DB call
+                         completes. This is intended to be used as the
+                         thumbnail. I'll leave this here so you can play with
+                         it.
 
                 var player = page.getViewById("thumbnailVideo-" + item.id);
                 player.on(VideoPlayer.playbackReadyEvent, args => {
@@ -118,18 +120,6 @@ function onDrawerButtonTap(args) {
     sideDrawer.showDrawer();
 }
 exports.onDrawerButtonTap = onDrawerButtonTap;
-
-/**
- * Navigates to a shot that was tapped.
- * @param {any} args
- */
-function navigateToSingle(args) {
-    const button = args.object;
-    const page = button.page;
-    // TODO pass data so that shot info can be loaded.
-    page.frame.navigate("view-shot-page");
-}
-exports.navigateToSingle = navigateToSingle;
 
 /**
  * Opens the selected Shot in view-shot-page.

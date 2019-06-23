@@ -1,4 +1,4 @@
-// Requirements
+﻿// Requirements
 var appSettings = require("application-settings");
 var observable = require("data/observable").Observable;
 var imagepicker = require("nativescript-imagepicker");
@@ -15,10 +15,7 @@ var gotData;
 var clubId;
 var token = appSettings.getString(global.tokenAccess);
 
-exports.onNavigatingTo = function (args) {
-    console.log("pageLoaded");
-    
-
+function onNavigatingTo(args) {
     var page = args.object;
     viewModel = new observable();
     page.bindingContext = viewModel;
@@ -26,7 +23,6 @@ exports.onNavigatingTo = function (args) {
     // passed parameters
     gotData = page.navigationContext;
     clubId = gotData.id;
-    console.log(clubId);
 
     var clubUrl = global.serverUrl + global.endpointClub + clubId;
     http.request({
@@ -36,13 +32,12 @@ exports.onNavigatingTo = function (args) {
     }).then(function (result) {
         var obj = JSON.stringify(result);
         obj = JSON.parse(obj);
-        console.log(obj.content);
-        console.log(obj.content.name);
         clubDetails(obj.content);
     }, function (error) {
         console.error(JSON.stringify(error));
     });
 }
+exports.onNavigatingTo = onNavigatingTo;
 
 /**
  * Opens the Sidedrawer
@@ -54,7 +49,6 @@ function onDrawerButtonTap(args) {
 exports.onDrawerButtonTap = onDrawerButtonTap;
 
 function clubDetails(data) {
-    console.log(data.postcode);
     viewModel.set("clubName", data.name);
     viewModel.set("phoneNumber", data.phone_number);
     viewModel.set("street_address_l1", data.street_address_l1);
@@ -68,7 +62,6 @@ function clubDetails(data) {
  * Function to allow user to pick an image for logo
  */
 function imagePicker() {
-    console.log("new logo");
     var context = imagepicker.create({ mode: "single" });
     context
         .authorize()
@@ -78,7 +71,6 @@ function imagePicker() {
         .then(function (selection) {
             selection.forEach(function (selected) {
                 // process the selected image
-                console.log(selected.android.toString());
                 logo = selected.android.toString();
             });
             list.items = selection;
@@ -94,7 +86,7 @@ exports.imagePicker = imagePicker;
 function clubRequest() {
     var file = logo;
     var editUrl = global.serverUrl + global.endpointClub + clubId + "/";
-    console.log("club url= " + editUrl);
+
     // Getting edit details from form
     var clubName = viewModel.get("clubName");
     var clubPhone = viewModel.get("phoneNumber");
@@ -103,18 +95,6 @@ function clubRequest() {
     var addressSuburb = viewModel.get("suburb");
     var addressPostcode = viewModel.get("postcode");
     var addressCountry = viewModel.get("country");
-
-    // upload configuration
-    // http.request({
-    //     url: editUrl,
-    //     method: "PATCH",
-    //     headers: { "Content-Type": "application/json", "Authorization": sendToken },
-    //     content: JSON.stringify({ "name": "patchtest" })
-    // }).then(function (result) {
-    //     console.log(JSON.stringify(result));
-    // }, function (error) {
-    //     console.error(JSON.stringify(error));
-    // });
 
     var request = {
         url: editUrl,
@@ -145,7 +125,6 @@ function clubRequest() {
     var task = session.multipartUpload(params, request);
 
     task.on("error", errorHandler);
-    //task.on("responded", respondedHandler);
     task.on("complete", completeHandler);
 
     // event arguments:
@@ -154,21 +133,10 @@ function clubRequest() {
     // error: java.lang.Exception (Android) / NSError (iOS)
     // response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
     function errorHandler(e) {
-        //alert("received " + e.responseCode + " code.");
         var serverResponse = e.response;
-        console.log(JSON.stringify(serverResponse));
-        console.log(e.error);
-        console.log(e.response);
-        console.log(e.task);
+        console.error(JSON.stringify(serverResponse));
+        console.error(e.error);
     }
-
-    // event arguments:
-    // task: Task
-    // responseCode: number
-    // data: string
-    // function respondedHandler(e) {
-    //     alert("responded received " + e.responseCode + " code. Server sent: " + e.data);
-    // }
 
     // event arguments:
     // task: Task

@@ -52,8 +52,6 @@ var time;
 var dateTimeObj;
 var shotTypeIndex;
 var ratingTypeIndex;
-var shotTypeName;
-var ratingTypeName;
 var thumbnail;
 var pageName;
 
@@ -124,10 +122,6 @@ function onNavigatingTo(args) {
      */
     editTypeOptions = page.navigationContext.editTypeOptions;
 
-    console.log("sourcePage: " + sourcePage);
-    console.log("editType: " + editType);
-    console.log("editTypeOptions: " + editTypeOptions);
-
     // set edit button params
     switch (editType) {
         case EDIT_RECORD:
@@ -179,7 +173,6 @@ function onLoad(args) {
     // set duration and slider max
     player = page.getViewById("nativeVideoPlayer");
     player.on(VideoPlayer.Video.playbackReadyEvent, args => {
-        console.log("Ready to play video");
         duration = player.getDuration();
         // need to "kickstart" player, otherwise video won't show.
         if (duration == 0) {
@@ -192,7 +185,8 @@ function onLoad(args) {
         viewModel.set("duration", durSeconds);
         viewModel.set("sliderMax", duration);
         setThumbnail();
-        console.log("duration: " + duration);
+
+        // declare that page is prepared
         hasVideo = true;
         viewModel.set("hasVideo", hasVideo);
         videoLoading = false;
@@ -233,16 +227,12 @@ exports.onLoad = onLoad;
 /**
  * Uploads data to the server. If the shot is only being edited (not new), it
  * only add the changed data rather than upload.
- *
- * TODO upload is sending dummy data for now. Change to form data!
  * @param {any} args
  */
 function upload(args) {
     var id;
     var sendToken = appSet.getString(global.tokenAccess);
     const documentsFolder = fileSystemModule.knownFolders.currentApp();
-    console.log(path);
-    console.log(sendToken);
 
     // set uploading data
     var toUpload = {};
@@ -251,21 +241,17 @@ function upload(args) {
     var videoDuration;
     var thumbnailVal;
     var validationString = "";
-    // validate details for upload
 
+    // validate details for upload
     if (playerId == null) {
-        console.log("no player id");
         validationString = validationString + "Player \n";
     }
 
     if (viewModel.get("shotTypeIndex") < 1 || viewModel.get("shotTypeIndex") > 10) {
-        console.log("invalid shot type");
         validationString = validationString + "Shot Type \n";
-
     }
 
     if (viewModel.get("ratingTypeIndex") < 1 || viewModel.get("ratingTypeIndex") > 6) {
-        console.log("invalid rating type");
         validationString = validationString + "Rating Type \n";
     }
 
@@ -277,7 +263,6 @@ function upload(args) {
         });
         return;
     }
-    console.log("Valid Data");
 
     // if editing an uploaded shot, we need a PATCH request.
     if (editType == EDIT_VIEW_SEARCH) {
@@ -287,7 +272,6 @@ function upload(args) {
     else if (editType == EDIT_VIEW_LOCAL || editType == EDIT_RECORD) {
         uploadType = "POST";
         toUpload["player"] = playerId;
-        // toUpload["club"] = "2182e986-3390-4b11-be8d-271a7751210f";
 
         // get data
         if (viewModel.get("shotTypeIndex")) {
@@ -331,17 +315,13 @@ function upload(args) {
     );
     request.setContent(toUpload);
     request.send(function (result) {
-        // console.log(result);
         var obj = JSON.stringify(result);
         obj = JSON.parse(obj);
-        console.log(obj.content.id);
         id = obj.content.id;
 
         // set up video uploading
         var file = path;
-        console.log("filepath: " + file);
         var name = file.substr(file.lastIndexOf("/") + 1);
-        console.log("id is: " + id);
 
         // do video upload request.
         if (uploadVideo) {
@@ -402,15 +382,10 @@ function upload(args) {
      * @param {any} e
      */
     function errorHandler(e) {
-        // The error handler is being called on completion.
-        // For now just suppress the error.
-        // TODO fix this bug!
         if (!e.response) {
             return;
         }
         console.error(e.response);
-        console.error(e);
-        console.error(e.response.getBodyAsString());
         dialogs.alert({
             title: "Error uploading video",
             message: e.response.getBodyAsString(),
@@ -418,46 +393,24 @@ function upload(args) {
         }).then(function () { });
     }
 
-    // event arguments:
-    // task: Task
-    // responseCode: number
-    // data: string
+    /**
+     * Do something when the server responds.
+     * NOTE: disabled since it does not seem to work.
+     * @param {any} e
+     */
     function respondedHandler(e) {
-        /* Disabled since this function does not seem to work.
-        console.log("Video being uploaded with responseCode: " + e.responseCode);
-        if (page.android) {
-            var Toast = android.widget.Toast;
-            Toast.makeText(application.android.context, "Video is Uploading", Toast.LENGTH_SHORT).show();
-        };
-        // navigate out once the server has received the request
-        if (editType == EDIT_RECORD) {
-            var navigationOptions = {
-                moduleName: "record-shot-page",
-                backstackVisible: false
-            };
-            frameModule.topmost().navigate(navigationOptions);
-        } else {
-            frameModule.topmost().goBack();
-        }
-        */
+        /* Disabled since this function does not seem to work. */
     }
 
-    // event arguments:
-    // task: Task
-    // responseCode: number
-    // response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
+    /**
+     * Gives a toast when the upload is complete.
+     * @param {any} e
+     */
     function completeHandler(e) {
-        console.log("Video uploaded with responseCode: " + e.responseCode);
         if (page.android) {
             var Toast = android.widget.Toast;
             Toast.makeText(application.android.context, "Video Finished Uploading", Toast.LENGTH_SHORT).show();
         };
-    }
-
-    // event arguments:
-    // task: Task
-    function cancelledHandler(e) {
-        alert("upload cancelled");
     }
 
 }
@@ -485,27 +438,39 @@ function saveLocally(args) {
 }
 exports.saveLocally = saveLocally;
 
+/**
+ * Saves an existing shot locally.
+ */
 function _saveLocalEdit() {
-    console.log("Saving during View Edit");
 
     // get changed vars
     var columnList = [];
+
+    // changed names
     columnList.push({ column: "playername", value: firstname });
     columnList.push({ column: "coachname", value: coachname });
     columnList.push({ column: "clubname", value: clubname });
+
+    // changed video
     if (path != viewModel.get("videoPath")) {
         columnList.push({ column: "path", value: viewModel.get("videoPath") });
     }
     columnList.push({ column: "thumbnail", value: thumbnail });
+
+    // changed types
     if (shotTypeIndex != viewModel.get("shotTypeIndex")) {
         columnList.push({ column: "shottype", value: viewModel.get("shotTypeIndex") });
     }
     if (ratingTypeIndex != viewModel.get("ratingTypeIndex")) {
         columnList.push({ column: "ratingtype", value: viewModel.get("ratingTypeIndex") });
     }
+
+    // changed ids
     columnList.push({ column: "playerid", value: playerId });
     columnList.push({ column: "coachid", value: coachId });
     columnList.push({ column: "clubid", value: clubId });
+
+    // changed date
     var dateCheck = viewModel.get("date");
     var timeCheck = viewModel.get("time");
     var dateTimeCheck = dateCheck + " " + timeCheck;
@@ -529,13 +494,12 @@ function _saveLocalEdit() {
     }
     query += " WHERE id=?;";
     valList.push(shotId);
-    console.log(query);
 
     // run query.
     var complete = new Promise(function (resolve, reject) {
         db.queryExec(query, valList,
             function (id) {
-                console.log("Edited shot with id " + id);
+                console.log("Saved new shot with id " + id);
                 resolve(id);
             },
             function (err) {
@@ -558,8 +522,10 @@ function _saveLocalEdit() {
         });
 }
 
+/**
+ * Saves a new shot locally.
+ */
 function _saveLocalRecord() {
-    console.log("Insert");
 
     // get all vars (don't worry if they've been changed).
     var columnList = [];
@@ -573,13 +539,11 @@ function _saveLocalRecord() {
     columnList.push({ column: "playerid", value: playerId });
     columnList.push({ column: "coachid", value: coachId });
     columnList.push({ column: "clubid", value: clubId });
-    // columnList.push({ column: "duration", value: viewModel.get("duration") });
     var dateCheck = viewModel.get("date");
     var timeCheck = viewModel.get("time");
     columnList.push({ column: "date", value: new Date(dateCheck + " " + timeCheck) });
-
-    console.log("list made");
-    // build query
+    
+    // build query. Add each item to the query procedurally
     var query = "INSERT INTO " + LocalSave._tableName + " (";
     var first = true;
     for (var i = 0; i < columnList.length; i++) {
@@ -603,7 +567,6 @@ function _saveLocalRecord() {
         valList.push(item.value);
     }
     query += ");";
-    console.log(query);
 
     // run query.
     var complete = new Promise(function (resolve, reject) {
@@ -650,7 +613,6 @@ function discard(args) {
 
         var query = "DELETE FROM " + LocalSave._tableName + " WHERE id=?";
         valList = [shotId];
-        console.log(query);
 
         // run query.
         var complete = new Promise(function (resolve, reject) {
@@ -707,52 +669,19 @@ exports.discard = discard;
  */
 function _discardVideo() {
     var filepath = path.split("/");
-    console.log(filepath);
     file = filepath[6];
-    console.log(file);
     fileString = file.toString();
-    console.log(fileString);
     myFolder = fileSystemModule.knownFolders.temp();
     myFile = myFolder.getFile(fileString);
     myFile.remove();
 }
 
 /**
- * Called to change Shot Type dropdown value.
- *
- * TODO change to collect data from viewmodel vars
- * @param {any} args
- */
-function shotTypeDropdownChanged(args) {
-    let dropdownShot = page.getViewById("shotType");
-    // shotTypeIndex = dropdownShot.selectedIndex;
-    shotTypeName = shotTypeListArray[dropdownShot.selectedIndex].display;
-    console.log(dropdownShot.selectedIndex + " " + shotTypeName);
-}
-exports.shotTypeDropdownChanged = shotTypeDropdownChanged;
-
-/**
- * Called to change Rating Type dropdown value.
- *
- * TODO change to collect data from viewmodel vars
- * @param {any} args
- */
-function ratingTypeDropdownChanged(args) {
-    let dropdownRating = page.getViewById("ratingType");
-    // ratingTypeIndex = dropdownRating.selectedIndex;
-    ratingTypeName = ratingTypeListArray[dropdownRating.selectedIndex].display;
-    console.log(dropdownRating.selectedIndex + " " + ratingTypeName);
-}
-exports.ratingTypeDropdownChanged = ratingTypeDropdownChanged;
-
-/**
  * Sets a new thumbnail. Used to update the thumbnail video playback.
  */
 function setThumbnail(args) {
     let slider = page.getViewById("thumbnailSlider");
-    // thumbnail = slider.value;
     thumbnail = viewModel.get("sliderValue");
-    console.log("Updating thumbnail to " + thumbnail);
     let thumbnailVideo = page.getViewById("thumbnailVideo");
     thumbnailVideo.seekToTime(thumbnail);
 }
@@ -829,8 +758,6 @@ function _setShotRecord(editTypeOptions) {
     time = dateTimeObj.toLocaleTimeString("en-US");
     viewModel.set("date", date);
     viewModel.set("time", time);
-    console.log("the date " + date);
-    console.log("the time " + time);
 
     // set file path
     if (!editTypeOptions.filePath) {
@@ -839,7 +766,6 @@ function _setShotRecord(editTypeOptions) {
         path = editTypeOptions.filePath;
     }
     viewModel.set("videoPath", path);
-    console.log("file path " + path);
 
     // set duration
     duration = 0;
@@ -866,7 +792,11 @@ function _setShotLocal(editTypeOptions) {
 
     // shot id
     shotId = editTypeOptions.id;
+
+    // we must have an id to proceed since we can't load a shot that doesn't
+    // have an id
     if (!shotId) {
+        // stop and go back if there is no id.
         isLoading = false;
         viewModel.set("isLoading", isLoading);
         videoLoading = false;
@@ -935,7 +865,7 @@ function _setShotLocal(editTypeOptions) {
     var query = "SELECT * FROM " + LocalSave._tableName + " WHERE id=?";
     db.queryGet(query, [shotId],
         function (row) {
-            /*
+            /* REMINDER:
             0: { name: "id", type: "INTEGER PRIMARY KEY AUTOINCREMENT" },
             1: { name: "path", type: "TEXT" },
             2: { name: "playername", type: "TEXT" },
@@ -1036,7 +966,11 @@ function _setShotSearch(editTypeOptions) {
 
     // shot id
     shotId = editTypeOptions.id;
+
+    // we must have an id to proceed since we can't load a shot that doesn't
+    // have an id
     if (!shotId) {
+        // stop and go back
         isLoading = false;
         viewModel.set("isLoading", isLoading);
         videoLoading = false;
@@ -1073,8 +1007,6 @@ function _setShotSearch(editTypeOptions) {
     time = dateTimeObj.toLocaleTimeString("en-US");
     viewModel.set("date", date);
     viewModel.set("time", time);
-    console.log("the date " + date);
-    console.log("the time " + time);
 
     // set file path
     if (!editTypeOptions.filePath) {
@@ -1083,7 +1015,6 @@ function _setShotSearch(editTypeOptions) {
         path = editTypeOptions.filePath;
     }
     viewModel.set("videoPath", path);
-    console.log("file path " + path);
 
     // set duration
     duration = 0;
@@ -1111,22 +1042,26 @@ function _unlockFunctionality() {
     viewModel.set("lockUserActions", lockUserActions);
 }
 
+/**
+ * Throws an error specifically used by this page. When a context is not
+ * provided in the page params, we call this. This is used to check that we are
+ * accessing the page correctly.
+ */
 function _throwNoContextError() {
     console.error("Cannot edit a Shot without knowing the context.");
     return new Error("Cannot edit a Shot without knowing the context.");
 }
 
 /**
- * 
+ * Opens a modal dialog that allows us to get the list of players.
+ * TODO players need to be cached, not loaded by server.
  * @param {any} args
  */
 function openPlayerModal(args) {
-    console.log("Open");
     const button = args.object;
     const fullscreen = false;
     const context = { type: "players" };
     var callback = function (vals) {
-        console.log(vals);
         if (!vals) {
             // do nothing
             return;

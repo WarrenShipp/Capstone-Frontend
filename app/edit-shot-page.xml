@@ -33,7 +33,10 @@
                        visibility="{{ !videoLoading && !hasVideo ? 'visible' : 'collapsed' }}" />
             </GridLayout>
 
+            <!-- use page class to space input elements -->
             <StackLayout class="page">
+                
+                <!-- thumbnail -->
                 <Label text="Set Thumbnail" class="text-header" />
                 <DockLayout stretchLastChild="true">
                     <VideoPlayer:Video id="thumbnailVideo"
@@ -49,6 +52,7 @@
                             class="center-vertical" />
                 </DockLayout>
 
+                <!-- player -->
                 <Label text="Set Data" class="text-header" />
                 <FlexboxLayout flexWrap="wrap" class="pair-wrap">
                     <Label text="Player:" class="pair-label text-label" />
@@ -57,25 +61,14 @@
                             tap="openPlayerModal"
                             class="pair-value-small input-open-modal button button-margin text-info" />
                 </FlexboxLayout>
-                <!--
-            <TextField id="coachname" hint="Coach"
-                       text="{{ coachname }}"
-                       isEnabled="{{ !lockUserActions }}" />
-            <TextField id="clubname" hint="Club"
-                       text="{{ clubname }}"
-                       isEnabled="{{ !lockUserActions }}" />
-            -->
+                
+                <!-- The following fields are disabled:
+                     * Coach
+                     * Club
+                     * Date
+                -->
 
-                <!--
-            <Label text="Date:" row="0" col="0" />
-            <Label id="date" text="{{ date }}" row="0" col="1" />
-            -->
-
-                <!--
-            <Label text="Date:" row="1" col="0" />
-            <Label id="time" text="{{ time }}" row="1" col="1" />
-            -->
-
+                <!-- Shot type -->
                 <FlexboxLayout flexWrap="wrap" class="pair-wrap">
                     <Label text="Shot Type:" class="pair-label text-label" />
                     <dd:DropDown id="shotType" hint="Shot Type"
@@ -86,6 +79,7 @@
                                  class="pair-value-small text-info input-dropdown" style="flex-grow:1;flex-shrink:1"/>
                 </FlexboxLayout>
 
+                <!-- Rating -->
                 <FlexboxLayout flexWrap="wrap" class="pair-wrap">
                     <Label text="Rating:" class="pair-label text-label" />
                     <dd:DropDown id="ratingType" hint="Rating"
@@ -96,12 +90,14 @@
                                  class="pair-value-small text-info input-dropdown" style="flex-grow:1"/>
                 </FlexboxLayout>
 
+                <!-- Duration (non editable) -->
                 <FlexboxLayout flexWrap="wrap" class="pair-wrap">
                     <Label text="Duration:" class="pair-label text-label" />
                     <Label text="{{ duration + 's' }}"
                            class="pair-value-small text-info" />
                 </FlexboxLayout>
 
+                <!-- Buttons -->
                 <FlexboxLayout flexWrap="wrap" flexDirection="row-reverse">
                     <Button class="button-primary"
                             isEnabled="{{ (canUpload && !lockUserActions) }}"

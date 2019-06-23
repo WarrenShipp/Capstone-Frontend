@@ -6,6 +6,10 @@ var http = require("http");
 var HTTPRequestWrapper = require("../app/http/http-request.js");
 
 let viewModel;
+/**
+ * Set this to true to enable features exclusive to debug mode.
+ * Set to false once live.
+ */
 const DEBUG = true;
 
 /**
@@ -197,7 +201,7 @@ function logout(args) {
 
             // could not get token / login with credentials.
             if (removed == null || obj.content.detail) {
-                console.log("Logout Error: " + obj.content.detail);
+                console.error("Logout Error: " + obj.content.detail);
                 let message = obj.content.detail ? obj.content.detail : "Could not log out.";
                 dialogs.alert({
                     title: "Logout Error!",
@@ -208,7 +212,7 @@ function logout(args) {
             }
 
             // give response
-            console.log("Logged out: " + removed);
+            console.log("Logged out successfully.");
 
         }, function (error) {
             console.error(JSON.stringify(error));
@@ -219,15 +223,15 @@ function logout(args) {
             });
         });
     }
-    appSettings.remove("isCoach");
-    appSettings.remove("isPlayer");
-    appSettings.remove("coachId");
-    appSettings.remove("playerId");
+
+    // remove all relevant values that were stored at login.
+    appSettings.remove(global.userIsCoach);
+    appSettings.remove(global.userIsPlayer);
+    appSettings.remove(global.userCoachId);
+    appSettings.remove(global.userPlayerId);
     appSettings.remove(global.tokenAccess);
     appSettings.remove(global.tokenRefresh);
     appSettings.remove(global.lastRefresh);
-    console.log("Logged out on client side.");
-    console.log("Token = " + appSettings.getString(global.tokenAccess));
     resetPage();
     navigateToHome(args);
 }
@@ -235,13 +239,16 @@ exports.logout = logout;
 
 /**
  * Refreshes token.
+ * Note: There are some problems with handling refreshes. This is being called
+ * at odd times since it there are problems getting it to call on a regular
+ * basis (ex. by using a timeout).
+ * @param {any} args
  */
 function refresh(args) {
     const lastRefresh = appSettings.getNumber(global.lastRefresh);
     const tokenRefresh = appSettings.getString(global.tokenRefresh);
     const tokenAccess = appSettings.getString(global.tokenAccess);
     let curTime = (new Date()).getTime();
-    // if (tokenRefresh && lastRefresh && curTime - lastRefresh > global.refreshTime) {
     if (tokenRefresh) {
         _doRefresh(tokenRefresh);
     } else {
@@ -249,6 +256,10 @@ function refresh(args) {
     }
 }
 
+/**
+ * Handles the refresh functionality. Sends refresh call to server.
+ * @param {any} tokenRefresh
+ */
 function _doRefresh(tokenRefresh) {
     // do request
     var request = new HTTPRequestWrapper(
@@ -258,16 +269,15 @@ function _doRefresh(tokenRefresh) {
     );
     request.setContent({ "refresh": tokenRefresh });
     request.send(
+        // success
         function (result) {
-            // console.log("Refreshing");
-            // console.log(result);
             var obj = JSON.stringify(result)
             obj = JSON.parse(obj);
             var tokenAccess = obj.content.access;
 
             // could not get token / login with credentials.
             if (!tokenAccess || obj.content.detail) {
-                console.log("Refresh Error: " + obj.content.detail);
+                console.error("Refresh Error: " + obj.content.detail);
                 let message = obj.content.detail ? obj.content.detail : "Could not log refresh authorization token.";
                 message += "\n You have been logged out."
                 dialogs.alert({
@@ -283,9 +293,9 @@ function _doRefresh(tokenRefresh) {
             // update access token and reset timer
             appSettings.setString(global.tokenAccess, tokenAccess);
             appSettings.setNumber(global.lastRefresh, (new Date()).getTime());
-            console.log("Refreshed with token: " + tokenAccess);
         },
-        function () {
+        // error
+        function (error) {
             let message = "Could not log refresh authorization token.";
             message += "\n You have been logged out."
             dialogs.alert({
@@ -297,51 +307,6 @@ function _doRefresh(tokenRefresh) {
             logout(args);
         }
     );
-
-    /*
-    http.request({
-        url: global.serverUrl + global.endpointToken + "refresh/",
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        content: JSON.stringify({ "refresh": tokenRefresh })
-    }).then(function (result) {
-        // console.log("Refreshing");
-        // console.log(result);
-        var obj = JSON.stringify(result)
-        obj = JSON.parse(obj);
-        var tokenAccess = obj.content.access;
-
-        // could not get token / login with credentials.
-        if (!tokenAccess || obj.content.detail) {
-            console.log("Refresh Error: " + obj.content.detail);
-            let message = obj.content.detail ? obj.content.detail : "Could not log refresh authorization token.";
-            message += "\n You have been logged out."
-            dialogs.alert({
-                title: "Refresh Error!",
-                message: message,
-                okButtonText: "Okay"
-            }).then(function () { });
-            appSettings.remove(global.tokenRefresh);
-            logout(args);
-            return;
-        }
-
-        // update access token and reset timer
-        appSettings.setString(global.tokenAccess, tokenAccess);
-        appSettings.setNumber(global.lastRefresh, (new Date()).getTime());
-        console.log("Refreshed with token: " + tokenAccess);
-
-    }, function (error) {
-        console.error(JSON.stringify(error));
-        dialogs.alert({
-            title: "Error!",
-            message: JSON.stringify(error) + "\n You have been logged out.",
-            okButtonText: "Okay"
-        });
-        appSettings.remove(global.tokenRefresh);
-        logout(args);
-    });
-    */
 }
 
 /**

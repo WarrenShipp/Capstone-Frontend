@@ -1,8 +1,7 @@
-var observable = require("data/observable");
+﻿var observable = require("data/observable");
 var listViewModule = require("tns-core-modules/ui/list-view");
 var Label = require("tns-core-modules/ui/label").Label;
 var ObservableArray = require("data/observable-array").ObservableArray;
-
 var frameModule = require("ui/frame");
 var app = require("tns-core-modules/application");
 var appSettings = require("application-settings");
@@ -10,8 +9,10 @@ var http = require("http");
 var bghttp = require("nativescript-background-http");
 var viewModel;
 
-
-// Gets a list of all the clubs that the user is an admin of
+/**
+ * Gets a list of all the clubs that the user is an admin of
+ * @param {any} args
+ */
 function onNavigatingTo(args) {
     page = args.object; 
     viewModel = new observable.Observable();
@@ -34,8 +35,7 @@ function onNavigatingTo(args) {
         var obj = JSON.stringify(result);
         obj = JSON.parse(obj);
         for (i=0; i<8; i++){
-            console.log(obj.content.admin_clubs[i].id);
-        lists.push({id: obj.content.admin_clubs[i].id, name: obj.content.admin_clubs[i].name});
+            lists.push({id: obj.content.admin_clubs[i].id, name: obj.content.admin_clubs[i].name});
         }
     }, function(error) {
         console.error(JSON.stringify(error));
@@ -69,11 +69,13 @@ function onNavigatingTo(args) {
 
     container.addChild(listView);
     
-
-    
 }
 exports.onNavigatingTo = onNavigatingTo;
 
+/**
+ * Opens Sidedrawer.
+ * @param {any} args
+ */
 function onDrawerButtonTap(args) {
     const sideDrawer = app.getRootView();
     sideDrawer.showDrawer();

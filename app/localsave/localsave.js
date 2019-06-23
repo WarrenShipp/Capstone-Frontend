@@ -1,15 +1,16 @@
 ﻿var Sqlite = require("nativescript-sqlite");
 var dialogs = require("tns-core-modules/ui/dialogs");
 var appSettings = require("application-settings");
-const localSaveTimeout = 500;
 
-console.log("Loaded localsave");
+// consts
+const localSaveTimeout = 500;   // NOT IMPLEMENTED
 
 /**
  * Used to control access to the local saving SQL repository.
  */
 class LocalSave {
 
+    // important constants for DB
     static _dbname = "cricketdb";
     static _tableName = "localshot";
     static _columns = [
@@ -28,8 +29,11 @@ class LocalSave {
         { name: "clubid", type: "TEXT" }
     ];
 
+    /**
+     * Sole constructor. Sets up everything using the existing statics.
+     */
     constructor() {
-        console.log("Constructing LocalSave");
+        // vals used to keep track of the database's status
         this.ready = false;
         this.error = false;
 
@@ -37,7 +41,6 @@ class LocalSave {
         var _database = new Sqlite(LocalSave._dbname);
         _database.then(function (db) {
             _this.database = db;
-            console.log("creating db");
             // check if table exists. If not, then create.
             let query = "SELECT name FROM sqlite_master WHERE type='table' AND name=?";
             db.get(query, [LocalSave._tableName], function (err, row) {
@@ -53,11 +56,10 @@ class LocalSave {
                     return;
                 }
 
-                console.log(row);
-
                 // no table with given name exists. So create table.
                 if (!row || row.length == 0) {
-                    console.log("Creating table with name " + LocalSave._tableName);
+
+                    // create query procedurally using the static table
                     let createQuery = "CREATE TABLE IF NOT EXISTS " + LocalSave._tableName + " (";
                     let first = true;
                     for (var i = 0; i < LocalSave._columns.length; i++) {
@@ -69,6 +71,8 @@ class LocalSave {
                         first = false;
                     }
                     createQuery += ")";
+
+                    // run the create query
                     db.execSQL(createQuery, function (err, id) {
                         if (err) {
                             console.error(err);
@@ -80,10 +84,10 @@ class LocalSave {
                             _this.error = true;
                             return;
                         }
-                        console.log("Table created.");
                         _this.ready = true;
                     });
                 } else {
+                    // confirm that we are ready so we can use the DB
                     _this.ready = true;
                 }
             });
@@ -302,21 +306,11 @@ class LocalSave {
     /**
      * Times out and waits to see if DB is ready. No function works until the
      * DB does its setup.
-     * TODO this function is bad. Needs to be replaced with a promise!
-     * For now it just returns the state of the DB.
+     * TODO previous implementations was bad. Needs to be replaced with a promise!
+     * For now it just returns the state of the DB. It does not block until the
+     * function is ready which was the original purpose.
      */
     _timeout() {
-        /*
-        let timeStart = (new Date()).getTime();
-        let timeNow = 0;
-        do {
-            if (this.ready) {
-                return true;
-            }
-            timeNow = (new Date()).getTime();
-        } while (timeNow - timeStart < localSaveTimeout);
-        return false;
-        */
         return this.ready;
     }
 
@@ -338,7 +332,6 @@ class LocalSave {
         let dbLayer0 = this.database;
         let query = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '%metadata%';";
         this.database.all(query, function (err, rows) {
-            console.log("deleting tables " + rows);
 
             try {
 
@@ -357,7 +350,6 @@ class LocalSave {
                 var doneDeleting = false;
                 for (var row in rows) {
                     var curTable = rows[row][0];
-                    console.log(curTable);
                     let deleteQuery = "DROP TABLE IF EXISTS " + curTable + ";";
                     dbLayer0.execSQL(deleteQuery, function (err, id) {
                         if (err) {
@@ -369,17 +361,13 @@ class LocalSave {
                             }).then(function () { });
                             return;
                         }
-
-                        console.log("ID = " + id);
+                        
                         // add to complete count
                         deleteCount++;
-                        console.log("Deleted table " + curTable);
                     });
-                    // doneDeleting = true;
                 }
 
                 // wait until done.
-                console.log("Start wait.");
                 while (deleteCount < rows.length) {
                     // error. Escape.
                     if (doneDeleting && (deleteCount < rows.length)) {
@@ -387,10 +375,8 @@ class LocalSave {
                         return;
                     }
                 }
-                console.log("End wait.");
 
                 // create the final table
-                console.log("Creating table with name " + LocalSave._tableName);
                 let createQuery = "CREATE TABLE IF NOT EXISTS " + LocalSave._tableName + " (";
                 let first = true;
                 for (var i = 0; i < LocalSave._columns.length; i++) {
@@ -412,7 +398,6 @@ class LocalSave {
                         }).then(function () { });
                         return;
                     }
-                    console.log("Table created.");
                 });
 
             } catch (err) {

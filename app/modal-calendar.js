@@ -1,6 +1,7 @@
 ﻿var observable = require("data/observable").Observable;
 var viewModel = new observable();
 
+// page vars
 var type;
 var typeName;
 var maxDate;
@@ -34,12 +35,8 @@ exports.onShownModally = onShownModally;
  * @param {any} args
  */
 function onDateSelected(args) {
-    console.log("date: " + args.date);
     var offset = args.date.getTimezoneOffset();
-    console.log(offset);
     var yourDate = new Date(args.date.getTime() - (offset * 60 * 1000));
-    // console.log(yourDate.toISOString());
-    // yourDate = yourDate.toISOString().split('T')[0];
 
     // compare dates with max and min to ensure that we are within the correct
     // bounds

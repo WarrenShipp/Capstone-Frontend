@@ -1,6 +1,7 @@
-var observable = require("data/observable").Observable;
+﻿var observable = require("data/observable").Observable;
 var viewModel = new observable();
 
+// page vars
 var maxDate;
 var minDate;
 var birthDate;
@@ -32,11 +33,8 @@ exports.onShownModally = onShownModally;
 function onDateSelected(args) {
     let datePicker = temppage.getViewById("birthDate");
     
-    console.log(datePicker);
     var yourDate = new Date(datePicker.year, datePicker.month-1, datePicker.day);
     var offset = yourDate.getTimezoneOffset(); 
-    console.log(yourDate);
-    console.log(offset);
     yourDate = new Date(yourDate.getTime() - (offset*60*1000));
     yourDate = yourDate.toISOString().split('T')[0];
 
@@ -64,12 +62,3 @@ function deselect(args) {
 
 }
 exports.deselect = deselect;
-
-/**
- * Deselects a date. Same functionality as the deselect button.
- * @param {any} args
- */
-function onDateDeselected(args) {
-    console.log(args);
-}
-exports.onDateDeselected = onDateDeselected;

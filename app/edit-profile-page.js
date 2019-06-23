@@ -87,7 +87,6 @@ function navigatingTo(args) {
         );
         request.send(
             function (result) {
-                // console.log(result);
                 var obj = JSON.stringify(result);
                 obj = JSON.parse(obj);
 
@@ -115,7 +114,9 @@ function navigatingTo(args) {
                 return;
             }
         );
-    } else {
+    }
+    // we have somehow tried to view someone else's profile. That's not allowed.
+    else {
         dialogs.alert({
             title: "Can't edit a different user",
             message: "You can only edit your own profile.",
@@ -126,29 +127,32 @@ function navigatingTo(args) {
             });
     }
 
+    // handle update to player status. Show / hide relevant fields.
     const playerSwitch = page.getViewById("player-switch");
     playerSwitch.on("checkedChange", (args) => {
-        console.log("checkedChange ", args.object.checked);
         viewModel.set("isPlayer", args.object.checked);
         isPlayer = args.object.checked;
-        console.log(isPlayer);
     });
 
+    // handle update to coach status. Show / hide relevant fields.
     const coachSwitch = page.getViewById("coach-switch");
     coachSwitch.on("checkedChange", (args) => {
-        console.log("checkedChange ", args.object.checked);
         viewModel.set("isCoach", args.object.checked);
         isCoach = args.object.checked;
-        console.log(isCoach);
     });
 
 }
 exports.navigatingTo = navigatingTo;
 
-exports.onDrawerButtonTap = function (args) {
+/**
+ * Show menu.
+ * @param {any} args
+ */
+function onDrawerButtonTap(args) {
     const sideDrawer = app.getRootView();
     sideDrawer.showDrawer();
-}
+ }
+exports.onDrawerButtonTap = onDrawerButtonTap;
 
 /**
  * Puts all the user's data onto the page.
@@ -157,6 +161,7 @@ exports.onDrawerButtonTap = function (args) {
  */
 function _makeProfilePage(user, isSelf) {
     /*
+    Reminders:
     name            : String
     email           : String
     phone           : String
@@ -171,7 +176,6 @@ function _makeProfilePage(user, isSelf) {
     yearsExperience : integer
     canEdit         : boolean
     */
-    console.log("Setting up page");
 
     firstName = user.first_name
     lastName = user.last_name;
@@ -186,8 +190,6 @@ function _makeProfilePage(user, isSelf) {
     }
     inClub = false; // TODO make club display work
 
-    console.log("Setting up dropdowns");
-
     // set batsman dropdown
     batsmanTypeList = new dropdown.ValueList(batsmanTypeItems);
     viewModel.set("batsmanTypeList", batsmanTypeList);
@@ -198,8 +200,7 @@ function _makeProfilePage(user, isSelf) {
     viewModel.set("bowlerTypeList", bowlerTypeList);
     bowlerTypeIndex = 0;
 
-    console.log("Setting up player");
-
+    // set up player data
     if (isPlayer && user.player) {
         batsmanTypeIndex = user.player.batsman_type;
         bowlerTypeIndex = user.player.bowler_type;
@@ -207,16 +208,16 @@ function _makeProfilePage(user, isSelf) {
     }
     maxDate = Date.now();
 
-    console.log("Setting up coach");
-
+    // set up coach data
     isCoach = user.is_coach;
     if (isCoach && user.coach) {
         yearsExperience = user.coach.years_experience;
     }
 
-    console.log("Doing viewmodels");
+    // set up birth date
     birthDate = birthDate.toISOString().split('T')[0];
-    // set all
+
+    // show all
     viewModel.set("imgSrc", imgSrc);
     viewModel.set("firstName", firstName);
     viewModel.set("lastName", lastName);
@@ -230,13 +231,9 @@ function _makeProfilePage(user, isSelf) {
     viewModel.set("isCoach", isCoach);
     viewModel.set("yearsExperience", yearsExperience);
 
-    console.log("Nearly done");
-
     // done. Stop loading
     isLoading = false;
     viewModel.set("isLoading", isLoading);
-
-    console.log("Profile editing ready.");
 
 }
 
@@ -266,57 +263,46 @@ function save(args) {
     var newPassword = viewModel.get("newPassword");
     var confirmPassword = viewModel.get("confirmPassword");
 
+    // block for uploading
     isUploading = true;
     viewModel.set("isUploading", isUploading);
+
     // player info args
     let dropdownBatsman = page.getViewById("batsmanType");
     var saveBatsmanType = dropdownBatsman.selectedIndex;
-    console.log("From ID: " + saveBatsmanType + "; From VM: " + viewModel.get("batsmanTypeIndex"));
     let dropdownBowler = page.getViewById("bowlerType");
     var saveBowlerType = dropdownBowler.selectedIndex;
-    console.log("From ID: " + saveBowlerType + "; From VM: " + viewModel.get("bowlerTypeIndex"));
     let saveBirthDate = viewModel.get("birthDate");
-    // console.log(datePicker);
-    // console.log("date picker: " + datePicker.year);
-    // console.log("date picker: " + datePicker.month);
-    // console.log("date picker: " + datePicker.day);
-
-    //var saveBirthDate = new Date(datePicker.year, datePicker.month-1, datePicker.day);
 
     // coach info args
     var saveYearsExperience = viewModel.get("yearsExperience");
 
     // add all valid fields to this object
     var allFields = [];
-
+    // use this to keep track of things that are not valid. Should display these
+    // in an error message to the user.
     var validationString = "";
+
+    // reminders:
     // FIELD: { name: "name", value: clubName }
-    
     // FILE: { name: "logo", filename: file, mimeType: "image/*" }
 
-    // checks
+    // check if birth date is valid
     var today = new Date();
-    console.log(today);
-    console.log(today.getDate());
-    console.log(today.getMonth());
-    console.log(today.getFullYear());
-
     var offset = today.getTimezoneOffset(); 
-    // console.log(offset);
-    // saveBirthDate = new Date(saveBirthDate.getTime() - (offset*60*1000));
-    today = new Date(today.getTime() - (offset*60*1000));
-    // //phone validation is not working properly at the moment, regex check needs to match the backend
+    today = new Date(today.getTime() - (offset * 60 * 1000));
+
+    // phone validation is not working properly at the moment, regex check needs to match the backend
     // var regex = new RegExp("^(?:\\+?(61))? ?(?:\\((?=.*\\)))?(0?[2-57-8])\\)? ?(\\d\\d(?:[- ](?=\\d{3})|(?!\\d\\d[- ]?\\d[- ]))\\d\\d[- ]?\\d[- ]?\\d{3})$");
     // if (!savePhone.match(regex)){
     //     console.log("didn't match" + savePhone);
     //     validationString = validationString + "Valid Australian Phone Number \n";
     // }
 
-    // 
+    // add names
     if (!saveFirstName) {
         validationString = validationString + "First Name \n";
     }
-
     if (!saveLastName) {
         validationString = validationString + "Last Name \n";
     }
@@ -329,6 +315,8 @@ function save(args) {
         }   
     }
 
+    // handle validation checks. Return if invalid. Validation string is what
+    // we use to check.
     if (validationString != "") {
         dialogs.alert({
             title: "Profile Update Error - Invalid Details",
@@ -340,7 +328,7 @@ function save(args) {
         return;
     }
 
-    // check name
+    // check names and add
     if (saveFirstName != firstName) {
         allFields.push({ name: "first_name", value: saveFirstName });
     }
@@ -348,7 +336,7 @@ function save(args) {
         allFields.push({ name: "last_name", value: saveLastName });
     }
 
-    // check imgSrc
+    // check imgSrc and add
     if (saveImgSrc != imgSrcOriginal) {
         allFields.push({ name: "profile_pic", filename: saveImgSrc, mimeType: "image/*" });
     }
@@ -393,25 +381,26 @@ function save(args) {
     };
 
     var task = session.multipartUpload(allFields, request);
-    //task.on("progress", progressHandler);
+    // task.on("progress", progressHandler);
     task.on("error", errorHandler);
-    //task.on("responded", respondedHandler);
+    // task.on("responded", respondedHandler);
     task.on("complete", completeHandler);
-
-    // go back for now. Probably not the best.
-    // page.frame.goBack();
+    
 }
 exports.save = save;
 
+/**
+ * Opens a modal dialog for changing the birth date.
+ * @param {any} args
+ */
 function showBirthDate(args){
-    console.log("Open");
     const button = args.object;
     const fullscreen = false;
 
     // determine date params
     const context = {};
 
-    if(birthDate){
+    if (birthDate){
         context.birthDate = viewModel.get("birthDate");
     }
 
@@ -422,7 +411,6 @@ function showBirthDate(args){
             return;
         }
         var date = vals.date;
-        console.log(date);
         viewModel.set("birthDate", date);
     }
     button.showModal(modalCalendarModule, context, callback, fullscreen);
@@ -433,7 +421,6 @@ exports.showBirthDate = showBirthDate;
  * Allows user to select a new image for their profile picture.
  */
 function changeImage() {
-    console.log("changing image");
     var context = imagepicker.create({ mode: "single" });
     context
         .authorize()
@@ -447,7 +434,8 @@ function changeImage() {
             } else {
                 console.log("No image could be found.");
             }
-        }).catch(function (e) {
+        })
+        .catch(function (e) {
             console.error(e);
             dialogs.alert({
                 title: "Error getting images",
@@ -458,6 +446,11 @@ function changeImage() {
 }
 exports.changeImage = changeImage;
 
+/**
+ * Handles the password change.
+ * Note: not implemented.
+ * @param {any} args
+ */
 function passwordChange(args) {
     //Password change to be implemented
     if (oldPassword || newPassword || confirmPassword) {
@@ -478,20 +471,28 @@ function passwordChange(args) {
 }
 exports.passwordChange = passwordChange;
 
+/**
+ * Does something when progress is updated.
+ * Note: Not implemented.
+ * @param {any} e event arguments:
+ *        task: Task
+ *        currentBytes: number
+ *        totalBytes: number
+ */
 
-// event arguments:
-// task: Task
-// currentBytes: number
-// totalBytes: number
 function progressHandler(e) {
     console.log("uploaded " + e.currentBytes + " / " + e.totalBytes);
 }
 
-// event arguments:
-// task: Task
-// responseCode: number
-// error: java.lang.Exception (Android) / NSError (iOS)
-// response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
+
+/**
+ * Handles an error message.
+ * @param {any} e  event arguments:
+ *        task: Task
+ *        responseCode: number
+ *        error: java.lang.Exception (Android) / NSError (iOS)
+ *        response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
+ */
 function errorHandler(e) {
     isUploading = false;
     viewModel.set("isUploading", isUploading);
@@ -502,36 +503,40 @@ function errorHandler(e) {
         okButtonText: "Okay"
     }).then(function () { });
     var serverResponse = e.response;
-    // console.log(JSON.stringify(serverResponse));
-    // console.log(e.response.getBodyAsString());
 }
 
-
-// event arguments:
-// task: Task
-// responseCode: number
-// data: string
+/**
+ * Check if a response is received. NOT IMPLEMENTED.
+ * @param {any} e event arguments:
+ *        task: Task
+ *        responseCode: number
+ *        data: string
+ */
 function respondedHandler(e) {
     console.log("responded received " + e.responseCode + " code. Server sent: " + e.data);
 }
 
-// event arguments:
-// task: Task
-// responseCode: number
-// response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
+
+/**
+ * Does something with the upload is completed.
+ * @param {any} e event arguments:
+ *        task: Task
+ *        responseCode: number
+ *        response: net.gotev.uploadservice.ServerResponse (Android) / NSHTTPURLResponse (iOS)
+ */
 function completeHandler(e) {
-    // alert("received " + e.responseCode + " code");
-    // var serverResponse = e.response;
     var toast = Toast.makeText("Profile Saved");
     toast.show();
     isUploading = false;
     viewModel.set("isUploading", isUploading);
     page.frame.goBack();
-
 }
 
-// event arguments:
-// task: Task
+/**
+ * Does something when the upload is cancelled.
+ * @param {any} e event arguments:
+ *        task: Task
+ */
 function cancelledHandler(e) {
     console.log("upload cancelled");
 }
@@ -546,8 +551,6 @@ function backEvent(args) {
     }
 }
 exports.backEvent = backEvent;
-
-
 
 /**
  * Sets all values to default. Waits for response from server.
@@ -577,8 +580,6 @@ function _resetPage() {
     viewModel.set("isPlayer", isPlayer);
     viewModel.set("batsmanTypeIndex", batsmanTypeIndex);
     viewModel.set("bowlerTypeIndex", bowlerTypeIndex);
-    // viewModel.set("birthDate", birthDate);
-    // viewModel.set("maxDate", maxDate);
     viewModel.set("isCoach", isCoach);
     viewModel.set("yearsExperience", yearsExperience);
 

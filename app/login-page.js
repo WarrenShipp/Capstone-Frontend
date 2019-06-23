@@ -11,6 +11,7 @@ const HTTPRequestWrapper = require("../app/http/http-request.js");
 var observable = require("data/observable");
 var viewModel = new observable.Observable();
 
+// page vars
 var email;
 var password;
 var requestStatus;
@@ -65,7 +66,6 @@ function login(args) {
             obj = JSON.parse(obj);
             var tokenAccess = obj.content.access;
             var tokenRefresh = obj.content.refresh;
-            console.log(tokenAccess + " " + tokenRefresh);
 
             // could not get token / login with credentials.
             if (!tokenAccess || obj.content.detail) {
@@ -90,10 +90,10 @@ function login(args) {
 
         },
         function (error) {
-            appSettings.remove("isCoach");
-            appSettings.remove("isPlayer");
-            appSettings.remove("coachId");
-            appSettings.remove("playerId");
+            appSettings.remove(global.userIsCoach);
+            appSettings.remove(global.userIsPlayer);
+            appSettings.remove(global.userCoachId);
+            appSettings.remove(global.userPlayerId);
             appSettings.remove(global.tokenAccess);
             appSettings.remove(global.tokenRefresh);
             appSettings.remove(global.lastRefresh);
@@ -111,66 +111,6 @@ function login(args) {
             );
         }
     );
-
-    // try to log in.
-    /*
-    http.request({
-        url: global.serverUrl + global.endpointToken,
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        content: JSON.stringify({ "email": email, "password": password })
-    }).then(function (result) {
-        // console.log("log in start");
-        // console.log(result);
-        viewModel.set("requestStatus", true);
-        // console.log("print result");
-        var obj = JSON.stringify(result);
-        // console.log("stringify result");
-        obj = JSON.parse(obj);
-        // console.log("parse result");
-        var tokenAccess = obj.content.access;
-        var tokenRefresh = obj.content.refresh;
-        console.log(tokenAccess + " " + tokenRefresh);
-
-        // could not get token / login with credentials.
-        if (!tokenAccess || obj.content.detail) {
-            console.log("Login Error: " + obj.content.detail);
-            let message = obj.content.detail ? obj.content.detail : "Could not log in.";
-            dialogs.alert({
-                title: "Could not login!",
-                message: message,
-                okButtonText: "Okay"
-            }).then(function () { });
-            viewModel.set("password", "");
-            return;
-        } else {
-
-            // Set tokens
-            appSettings.setString(global.tokenAccess, tokenAccess);
-            appSettings.setString(global.tokenRefresh, tokenRefresh);
-            appSettings.setNumber(global.lastRefresh, (new Date()).getTime());
-            console.log("access = " + appSettings.getString(global.tokenAccess));
-            console.log("refresh = " + appSettings.getString(global.tokenRefresh));
-            console.log("lastRefresh = " + appSettings.getNumber(global.lastRefresh));
-            viewModel.set("email", "");
-            viewModel.set("password", "");
-
-            page.frame.navigate({
-                moduleName: "home-page",
-                clearHistory: true
-            });
-
-        }
-    }, function (error) {
-        viewModel.set("requestStatus", true);
-        console.error(JSON.stringify(error));
-        dialogs.alert({
-            title: "Error!",
-            message: JSON.stringify(error),
-            okButtonText: "Okay"
-        });
-    });
-    */
 
 }
 exports.login = login;
@@ -205,26 +145,19 @@ function _getMyDetails(tokenAccess, tokenRefresh) {
             // set your login data
             var obj = JSON.stringify(result);
             obj = JSON.parse(obj);
-            appSettings.setBoolean("isCoach", obj.content.is_coach);
+            appSettings.setBoolean(global.userIsCoach, obj.content.is_coach);
             if (obj.content.is_coach) {
-                appSettings.setString("coachId", obj.content.coach.id);
+                appSettings.setString(global.userCoachId, obj.content.coach.id);
             }
-            appSettings.setBoolean("isPlayer", obj.content.is_player);
+            appSettings.setBoolean(global.userIsPlayer, obj.content.is_player);
             if (obj.content.is_player) {
-                appSettings.setString("playerId", obj.content.player.id);
+                appSettings.setString(global.userPlayerId, obj.content.player.id);
             }
-            console.log("Is Coach:" + appSettings.getBoolean("isCoach"));
-            console.log("Coach Id:" + appSettings.getString("coachId"));
-            console.log("Is Player:" + appSettings.getBoolean("isPlayer"));
-            console.log("Player Id:" + appSettings.getString("playerId"));
 
             // set your tokens
             appSettings.setString(global.tokenAccess, tokenAccess);
             appSettings.setString(global.tokenRefresh, tokenRefresh);
             appSettings.setNumber(global.lastRefresh, (new Date()).getTime());
-            console.log("access = " + appSettings.getString(global.tokenAccess));
-            console.log("refresh = " + appSettings.getString(global.tokenRefresh));
-            console.log("lastRefresh = " + appSettings.getNumber(global.lastRefresh));
 
             // all went well
             page.frame.navigate({
@@ -234,10 +167,10 @@ function _getMyDetails(tokenAccess, tokenRefresh) {
 
         },
         function (error) {
-            appSettings.remove("isCoach");
-            appSettings.remove("isPlayer");
-            appSettings.remove("coachId");
-            appSettings.remove("playerId");
+            appSettings.remove(global.userIsCoach);
+            appSettings.remove(global.userIsPlayer);
+            appSettings.remove(global.userCoachId);
+            appSettings.remove(global.userPlayerId);
             appSettings.remove(global.tokenAccess);
             appSettings.remove(global.tokenRefresh);
             appSettings.remove(global.lastRefresh);

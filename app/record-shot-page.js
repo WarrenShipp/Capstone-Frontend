@@ -6,6 +6,7 @@ const fileSystemModule = require("tns-core-modules/file-system");
 const platformModule = require("tns-core-modules/platform");
 var application = require("tns-core-modules/application");
 
+// page vars
 var file;
 var viewModel = new observable.Observable();
 var cameraView;
@@ -15,6 +16,8 @@ var disabled;
 var timeRecordedMillis;
 var timeRecorded = "0:00";  // full text to be shown on front
 var messageInterval;
+
+// constants
 const TIME_MAX = 20000;     // 20 seconds.
 const MESSAGE_UPDATE_FREQ = 100;
 
@@ -43,8 +46,6 @@ function loaded(args) {
 
     // get file so we can pass to shot page.
     cameraView.on('finished', args => {
-        console.log("we recorded something" + args.object.get('file'));
-        // page.bindingContext.set('selectedVideo', args.object.get('file'));
         file = args.object.get('file');
     });
 
@@ -83,7 +84,6 @@ function _startRecord() {
     recording = true;
     viewModel.set("recording", recording);
     cameraView.startRecording();
-    console.log("Recording started.");
 }
 
 /**
@@ -103,13 +103,11 @@ function _stopRecord() {
     // timer has to be turned off here. Important when stopping manually.
     if (timeout) {
         clearTimeout(timeout);
-        console.log("timer stopped");
     }
 
     // if checking interval, stop
     if (messageInterval) {
         clearInterval(messageInterval);
-        console.log("Message stopped");
     }
 
     // stop video and get file
@@ -150,13 +148,11 @@ function cancel(args) {
     // timer has to be turned off here. Important when stopping manually.
     if (timeout) {
         clearTimeout(timeout);
-        console.log("timer stopped");
     }
 
     // if checking interval, stop
     if (messageInterval) {
         clearInterval(messageInterval);
-        console.log("Message stopped");
     }
 
     // stop camera and discard, but only if recording
@@ -181,18 +177,14 @@ exports.cancel = cancel;
  */
 function _discardVideo() {
     var filepath = file.split("/");
-    // console.log(filepath);
     var fileEnd = filepath[6];
-    // console.log(fileEnd);
     var fileString = fileEnd.toString();
-    // console.log(fileString);
     var myFolder = fileSystemModule.knownFolders.temp();
     myFile = myFolder.getFile(fileString);
     if (myFile) {
         myFile.remove();
-        console.log("Removed " + fileString);
     } else {
-        console.log("Couldn't remove " + fileString + " because the file does not exist.");
+        console.error("Couldn't remove " + fileString + " because the file does not exist.");
     }
 }
 
@@ -200,20 +192,25 @@ function _discardVideo() {
  * Updates the time recorded message. Only happens when recording has started.
  */
 function _messageUpdate() {
+
+    // get current time
     timeRecordedMillis = cameraView.duration;
     var timeSec = Math.floor(timeRecordedMillis);
     var timeMin = Math.floor(timeSec / 60);
     timeSec -= timeMin * 60;
     var timeStr = timeMin.toString() + ":" +
         (timeSec < 10 ? "0" + timeSec.toString() : timeSec.toString());
+
+    // get max time
     var maxSec = Math.floor(TIME_MAX / 1000);
     var maxMin = Math.floor(maxSec / 60);
     maxSec -= maxMin * 60;
     var maxStr = maxMin.toString() + ":" +
         (maxSec < 10 ? "0" + maxSec.toString() : maxSec.toString());
+
+    // create final string
     timeRecorded = timeStr + "/" + maxStr;
     viewModel.set("timeRecorded", timeRecorded);
-    // console.log("check recording!");
 }
 
 /**

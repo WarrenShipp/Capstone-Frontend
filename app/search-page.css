@@ -1,4 +1,4 @@
-.border-search {
+﻿.border-search {
     background:lightblue;
 }
 
@@ -16,15 +16,10 @@
     padding: 7;
     margin: 5;
 }
+
 .input-dropdown:disabled {
     opacity: 0.5
 }
-
-/*.input-dropdown::after{*/
-/*    font-family: "Font Awesome 5 Free", "fa-solid-900";*/
-/*    content:"&#xf078 Test"*/
-/*}*/
-
 
 .section{
     border-color: rgb(180, 180, 180);

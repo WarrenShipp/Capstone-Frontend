@@ -23,44 +23,14 @@ var playerImg;
 var playerId;
 var playerName;
 
+// modal type
 var loadType;
 var loadsToFinish;
 
+// modal types constants
 const LOAD_TYPE_PLAYERS = "players";
 const LOAD_TYPE_COACHES = "coaches";
 const LOAD_TYPE_CLUBS = "clubs";
-
-/**
- * Use this to determine if we are running this as a test or if we are trying
- * using the functionality as is.
- */
-const IS_TEST_SELECTION = false;
-const TEST_PLAYERS = [
-    {
-        "id": "253925e5-67ec-4f3a-996e-60eed8704daa",
-        "user": "RMIT Coach and Player",
-        "batsman_type": 2,
-        "bowler_type": 3
-    },
-    {
-        "id": "e0b59404-0779-4f02-976e-509683e47540",
-        "user": "Melbourne Player",
-        "batsman_type": 1,
-        "bowler_type": 6
-    },
-    {
-        "id": "151274bc-1702-4d5d-9d9e-561e8e839f24",
-        "user": "Deakin Player",
-        "batsman_type": 1,
-        "bowler_type": 4
-    },
-    {
-        "id": "8fc0c0b8-e17f-42c6-8783-725e772f0156",
-        "user": "Monash Player",
-        "batsman_type": 1,
-        "bowler_type": 5
-    }
-];
 
 /**
  * Sets up binding context
@@ -120,11 +90,10 @@ function onCancel(args) {
 }
 exports.onCancel = onCancel;
 
+/**
+ * Gets the players from the server.
+ */
 function _getPlayers() {
-    if (IS_TEST_SELECTION) {
-        _getTestPlayers();
-        return;
-    }
 
     // do two queries: one for the player's data, the other for the other
     // players.
@@ -189,19 +158,11 @@ function _getPlayers() {
         "application/json",
         accessToken
     );
-    /*
-    requestOthers.setContent({
-        not_player: false
-    });
-    */
     requestOthers.send(
         function (result) {
-            // console.log(result);
             var obj = JSON.stringify(result);
             obj = JSON.parse(obj);
             var rows = obj.content.results;
-            // console.log(rows);
-            // console.log(rows.length);
 
             // no data found. Set to no players!
             if (!rows || !rows.length || rows.length == 0) {
@@ -255,31 +216,6 @@ function _getPlayers() {
     );
 }
 
-function _getTestPlayers() {
-    // get items and display
-    var allItems = [];
-    for (var i in TEST_PLAYERS) {
-        var item = {};
-        item.id = TEST_PLAYERS[i]["id"];
-        item.user = TEST_PLAYERS[i]["user"];
-        item.batsman_type = TEST_PLAYERS[i]["batsman_type"];
-        item.batsman_type_name = BatsmanTypes.getNameFromValue(TEST_PLAYERS[i]["batsman_type"]);
-        item.bowler_type = TEST_PLAYERS[i]["bowler_type"];
-        item.bowler_type_name = BowlerTypes.getNameFromValue(TEST_PLAYERS[i]["bowler_type"]);
-        allItems.push(item);
-    }
-    itemList.push(allItems);
-
-    // remove loading, etc
-    loading = false;
-    noPlayers = false;
-    isPlayer = false;
-    viewModel.set("loading", loading);
-    viewModel.set("noPlayers", noPlayers);
-    viewModel.set("isPlayer", isPlayer);
-
-}
-
 /**
  * Closes item and passes the user id and 
  * @param {any} args
@@ -289,7 +225,6 @@ function onItemTap(args) {
     if (loading || !loggedIn) {
         return;
     }
-    console.log("close");
     var item = itemList.getItem(args.index);
     var context = {
         id: item.id,
@@ -323,7 +258,6 @@ function setMyself(args) {
     if (!isPlayer) {
         return;
     }
-    console.log("close");
     var context = {
         id: playerId,
         user: playerName
@@ -337,7 +271,6 @@ exports.setMyself = setMyself;
  * @param {any} args
  */
 function setNobody(args) {
-    console.log("close");
     var context = {
         id: null,
         user: null

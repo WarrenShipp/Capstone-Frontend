@@ -26,6 +26,12 @@ global.tokenRefresh = "tokenRefresh";
 global.tokenAccess = "tokenAccess";
 global.lastRefresh = "lastRefresh";
 
+// some user information that gets saved to reduce workload.
+global.userIsCoach = "isCoach";
+global.userIsPlayer = "isPlayer";
+global.userCoachId = "coachId";
+global.userPlayerId = "playerId";
+
 // set up back override
 if (application.android) {
     application.android.on(
@@ -55,3 +61,14 @@ application.run({ moduleName: "app-root" });
 Do not place any code after the application has been started as it will not
 be executed on iOS.
 */
+
+/*
+ * CREDITS:
+ * - Cricket Icon (https://www.flaticon.com/free-icon/cricket_1801165) made by https://www.flaticon.com/authors/dinosoftlabs from https://www.flaticon.com
+ * - Recording Icon (https://www.flaticon.com/free-icon/recording_1801491) made by https://www.flaticon.com/authors/dinosoftlabs from https://www.flaticon.com
+ * - Magnifying Glass Icon (https://www.flaticon.com/free-icon/magnifying-glass_1801236) made by https://www.flaticon.com/authors/dinosoftlabs from https://www.flaticon.com
+ * - Profiles Icon (https://www.flaticon.com/free-icon/profiles_568050) made by https://www.flaticon.com/authors/dinosoftlabs from https://www.flaticon.com
+ * - Folder Icon (https://www.flaticon.com/free-icon/folder_1804384) made by https://www.flaticon.com/authors/dinosoftlabs from https://www.flaticon.com
+ * - Search Icon (https://www.flaticon.com/free-icon/edit_1159633) made by https://www.flaticon.com/authors/kiranshastry from https://www.flaticon.com
+ * - Essential Set Icons (https://www.flaticon.com/packs/essential-set-2) made by https://www.flaticon.com/authors/smashicons from https://www.flaticon.com
+ */

@@ -102,22 +102,18 @@ function onNavigatingTo(args) {
 
     // add relevant vars
     _setPage(args.navigationContext);
-
-    console.log("search nav");
 };
 exports.onNavigatingTo = onNavigatingTo;
 
 /**
- * 
+ * Opens a modal for finding players.
  * @param {any} args
  */
  function openPlayerModal(args) {
-    console.log("Open");
     const button = args.object;
     const fullscreen = false;
     const context = { type: "players" };
     var callback = function (vals) {
-        console.log(vals);
         if (!vals) {
             // do nothing
             return;
@@ -134,7 +130,6 @@ exports.openPlayerModal = openPlayerModal;
  * Send search information entered to results page for data request depending on search Type
  */
 function sendSearch() {
-
     var urlSearch;
 
     // Club Search
@@ -169,7 +164,6 @@ function sendSearch() {
         // go through vars and append to search
         urlSearch = _appendVar("name", userName, urlSearch);
     }
-    console.log(urlSearch);
 
     // Passing through the search type and search url to use to the results page
     var navigationOptions = {
@@ -286,6 +280,10 @@ function _resetPage() {
 
 }
 
+/**
+ * Updates the page whenever the search type is changed.
+ * @param {any} args
+ */
 function searchTypeChanged(args) {
     _setSearchType(viewModel.get("searchTypeIndex"));
 }
@@ -324,7 +322,6 @@ function _setSearchType(index) {
  * @param {any} args
  */
 function showDateStart(args) {
-    console.log("Open");
     const button = args.object;
     const fullscreen = false;
 
@@ -363,7 +360,6 @@ exports.showDateStart = showDateStart;
  * @param {any} args
  */
 function showDateEnd(args) {
-    console.log("Open");
     const button = args.object;
     const fullscreen = false;
 
@@ -380,7 +376,6 @@ function showDateEnd(args) {
     }
 
     var callback = function (vals) {
-        console.log(vals);
         if (!vals) {
             // do nothing
             return;

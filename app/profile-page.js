@@ -12,9 +12,6 @@ const BatsmanTypes = require("../app/helpers/type-list").BatsmanTypes;
 const BowlerTypes = require("../app/helpers/type-list").BowlerTypes;
 var HTTPRequestWrapper = require("../app/http/http-request.js");
 
-// consts
-const profileUrl = "user/";
-
 // profile
 var userId;
 var isSelf;
@@ -59,7 +56,6 @@ function navigatingTo(args) {
         userId = page.navigationContext.userId;
     }
     var sendToken = appSettings.getString(global.tokenAccess);
-    console.log(sendToken);
 
     // set self-profile-related stuff
     if (isSelf) {
@@ -171,30 +167,7 @@ function navigatingTo(args) {
                 return;
             }
         );
-
-        /*
-        http.request({
-            url: global.serverUrl + global.endpointUser + userId,
-            method: "GET",
-            headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken }
-        }).then(function (result) {
-            console.log(result);
-            var obj = JSON.stringify(result);
-            obj = JSON.parse(obj);
-
-            // user didn't get from database.
-            if (!obj.content || !obj.content.id) {
-                console.log("Could not find user.");
-                return;
-            }
-
-            // go through vars and add to profile page
-            _makeProfilePage(obj.content, isSelf);
-
-        }, function (error) {
-            console.error(JSON.stringify(error));
-        });
-        */
+        
     } else {
         isLoading = false;
         viewModel.set("isLoading", isLoading);
@@ -227,7 +200,7 @@ exports.onDrawerButtonTap = onDrawerButtonTap;
  * @param {any} isSelf
  */
 function _makeProfilePage(user, isSelf) {
-    /*
+    /* REMINDER:
     name            : String
     email           : String
     phone           : String
@@ -242,6 +215,8 @@ function _makeProfilePage(user, isSelf) {
     yearsExperience : integer
     canEdit         : boolean
     */
+
+    // get values from user object
     name = user.first_name + " " + user.last_name;
     imgSrc = user.profile_pic;
     isPlayer = user.is_player;
@@ -299,20 +274,3 @@ function editSelf(args) {
     }
 }
 exports.editSelf = editSelf;
-
-exports.requestUser = function() {
-    var sendToken = appSettings.getString(global.tokenAccess);
-
-
-    console.log(sendToken);
-    http.request({
-        url: "https://cricket.kinross.co/join/",
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sendToken },
-        content: JSON.stringify({ "club": "0d808588-e2cc-4141-8921-01e568e2c965",  "user": userId})
-    }).then(function(result) {
-        console.log(JSON.stringify(result));
-    }, function(error) {
-        console.error(JSON.stringify(error));
-    });
-}

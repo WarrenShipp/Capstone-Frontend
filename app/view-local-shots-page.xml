@@ -14,14 +14,16 @@
         <!-- List items -->
         <lv:RadListView.itemTemplate>
             <DockLayout stretchLastChild="true" class="image-item">
-                <!-- VideoPlayer:Video id="{{ 'thumbnailVideo-' + id }}"
-                                   controls="false" loop="false"
-                                   autoplay="false" muted="true"
-                                   src="{{ videoPath }}"
-                                   class="picture-small"
-                                   stretch="aspectFill"
-                                   width="100" height="100"
-                                   dock="left" / -->
+                <!-- Was intending to use video as thumbnail.
+                VideoPlayer:Video id="{{ 'thumbnailVideo-' + id }}"
+                                  controls="false" loop="false"
+                                  autoplay="false" muted="true"
+                                  src="{{ videoPath }}"
+                                  class="picture-small"
+                                  stretch="aspectFill"
+                                  width="100" height="100"
+                                  dock="left" /
+                -->
                 <StackLayout dock="left">
                     <Label class="shot-header" text="{{ name ? name : 'No Player Set' }}" />
                     <Label text="{{ shotTypeName ? shotTypeName : '' }}"

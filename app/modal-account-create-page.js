@@ -1,14 +1,11 @@
 ﻿const appSettings = require("application-settings");
 var observable = require("data/observable").Observable;
-const fileSystemModule = require("tns-core-modules/file-system");
 var dialogs = require("tns-core-modules/ui/dialogs");
-
 var http = require("http");
-var bghttp = require("nativescript-background-http");
-var session = bghttp.session("file-upload");
 
 var viewModel = new observable();
 
+// page vars
 var firstName;
 var lastName;
 var email;
@@ -69,6 +66,7 @@ function onCreate(args) {
         return;
     }
 
+    // do request
     var urlSearch = global.serverUrl + "user/";
     var content = {
         "email": email,
@@ -82,11 +80,9 @@ function onCreate(args) {
         headers: { "Content-Type": "application/json" },
         content: JSON.stringify(content)
     }).then(function (result) {
-        console.log(result);
         viewModel.set("loginStatus", true);
         var obj = JSON.stringify(result);
         obj = JSON.parse(obj);
-        // console.log(obj);
 
         // inform user and leave modal
         dialogs.alert({
@@ -98,7 +94,6 @@ function onCreate(args) {
         });
     }, function (error) {
         viewModel.set("loginStatus", true);
-        console.error(error);
         dialogs.alert({
             title: "Error",
             message: "Details: " + error,
