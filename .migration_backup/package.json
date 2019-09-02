@@ -2,10 +2,10 @@
   "nativescript": {
     "id": "org.nativescript.CricketApp",
     "tns-ios": {
-      "version": "6.0.1"
+      "version": "5.3.1"
     },
     "tns-android": {
-      "version": "6.0.0"
+      "version": "5.3.1"
     }
   },
   "description": "NativeScript Application",
@@ -18,15 +18,15 @@
     "nativescript-sqlite": "^2.3.3",
     "nativescript-theme-core": "^1.0.6",
     "nativescript-toast": "^2.0.0",
-    "nativescript-ui-calendar": "5.0.0",
-    "nativescript-ui-listview": "7.0.0",
-    "nativescript-ui-sidedrawer": "7.0.0",
+    "nativescript-ui-calendar": "^4.0.0",
+    "nativescript-ui-listview": "^6.3.0",
+    "nativescript-ui-sidedrawer": "^6.0.0",
     "nativescript-videoplayer": "^4.2.1",
     "nativescript-videorecorder": "^3.0.0-beta.3",
-    "tns-core-modules": "6.0.1"
+    "tns-core-modules": "^5.3.2"
   },
   "devDependencies": {
-    "nativescript-dev-webpack": "1.0.1"
+    "nativescript-dev-webpack": "^0.22.0"
   },
   "gitHead": "803cec054c44c99eaa59cdc267993e6346f6cb3a",
   "readme": "NativeScript Application"
